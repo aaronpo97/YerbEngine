@@ -8,19 +8,12 @@
 
 class CTransform {
 public:
-  Vec2  position = {0, 0};
-  Vec2  velocity = {0, 0};
-  float angle    = 0;
+  Vec2  topLeftCornerPos = {0, 0};
+  Vec2  velocity         = {0, 0};
+  float angle            = 0;
 
   CTransform(const Vec2 &position, const Vec2 &velocity, const float angle) :
-      position(position), velocity(velocity), angle(angle) {}
-};
-
-class CCollision {
-public:
-  float radius = 0;
-  CCollision(const float radius) :
-      radius(radius) {}
+      topLeftCornerPos(position), velocity(velocity), angle(angle) {}
 };
 
 struct RGBA {
@@ -32,14 +25,20 @@ struct RGBA {
 struct ShapeConfig {
   float height;
   float width;
-  RGBA  color;
+
+  RGBA color;
 };
 
 class CShape {
-public:
-  SDL_Rect      rect;
+private:
+  // Renderer is only used to draw the shape and should not be directly modified
   SDL_Renderer *renderer;
 
+public:
+  SDL_Rect rect;
+  RGBA     color;
+
+  // Inject the renderer dependency
   CShape(SDL_Renderer *renderer, ShapeConfig config) :
       renderer(renderer) {
 
@@ -49,15 +48,11 @@ public:
 
     rect.h = config.height;
     rect.w = config.width;
-    rect.x = 100;
-    rect.y = 100;
 
-    SDL_SetRenderDrawColor(renderer, config.color.r, config.color.g, config.color.b,
-                           config.color.a);
+    color = {config.color.r, config.color.g, config.color.b, config.color.a};
+    SDL_SetRenderDrawColor(renderer, config.color.r, config.color.g, config.color.b, 255);
 
     SDL_RenderFillRect(renderer, &rect);
-
-    std::cout << "CShape entity created" << std::endl;
   }
 };
 
@@ -69,5 +64,51 @@ public:
   bool right    = false;
 
   CInput() {}
+};
+
+class CLifespan {
+public:
+  Uint32 birthTime;
+  Uint32 lifespan;
+
+  CLifespan() :
+      birthTime(SDL_GetTicks()), lifespan(0) {}
+  CLifespan(Uint32 lifespan) :
+      birthTime(SDL_GetTicks()), lifespan(lifespan) {}
+};
+
+enum EffectTypes { SpeedBoost };
+struct Effect {
+  Uint32      startTime;
+  Uint32      duration;
+  EffectTypes type;
+};
+
+class CEffects {
+  std::vector<Effect> effects;
+
+public:
+  CEffects() {}
+  void addEffect(const Effect &effect) {
+
+    // do not add the effect if it already exists
+    for (const auto &existingEffect : effects) {
+      if (existingEffect.type == effect.type) {
+        return;
+      }
+    }
+
+    effects.push_back(effect);
+  }
+
+  const std::vector<Effect> &getEffects() {
+    return effects;
+  }
+
+  void removeEffect(const EffectTypes type) {
+    effects.erase(std::remove_if(effects.begin(), effects.end(),
+                                 [type](const Effect &effect) { return effect.type == type; }),
+                  effects.end());
+  }
 };
 #endif // COMPONENTS_H
