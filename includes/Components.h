@@ -3,8 +3,10 @@
 
 #include "./Vec2.h"
 
+#include "./Config.h"
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <vector>
 
 class CTransform {
 public:
@@ -16,27 +18,14 @@ public:
       topLeftCornerPos(position), velocity(velocity), angle(angle) {}
 };
 
-struct RGBA {
-  float r;
-  float g;
-  float b;
-  float a;
-};
-struct ShapeConfig {
-  float height;
-  float width;
-
-  RGBA color;
-};
-
 class CShape {
 private:
   // Renderer is only used to draw the shape and should not be directly modified
   SDL_Renderer *renderer;
 
 public:
-  SDL_Rect rect;
-  RGBA     color;
+  SDL_Rect  rect;
+  SDL_Color color;
 
   // Inject the renderer dependency
   CShape(SDL_Renderer *renderer, ShapeConfig config) :
@@ -68,19 +57,19 @@ public:
 
 class CLifespan {
 public:
-  Uint32 birthTime;
-  Uint32 lifespan;
+  Uint64 birthTime;
+  Uint64 lifespan;
 
   CLifespan() :
       birthTime(SDL_GetTicks()), lifespan(0) {}
-  CLifespan(Uint32 lifespan) :
+  CLifespan(Uint64 lifespan) :
       birthTime(SDL_GetTicks()), lifespan(lifespan) {}
 };
 
-enum EffectTypes { SpeedBoost };
+enum EffectTypes { Speed, Slowness };
 struct Effect {
-  Uint32      startTime;
-  Uint32      duration;
+  Uint64      startTime;
+  Uint64      duration;
   EffectTypes type;
 };
 
@@ -98,10 +87,32 @@ public:
       }
     }
 
+    std::string effectType;
+    std::string effectEmoji;
+    switch (effect.type) {
+      case EffectTypes::Speed: {
+        effectType  = "Speed";
+        effectEmoji = "🚀";
+        break;
+      }
+      case EffectTypes::Slowness: {
+        effectType  = "Slowness";
+        effectEmoji = "🐢";
+        break;
+      }
+      default: {
+        effectType  = "Unknown";
+        effectEmoji = "❓";
+        break;
+      }
+    }
+
+    std::cout << "Effect added: " << effectType << " for " << effect.duration << "ms."
+              << effectEmoji << std::endl;
     effects.push_back(effect);
   }
 
-  const std::vector<Effect> &getEffects() {
+  const std::vector<Effect> &getEffects() const {
     return effects;
   }
 
@@ -109,6 +120,16 @@ public:
     effects.erase(std::remove_if(effects.begin(), effects.end(),
                                  [type](const Effect &effect) { return effect.type == type; }),
                   effects.end());
+  }
+
+  const bool hasEffect(const EffectTypes type) const {
+    return std::find_if(effects.begin(), effects.end(), [type](const Effect &effect) {
+             return effect.type == type;
+           }) != effects.end();
+  }
+
+  void clearEffects() {
+    effects.clear();
   }
 };
 #endif // COMPONENTS_H

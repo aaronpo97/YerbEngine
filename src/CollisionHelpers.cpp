@@ -1,5 +1,6 @@
 
 #include "../includes/CollisionHelpers.h"
+#include "../includes/EntityTags.h"
 #include "../includes/MathHelpers.h"
 #include <bitset>
 
@@ -62,6 +63,40 @@ namespace CollisionHelpers {
     }
   }
 
+  void enforceNonPlayerBounds(const std::shared_ptr<Entity> &entity,
+                              const std::bitset<4>          &collides,
+                              const Vec2                    &window_size) {
+
+    if (hasNullComponentPointers(entity)) {
+      throw std::runtime_error("Entity " + entity->tag() + ", with ID " +
+                               std::to_string(entity->id()) +
+                               " lacks a transform or collision component.");
+    }
+    if (entity->tag() == EntityTags::Player) {
+      return;
+    }
+    const std::shared_ptr<CShape> &cShape             = entity->cShape;
+    Vec2                          &leftCornerPosition = entity->cTransform->topLeftCornerPos;
+    Vec2                          &velocity           = entity->cTransform->velocity;
+    // Bounce the entity off the boundaries
+    if (collides[TOP]) {
+      leftCornerPosition.y = 0;
+      velocity.y           = -velocity.y;
+    }
+    if (collides[BOTTOM]) {
+      leftCornerPosition.y = window_size.y - cShape->rect.h;
+      velocity.y           = -velocity.y;
+    }
+    if (collides[LEFT]) {
+      leftCornerPosition.x = 0;
+      velocity.x           = -velocity.x;
+    }
+    if (collides[RIGHT]) {
+      leftCornerPosition.x = window_size.x - cShape->rect.w;
+      velocity.x           = -velocity.x;
+    }
+  };
+
   bool calculateCollisionBetweenEntities(const std::shared_ptr<Entity> &entityA,
                                          const std::shared_ptr<Entity> &entityB) {
     if (hasNullComponentPointers(entityA)) {
@@ -75,11 +110,11 @@ namespace CollisionHelpers {
                                " lacks a transform or collision component.");
     }
 
-    const auto &rectA = entityA->cShape->rect;
-    const auto &rectB = entityB->cShape->rect;
+    const SDL_Rect &rectA = entityA->cShape->rect;
+    const SDL_Rect &rectB = entityB->cShape->rect;
 
-    const auto &posA = entityA->cTransform->topLeftCornerPos;
-    const auto &posB = entityB->cTransform->topLeftCornerPos;
+    const Vec2 &posA = entityA->cTransform->topLeftCornerPos;
+    const Vec2 &posB = entityB->cTransform->topLeftCornerPos;
 
     const bool leftSideCollision   = posA.x + rectA.w >= posB.x;
     const bool rightSideCollision  = posA.x <= posB.x + rectB.w;

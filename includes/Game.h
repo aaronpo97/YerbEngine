@@ -1,62 +1,55 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "../includes/ConfigManager.h"
 #include "../includes/EntityManager.h"
 #include <SDL2/SDL.h>
+#include <SDL_ttf.h>
 #include <iostream>
-
-struct GameConfig {
-  Vec2        windowSize;
-  std::string windowTitle;
-};
-
-struct PlayerConfig {
-  float       speed;
-  ShapeConfig shape;
-};
+#include <random>
 
 class Game {
 private:
-  SDL_Window             *m_window    = nullptr;
-  SDL_Renderer           *m_renderer  = nullptr;
   bool                    m_isRunning = false;
-  EntityManager           m_entities;
-  float                   m_deltaTime = 0.0f;
   bool                    m_paused    = false;
+  EntityManager           m_entities;
+  float                   m_deltaTime = 0;
+  int                     m_score     = 0;
+  SDL_Renderer           *m_renderer  = nullptr;
+  SDL_Window             *m_window    = nullptr;
   std::shared_ptr<Entity> m_player;
-  Uint32                  m_lastEnemySpawnTime = 0;
-  int                     m_score              = 0;
-
-  GameConfig   m_gameConfig   = {{1366, 768}, "C++ SDL2 Window"};
-  PlayerConfig m_playerConfig = {2.0f, {80, 80, {0, 0, 255, 255}}};
+  Uint64                  m_lastEnemySpawnTime = 0;
+  Uint64                  m_lastFrameTime      = 0;
+  TTF_Font               *m_font_big;
+  TTF_Font               *m_font_small;
+  Uint64                  m_timeRemaining = 60 * 1000; // 60 seconds
+  ConfigManager           m_configManager;
+  bool                    m_gameOver = false;
+  std::random_device      m_rd;
+  std::mt19937            m_randomGenerator = std::mt19937(m_rd());
 
 public:
   Game();
   ~Game();
 
-  void run();
-  void sInput();
-  void sRender();
-  void sCollision();
-  void sMovement();
-  void sSpawner();
-  void sLifespan();
-  void sEffects();
-
-  void setPaused(const bool paused) {
-    std::cout << "Game is " << (paused ? "paused" : "unpaused") << std::endl;
-    m_paused = paused;
-  }
-
+  void        run();
+  void        sInput();
+  void        sRender();
+  void        sCollision();
+  void        sMovement();
+  void        sSpawner();
+  void        sLifespan();
+  void        sEffects();
+  void        sTimer();
+  void        renderText();
+  void        setScore(const int score);
+  void        setPaused(const bool paused);
   static void mainLoop(void *arg);
-
-  void spawnPlayer();
-  void setPlayerSpeed(const float speed) {
-    m_playerConfig.speed = speed;
-    std::cout << "Player speed set to " << speed << std::endl;
-  }
-  void spawnEnemy();
-  void spawnSpeedBoost();
+  void        spawnPlayer();
+  void        spawnEnemy();
+  void        spawnSpeedBoostEntity();
+  void        spawnSlownessEntity();
+  void        setGameOver();
 };
 
 #endif // GAME_H

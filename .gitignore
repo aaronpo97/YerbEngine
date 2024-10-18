@@ -1,3 +1,12 @@
 build
 objects
 .vscode
+.DS_Store
+CMakeFiles
+_deps
+CMakeCache.txt
+cmake_install.cmake
+makefile
+
+# Local Netlify folder
+.netlify

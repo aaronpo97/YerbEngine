@@ -1,4 +1,7 @@
+#include <filesystem>
+
 #ifdef __EMSCRIPTEN__
+
 #include <emscripten/emscripten.h>
 #endif
 
@@ -6,18 +9,45 @@
 #include "../includes/EntityManager.h"
 #include "../includes/EntityTags.h"
 #include "../includes/Game.h"
+#include "../includes/MovementHelpers.h"
+#include "../includes/TextHelpers.h"
 
 Game::Game() {
+  if (!std::filesystem::exists("./assets")) {
+    std::cerr << "Assets folder not found." << std::endl;
+    return;
+  }
+
+  m_configManager = ConfigManager();
+
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     std::cerr << "SDL video system is not ready to go: " << SDL_GetError() << std::endl;
     return;
   }
   std::cout << "SDL video system is ready to go" << std::endl;
 
-  const std::string &WINDOW_TITLE = m_gameConfig.windowTitle;
+  if (TTF_Init() != 0) {
+    std::cerr << "TTF_Init: " << TTF_GetError() << std::endl;
+    return;
+  }
 
-  m_window = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED, 1366, 768, SDL_WINDOW_SHOWN);
+  const std::string &fontPath = m_configManager.getGameConfig().fontPath;
+
+  m_font_big   = TTF_OpenFont(fontPath.c_str(), 28);
+  m_font_small = TTF_OpenFont(fontPath.c_str(), 14);
+
+  if (!m_font_big || !m_font_small) {
+    std::cerr << "Failed to load fonts: " << TTF_GetError() << std::endl;
+    return;
+  }
+  std::cout << "Fonts loaded successfully!" << std::endl;
+
+  const std::string &WINDOW_TITLE = m_configManager.getGameConfig().windowTitle;
+  const Vec2        &WINDOW_SIZE  = m_configManager.getGameConfig().windowSize;
+
+  m_window =
+      SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                       WINDOW_SIZE.x, WINDOW_SIZE.y, SDL_WINDOW_SHOWN);
   if (m_window == nullptr) {
     std::cerr << "Window could not be created: " << SDL_GetError() << std::endl;
     SDL_Quit();
@@ -41,10 +71,14 @@ Game::Game() {
 
   m_isRunning = true; // Set isRunning to true after successful initialization
 
-  std::cout << "Game initialized successfully, use the WASD keys to move the player"
-            << std::endl;
+  std::cout << "Game initialized successfully! 🥰" << std::endl;
+  std::cout << "Spawning player entity..." << std::endl;
 
   spawnPlayer();
+  std::cout << "You just spawned in the game! 🎉" << std::endl;
+  std::cout << "Press W to move forward, S to move backward, A to move left, D to move right, "
+               "and P to pause/unpause the game."
+            << std::endl;
 }
 Game::~Game() {
   if (m_renderer != nullptr) {
@@ -55,6 +89,17 @@ Game::~Game() {
     SDL_DestroyWindow(m_window);
     m_window = nullptr;
   }
+
+  if (m_font_big != nullptr) {
+    TTF_CloseFont(m_font_big);
+    m_font_big = nullptr;
+  }
+
+  if (m_font_small != nullptr) {
+    TTF_CloseFont(m_font_small);
+    m_font_small = nullptr;
+  }
+  TTF_Quit();
   SDL_Quit();
   std::cout << "Cleanup completed, SDL exited." << std::endl;
 }
@@ -62,16 +107,30 @@ Game::~Game() {
 void Game::mainLoop(void *arg) {
   Game *game = static_cast<Game *>(arg);
 
+  const Uint64 currentTime = SDL_GetTicks64();
+  game->m_deltaTime        = (currentTime - game->m_lastFrameTime) / 1000.0f;
+
+#ifdef __EMSCRIPTEN__
+  if (!game->m_isRunning) {
+    emscripten_cancel_main_loop();
+  }
+#endif
+
   game->sInput();
 
   if (!game->m_paused) {
-    game->sMovement();
-    game->sCollision();
-    game->sSpawner();
-    game->sLifespan();
+    if (!game->m_gameOver) {
+      game->sMovement();
+      game->sCollision();
+      game->sSpawner();
+      game->sLifespan();
+      game->sEffects();
+      game->sTimer();
+    }
     game->sRender();
-    game->sEffects();
   }
+
+  game->m_lastFrameTime = currentTime;
 }
 
 void Game::run() {
@@ -82,7 +141,6 @@ void Game::run() {
     mainLoop(this);
   }
 #endif
-  std::cout << "Game loop exited" << std::endl;
 }
 
 void Game::sInput() {
@@ -145,7 +203,48 @@ void Game::sInput() {
   }
 }
 
+void Game::renderText() {
+  const SDL_Color   scoreColor = {255, 255, 255, 255};
+  const std::string scoreText  = "Score: " + std::to_string(m_score);
+  const Vec2        scorePos   = {10, 10};
+  TextHelpers::renderLineOfText(m_renderer, m_font_big, scoreText, scoreColor, scorePos);
+
+  const Uint64     &timeRemaining = m_timeRemaining;
+  const Uint64      minutes       = timeRemaining / 60000;
+  const Uint64      seconds       = (timeRemaining % 60000) / 1000;
+  const SDL_Color   timeColor     = {255, 255, 255, 255};
+  const std::string timeText      = "Time: " + std::to_string(minutes) + ":" +
+                               (seconds < 10 ? "0" : "") + std::to_string(seconds);
+  const Vec2 timePos = {10, 40};
+  TextHelpers::renderLineOfText(m_renderer, m_font_big, timeText, timeColor, timePos);
+
+  if (m_player->cEffects->hasEffect(EffectTypes::Speed)) {
+    const SDL_Color   speedBoostColor = {0, 255, 0, 255};
+    const std::string speedBoostText  = "Speed Boost Active!";
+    const Vec2        speedBoostPos   = {10, 90};
+    TextHelpers::renderLineOfText(m_renderer, m_font_small, speedBoostText, speedBoostColor,
+                                  speedBoostPos);
+  };
+
+  if (m_player->cEffects->hasEffect(EffectTypes::Slowness)) {
+    const SDL_Color   slownessColor = {255, 0, 0, 255};
+    const std::string slownessText  = "Slowness Active!";
+    const Vec2        slownessPos   = {10, 90};
+    TextHelpers::renderLineOfText(m_renderer, m_font_small, slownessText, slownessColor,
+                                  slownessPos);
+  };
+
+  if (m_gameOver) {
+    const SDL_Color   gameOverColor = {255, 0, 0, 255};
+    const std::string gameOverText  = "Game Over!";
+    const Vec2        gameOverPos   = {10, 100};
+    TextHelpers::renderLineOfText(m_renderer, m_font_big, gameOverText, gameOverColor,
+                                  gameOverPos);
+  }
+}
+
 void Game::sRender() {
+  // Clear the renderer with a black color
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
 
@@ -160,21 +259,44 @@ void Game::sRender() {
     rect.x = static_cast<int>(pos.x);
     rect.y = static_cast<int>(pos.y);
 
-    const RGBA &color = entity->cShape->color;
+    const SDL_Color &color = entity->cShape->color;
     SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(m_renderer, &rect);
   }
 
+  renderText();
   // Update the screen
   SDL_RenderPresent(m_renderer);
 }
 
 void Game::sCollision() {
-  const Vec2     windowSize = Vec2(1366, 768);
-  std::bitset<4> collides   = CollisionHelpers::detectOutOfBounds(m_player, windowSize);
-  CollisionHelpers::enforcePlayerBounds(m_player, collides, windowSize);
+  const Vec2 &windowSize = m_configManager.getGameConfig().windowSize;
+  std::uniform_int_distribution<Uint64> randomSlownessDuration(5000, 10000);
+  std::uniform_int_distribution<Uint64> randomSpeedBoostDuration(9000, 15000);
 
   for (auto &entity : m_entities.getEntities()) {
+    if (entity->tag() == EntityTags::SpeedBoost) {
+      std::bitset<4> speedBoostCollides =
+          CollisionHelpers::detectOutOfBounds(entity, windowSize);
+      CollisionHelpers::enforceNonPlayerBounds(entity, speedBoostCollides, windowSize);
+    }
+
+    if (entity->tag() == EntityTags::Player) {
+      std::bitset<4> playerCollides = CollisionHelpers::detectOutOfBounds(entity, windowSize);
+      CollisionHelpers::enforcePlayerBounds(entity, playerCollides, windowSize);
+    }
+
+    if (entity->tag() == EntityTags::Enemy) {
+      std::bitset<4> enemyCollides = CollisionHelpers::detectOutOfBounds(entity, windowSize);
+      CollisionHelpers::enforceNonPlayerBounds(entity, enemyCollides, windowSize);
+    }
+
+    if (entity->tag() == EntityTags::SlownessDebuff) {
+      std::bitset<4> slownessCollides =
+          CollisionHelpers::detectOutOfBounds(entity, windowSize);
+      CollisionHelpers::enforceNonPlayerBounds(entity, slownessCollides, windowSize);
+    }
+
     for (auto &otherEntity : m_entities.getEntities()) {
       if (entity == otherEntity) {
         continue;
@@ -182,18 +304,49 @@ void Game::sCollision() {
 
       if (CollisionHelpers::calculateCollisionBetweenEntities(entity, otherEntity)) {
         if (entity->tag() == EntityTags::Player && otherEntity->tag() == EntityTags::Enemy) {
-          std::cout << "Player collided with enemy" << std::endl;
+          std::cout << "Player caught an enemy!" << std::endl;
+          setScore(m_score + 1);
           otherEntity->destroy();
+        }
+
+        if (entity->tag() == EntityTags::Player &&
+            otherEntity->tag() == EntityTags::SlownessDebuff) {
+          std::cout << "Player collided with slowness debuff!" << std::endl;
+
+          const Uint64 startTime = SDL_GetTicks64();
+          const Uint64 duration  = randomSlownessDuration(m_randomGenerator);
+          entity->cEffects->addEffect({startTime, duration, EffectTypes::Slowness});
+
+          const EntityVector &slownessDebuffs = m_entities.getEntities("SlownessDebuff");
+          const EntityVector &speedBoosts     = m_entities.getEntities("SpeedBoost");
+
+          for (auto &slownessDebuff : slownessDebuffs) {
+            slownessDebuff->destroy();
+          }
+
+          for (auto &speedBoost : speedBoosts) {
+            speedBoost->destroy();
+          }
         }
 
         if (entity->tag() == EntityTags::Player &&
             otherEntity->tag() == EntityTags::SpeedBoost) {
           std::cout << "Player collided with speed boost!" << std::endl;
 
-          const Uint32 startTime = SDL_GetTicks();
-          const Uint32 duration  = 7000 + (rand() % 5000);
-          entity->cEffects->addEffect({startTime, duration, EffectTypes::SpeedBoost});
-          otherEntity->destroy();
+          const Uint64 startTime = SDL_GetTicks64();
+          const Uint64 duration  = randomSpeedBoostDuration(m_randomGenerator);
+          entity->cEffects->addEffect({startTime, duration, EffectTypes::Speed});
+
+          const EntityVector &slownessDebuffs = m_entities.getEntities("SlownessDebuff");
+          const EntityVector &speedBoosts     = m_entities.getEntities("SpeedBoost");
+
+          for (auto &slownessDebuff : slownessDebuffs) {
+            slownessDebuff->destroy();
+          }
+
+          for (auto &speedBoost : speedBoosts) {
+            speedBoost->destroy();
+          }
         }
       }
     }
@@ -203,57 +356,48 @@ void Game::sCollision() {
 }
 
 void Game::sMovement() {
-  Vec2 playerVelocity = {0, 0};
+  const PlayerConfig         &playerConfig         = m_configManager.getPlayerConfig();
+  const EnemyConfig          &enemyConfig          = m_configManager.getEnemyConfig();
+  const SlownessEffectConfig &slownessEffectConfig = m_configManager.getSlownessEffectConfig();
+  const SpeedBoostEffectConfig &speedBoostEffectConfig =
+      m_configManager.getSpeedBoostEffectConfig();
 
-  if (m_player->cInput == nullptr) {
-    throw std::runtime_error("Player entity lacks an input component.");
-  }
-
-  if (m_player->cInput->forward) {
-    playerVelocity.y = -1;
-  }
-  if (m_player->cInput->backward) {
-    playerVelocity.y = 1;
-  }
-  if (m_player->cInput->left) {
-    playerVelocity.x = -1;
-  }
-  if (m_player->cInput->right) {
-    playerVelocity.x = 1;
-  }
-
-  for (auto e : m_entities.getEntities()) {
-    if (e->cTransform == nullptr) {
-      throw std::runtime_error("Entity " + e->tag() + ", with ID " + std::to_string(e->id()) +
-                               " lacks a transform component.");
-    }
-
-    Vec2 &position = e->cTransform->topLeftCornerPos;
-
-    if (e->tag() == EntityTags::Player) {
-      position += playerVelocity * m_playerConfig.speed;
-    }
+  for (std::shared_ptr<Entity> entity : m_entities.getEntities()) {
+    MovementHelpers::moveSpeedBoosts(entity, speedBoostEffectConfig, m_deltaTime);
+    MovementHelpers::moveEnemies(entity, enemyConfig, m_deltaTime);
+    MovementHelpers::movePlayer(entity, playerConfig, m_deltaTime);
+    MovementHelpers::moveSlownessDebuffs(entity, slownessEffectConfig, m_deltaTime);
   }
 }
+
 void Game::sSpawner() {
-  const Uint32 ticks = SDL_GetTicks();
+  const Uint64 ticks = SDL_GetTicks64();
   if (ticks - m_lastEnemySpawnTime < 2500) {
     return;
   }
   m_lastEnemySpawnTime = ticks;
   spawnEnemy();
 
-  const auto &playerEffects = m_player->cEffects->getEffects();
+  const bool hasSpeedBoost = m_player->cEffects->hasEffect(EffectTypes::Speed);
+  const bool hasSlowness   = m_player->cEffects->hasEffect(EffectTypes::Slowness);
 
-  const bool hasSpeedBoost =
-      std::find_if(playerEffects.begin(), playerEffects.end(), [](const Effect &effect) {
-        return effect.type == EffectTypes::SpeedBoost;
-      }) != playerEffects.end();
+  // Spawns a speed boost with a 15% chance and while speed boost and slowness debuff are not
+  // active
 
-  // Spawns a speed boost with a 10% chance and while speed boost is not active
-  const bool willSpawnSpeedBoost = rand() % 100 < 10 && !hasSpeedBoost;
+  std::uniform_int_distribution<int> randomChance(0, 100);
+  const bool                         willSpawnSpeedBoost =
+      randomChance(m_randomGenerator) < 15 && !hasSpeedBoost && !hasSlowness;
+
   if (willSpawnSpeedBoost) {
-    spawnSpeedBoost();
+    spawnSpeedBoostEntity();
+  }
+  // Spawns a slowness debuff with a 30% chance and while slowness debuff and speed boost are
+  // not active
+  const bool willSpawnSlownessDebuff =
+      randomChance(m_randomGenerator) < 30 && !hasSlowness && !hasSpeedBoost;
+  if (willSpawnSlownessDebuff) {
+    std::cout << "Slowness debuff spawned!" << std::endl;
+    spawnSlownessEntity();
   }
 }
 
@@ -263,61 +407,75 @@ void Game::sEffects() {
     return;
   }
 
-  const Uint32 currentTime = SDL_GetTicks();
+  const Uint64 currentTime = SDL_GetTicks64();
   for (auto &effect : effects) {
     const bool effectExpired = currentTime - effect.startTime > effect.duration;
     if (!effectExpired) {
-      if (effect.type == EffectTypes::SpeedBoost) {
-        m_playerConfig.speed = 6.0f;
-      }
-
       return;
     }
 
     m_player->cEffects->removeEffect(effect.type);
-    if (effect.type == EffectTypes::SpeedBoost) {
-      std::cout << "resetting player speed" << std::endl;
-      m_playerConfig.speed = 2.0f;
+    if (effect.type == EffectTypes::Speed) {
+      std::cout << "Your speed boost expired. 😔" << std::endl;
     }
   }
 }
 
+void Game::sTimer() {
+  const Uint64 currentTime = SDL_GetTicks64();
+  const Uint64 elapsedTime = currentTime - m_lastFrameTime;
+
+  if (m_timeRemaining < elapsedTime) {
+    m_timeRemaining = 0;
+    setGameOver();
+    return;
+  }
+
+  m_timeRemaining -= elapsedTime;
+}
 void Game::sLifespan() {
   for (auto &entity : m_entities.getEntities()) {
     if (entity->tag() == EntityTags::Player) {
       continue;
     }
     if (entity->cLifespan == nullptr) {
-      std::cout << "Entity with ID " << entity->id() << " lacks a lifespan component"
+      std::cerr << "Entity with ID " << entity->id() << " lacks a lifespan component"
                 << std::endl;
       continue;
     }
 
-    const Uint32 currentTime = SDL_GetTicks();
-    Uint32       elapsedTime = currentTime - entity->cLifespan->birthTime;
+    const Uint64 currentTime = SDL_GetTicks();
+    const Uint64 elapsedTime = currentTime - entity->cLifespan->birthTime;
     // Calculate the lifespan percentage, ensuring it's clamped between 0 and 1
-    float lifespanPercentage =
+    const float lifespanPercentage =
         std::min(1.0f, static_cast<float>(elapsedTime) / entity->cLifespan->lifespan);
 
-    // Check if the entity's lifespan has expired
-    if (elapsedTime > entity->cLifespan->lifespan) {
-      std::cout << "Entity with ID " << entity->id() << " has expired" << std::endl;
-      entity->destroy();
+    const bool entityExpired = elapsedTime > entity->cLifespan->lifespan;
+    if (!entityExpired) {
+      const float MAX_COLOR_VALUE = 255.0f;
+      const Uint8 colorValue      = std::max(
+          0.0f, std::min(MAX_COLOR_VALUE, MAX_COLOR_VALUE * (1.0f - lifespanPercentage)));
+
+      SDL_Color &color = entity->cShape->color;
+      color            = {color.r, color.g, color.b, colorValue};
+
       continue;
     }
 
-    const float MAX_COLOR_VALUE = 255.0f;
-    float       colorValue =
-        MAX_COLOR_VALUE * (1.0f - lifespanPercentage); // Fade out as time progresses
-    // Ensure the alpha value is clamped between 0 and 255
-    colorValue = std::max(0.0f, std::min(colorValue, MAX_COLOR_VALUE));
-    // Update the entity's alpha value
-    auto &color           = entity->cShape->color;
-    entity->cShape->color = {color.r, color.g, color.b, colorValue};
+    if (entity->tag() == EntityTags::Enemy) {
+      std::cout << "You missed an enemy! 😢" << std::endl;
+      setScore(m_score - 1);
+    }
+
+    entity->destroy();
   }
 }
 
 void Game::spawnPlayer() {
+
+  const PlayerConfig &playerConfig = m_configManager.getPlayerConfig();
+  const GameConfig   &gameConfig   = m_configManager.getGameConfig();
+
   m_player = m_entities.addEntity(EntityTags::Player);
 
   std::shared_ptr<CTransform> &playerCTransform = m_player->cTransform;
@@ -325,31 +483,51 @@ void Game::spawnPlayer() {
   std::shared_ptr<CInput>     &playerCInput     = m_player->cInput;
   std::shared_ptr<CEffects>   &playerCEffects   = m_player->cEffects;
 
-  playerCTransform = std::make_shared<CTransform>(Vec2(0, 0), Vec2(0, 0), 0);
-  playerCShape     = std::make_shared<CShape>(m_renderer, m_playerConfig.shape);
-  playerCInput     = std::make_shared<CInput>();
-  playerCEffects   = std::make_shared<CEffects>();
+  // set the player's initial position to the center of the screen
+  const Vec2 &windowSize = gameConfig.windowSize;
 
-  std::cout << "Player entity created" << std::endl;
+  playerCShape = std::make_shared<CShape>(m_renderer, playerConfig.shape);
+
+  const int playerHeight = playerCShape->rect.h;
+  const int playerWidth  = playerCShape->rect.w;
+
+  const Vec2 playerPosition = windowSize / 2 - Vec2(playerWidth / 2, playerHeight / 2);
+  playerCTransform          = std::make_shared<CTransform>(playerPosition, Vec2(0, 0), 0);
+  playerCInput              = std::make_shared<CInput>();
+  playerCEffects            = std::make_shared<CEffects>();
+
+  std::cout << "Player entity created!" << std::endl;
 
   m_entities.update();
 }
 
 void Game::spawnEnemy() {
-  const Vec2 &windowSize = m_gameConfig.windowSize;
-  const int   x          = rand() % static_cast<int>(windowSize.x);
-  const int   y          = rand() % static_cast<int>(windowSize.y);
+
+  const GameConfig &gameConfig = m_configManager.getGameConfig();
+  const Vec2       &windowSize = gameConfig.windowSize;
+
+  std::uniform_int_distribution<int> randomXPos(0, windowSize.x);
+  std::uniform_int_distribution<int> randomYPos(0, windowSize.y);
+
+  std::uniform_int_distribution<int> randomXVel(-1, 1);
+  std::uniform_int_distribution<int> randomYVel(-1, 1);
+
+  const int xPos = randomXPos(m_randomGenerator);
+  const int yPos = randomYPos(m_randomGenerator);
+
+  const int xVel = randomXVel(m_randomGenerator);
+  const int yVel = randomYVel(m_randomGenerator);
 
   std::shared_ptr<Entity>      enemy            = m_entities.addEntity(EntityTags::Enemy);
   std::shared_ptr<CTransform> &entityCTransform = enemy->cTransform;
   std::shared_ptr<CShape>     &entityCShape     = enemy->cShape;
   std::shared_ptr<CLifespan>  &entityLifespan   = enemy->cLifespan;
 
-  entityCTransform = std::make_shared<CTransform>(Vec2(x, y), Vec2(0, 0), 0);
+  entityCTransform = std::make_shared<CTransform>(Vec2(xPos, yPos), Vec2(xVel, yVel), 0);
 
-  ShapeConfig cShapeConfig  = {40, 40, {255, 0, 0, 255}};
-  entityCShape              = std::make_shared<CShape>(m_renderer, cShapeConfig);
-  entityLifespan            = std::make_shared<CLifespan>(30000);
+  const EnemyConfig &enemyConfig = m_configManager.getEnemyConfig();
+  entityCShape                   = std::make_shared<CShape>(m_renderer, enemyConfig.shape);
+  entityLifespan                 = std::make_shared<CLifespan>(enemyConfig.lifespan);
   bool touchesBoundary      = CollisionHelpers::detectOutOfBounds(enemy, windowSize).any();
   bool touchesOtherEntities = false;
 
@@ -360,15 +538,24 @@ void Game::spawnEnemy() {
     }
   }
 
+  bool isValidVelocity = !(xVel == 0 && yVel == 0);
+  while (!isValidVelocity) {
+    const int newXVel = randomXVel(m_randomGenerator);
+    const int newYVel = randomYVel(m_randomGenerator);
+
+    enemy->cTransform->velocity = Vec2(newXVel, newYVel);
+    isValidVelocity             = !(newXVel == 0 && newYVel == 0);
+  }
+
   bool      isValidSpawn       = !touchesBoundary && !touchesOtherEntities;
   const int MAX_SPAWN_ATTEMPTS = 10;
   int       spawnAttempt       = 1;
 
   while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
-    const int randomX = rand() % static_cast<int>(windowSize.x);
-    const int randomY = rand() % static_cast<int>(windowSize.y);
+    const int newX = randomXPos(m_randomGenerator);
+    const int newY = randomYPos(m_randomGenerator);
 
-    enemy->cTransform->topLeftCornerPos = Vec2(randomX, randomY);
+    enemy->cTransform->topLeftCornerPos = Vec2(newX, newY);
     touchesBoundary      = CollisionHelpers::detectOutOfBounds(enemy, windowSize).any();
     touchesOtherEntities = false;
 
@@ -384,28 +571,38 @@ void Game::spawnEnemy() {
   }
 
   if (!isValidSpawn) {
-    std::cout << "Could not spawn enemy after " << MAX_SPAWN_ATTEMPTS << " attempts"
-              << std::endl;
     enemy->destroy();
   }
 
   m_entities.update();
 }
 
-void Game::spawnSpeedBoost() {
-  const Vec2 &windowSize = m_gameConfig.windowSize;
-  const int   x          = rand() % static_cast<int>(windowSize.x);
-  const int   y          = rand() % static_cast<int>(windowSize.y);
+void Game::spawnSpeedBoostEntity() {
+  const GameConfig                  &gameConfig = m_configManager.getGameConfig();
+  const Vec2                        &windowSize = gameConfig.windowSize;
+  std::uniform_int_distribution<int> randomXPos(0, windowSize.x);
+  std::uniform_int_distribution<int> randomYPos(0, windowSize.y);
+
+  std::uniform_int_distribution<int> randomXVel(-1, 1);
+  std::uniform_int_distribution<int> randomYVel(-1, 1);
+
+  const int xPos = randomXPos(m_randomGenerator);
+  const int yPos = randomYPos(m_randomGenerator);
+
+  const int xVel = randomXVel(m_randomGenerator);
+  const int yVel = randomYVel(m_randomGenerator);
 
   std::shared_ptr<Entity>      speedBoost       = m_entities.addEntity(EntityTags::SpeedBoost);
   std::shared_ptr<CTransform> &entityCTransform = speedBoost->cTransform;
   std::shared_ptr<CShape>     &entityCShape     = speedBoost->cShape;
   std::shared_ptr<CLifespan>  &entityLifespan   = speedBoost->cLifespan;
 
-  const ShapeConfig shapeConfig = {20, 20, {0, 255, 0, 255}};
-  entityCTransform              = std::make_shared<CTransform>(Vec2(x, y), Vec2(0, 0), 0);
-  entityCShape                  = std::make_shared<CShape>(m_renderer, shapeConfig);
-  entityLifespan                = std::make_shared<CLifespan>(25000);
+  const SpeedBoostEffectConfig &speedBoostEffectConfig =
+      m_configManager.getSpeedBoostEffectConfig();
+
+  entityCTransform = std::make_shared<CTransform>(Vec2(xPos, yPos), Vec2(xVel, yVel), 0);
+  entityCShape     = std::make_shared<CShape>(m_renderer, speedBoostEffectConfig.shape);
+  entityLifespan   = std::make_shared<CLifespan>(speedBoostEffectConfig.lifespan);
 
   bool touchesBoundary = CollisionHelpers::detectOutOfBounds(speedBoost, windowSize).any();
   bool touchesOtherEntities = false;
@@ -417,15 +614,25 @@ void Game::spawnSpeedBoost() {
     }
   }
 
+  bool isValidVelocity = !(xVel == 0 && yVel == 0);
+
+  while (!isValidVelocity) {
+    const int newXVel = randomXVel(m_randomGenerator);
+    const int newYVel = randomYVel(m_randomGenerator);
+
+    speedBoost->cTransform->velocity = Vec2(newXVel, newYVel);
+    isValidVelocity                  = !(newXVel == 0 && newYVel == 0);
+  }
+
   bool      isValidSpawn       = !touchesBoundary && !touchesOtherEntities;
   const int MAX_SPAWN_ATTEMPTS = 10;
   int       spawnAttempt       = 1;
 
   while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
-    const int randomX = rand() % static_cast<int>(windowSize.x);
-    const int randomY = rand() % static_cast<int>(windowSize.y);
+    const int newXPos = randomXPos(m_randomGenerator);
+    const int newYPos = randomYPos(m_randomGenerator);
 
-    speedBoost->cTransform->topLeftCornerPos = Vec2(randomX, randomY);
+    speedBoost->cTransform->topLeftCornerPos = Vec2(newXPos, newYPos);
     touchesBoundary      = CollisionHelpers::detectOutOfBounds(speedBoost, windowSize).any();
     touchesOtherEntities = false;
 
@@ -439,4 +646,120 @@ void Game::spawnSpeedBoost() {
     spawnAttempt += 1;
     isValidSpawn = !touchesBoundary && !touchesOtherEntities;
   }
+
+  if (!isValidSpawn) {
+    speedBoost->destroy();
+  }
+  m_entities.update();
+}
+
+void Game::spawnSlownessEntity() {
+  const GameConfig                  &gameConfig = m_configManager.getGameConfig();
+  const Vec2                        &windowSize = gameConfig.windowSize;
+  std::uniform_int_distribution<int> randomXPos(0, windowSize.x);
+  std::uniform_int_distribution<int> randomYPos(0, windowSize.y);
+
+  std::uniform_int_distribution<int> randomXVel(-1, 1);
+  std::uniform_int_distribution<int> randomYVel(-1, 1);
+
+  const int xPos = randomXPos(m_randomGenerator);
+  const int yPos = randomYPos(m_randomGenerator);
+
+  const int xVel = randomXVel(m_randomGenerator);
+  const int yVel = randomYVel(m_randomGenerator);
+
+  std::shared_ptr<Entity> slownessEntity = m_entities.addEntity(EntityTags::SlownessDebuff);
+  std::shared_ptr<CTransform> &entityCTransform = slownessEntity->cTransform;
+  std::shared_ptr<CShape>     &entityCShape     = slownessEntity->cShape;
+  std::shared_ptr<CLifespan>  &entityLifespan   = slownessEntity->cLifespan;
+
+  const SlownessEffectConfig &slownessEffectConfig = m_configManager.getSlownessEffectConfig();
+  std::cout << slownessEffectConfig.lifespan << std::endl;
+
+  entityCTransform = std::make_shared<CTransform>(Vec2(xPos, yPos), Vec2(xVel, yVel), 0);
+  entityCShape     = std::make_shared<CShape>(m_renderer, slownessEffectConfig.shape);
+  entityLifespan   = std::make_shared<CLifespan>(slownessEffectConfig.lifespan);
+
+  bool touchesBoundary = CollisionHelpers::detectOutOfBounds(slownessEntity, windowSize).any();
+  bool touchesOtherEntities = false;
+
+  for (auto &entity : m_entities.getEntities()) {
+    if (CollisionHelpers::calculateCollisionBetweenEntities(entity, slownessEntity)) {
+      touchesOtherEntities = true;
+      break;
+    }
+  }
+
+  bool      isValidSpawn       = !touchesBoundary && !touchesOtherEntities;
+  bool      isValidVelocity    = !(xVel == 0 && yVel == 0);
+  const int MAX_SPAWN_ATTEMPTS = 10;
+  int       spawnAttempt       = 1;
+
+  while (!isValidVelocity) {
+    const int newXVel = randomXVel(m_randomGenerator);
+    const int newYVel = randomYVel(m_randomGenerator);
+
+    slownessEntity->cTransform->velocity = Vec2(newXVel, newYVel);
+    isValidVelocity                      = !(newXVel == 0 && newYVel == 0);
+  }
+
+  while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
+    const int newXPos = randomXPos(m_randomGenerator);
+    const int newYPos = randomYPos(m_randomGenerator);
+
+    slownessEntity->cTransform->topLeftCornerPos = Vec2(newXPos, newYPos);
+    touchesBoundary = CollisionHelpers::detectOutOfBounds(slownessEntity, windowSize).any();
+    touchesOtherEntities = false;
+
+    for (auto &entity : m_entities.getEntities()) {
+      if (CollisionHelpers::calculateCollisionBetweenEntities(entity, slownessEntity)) {
+        touchesOtherEntities = true;
+        break;
+      }
+    }
+
+    spawnAttempt += 1;
+    isValidSpawn = !touchesBoundary && !touchesOtherEntities;
+  }
+  if (!isValidSpawn) {
+    std::cout << "Slowness debuff could not be spawned." << std::endl;
+    slownessEntity->destroy();
+  }
+
+  m_entities.update();
+}
+
+void Game::setGameOver() {
+  if (m_gameOver) {
+    return;
+  }
+  m_player->cEffects->clearEffects();
+  m_gameOver = true;
+
+  std::cout << "Game over! 😭" << std::endl;
+}
+
+void Game::setPaused(const bool paused) {
+  std::cout << "Game is " << (paused ? "paused" : "unpaused") << std::endl;
+  m_paused = paused;
+}
+
+void Game::setScore(const int score) {
+  const int previousScore = m_score;
+  m_score                 = score;
+
+  const int diff = m_score - previousScore;
+
+  if (m_score < 0) {
+    std::cout << "Your score dipped below 0! 😬" << std::endl;
+    setGameOver();
+    return;
+  }
+  const std::string scoreChange = diff > 0 ? "increased" : "decreased";
+  const std::string emoji       = diff > 0 ? "😃" : "😔";
+
+  std::cout << "Score " << scoreChange << " by " << std::abs(diff) << " point"
+            << (diff > 1 ? "s" : "") << "! " << emoji << std::endl;
+
+  std::cout << "Your score is now " << m_score << "." << std::endl;
 }
