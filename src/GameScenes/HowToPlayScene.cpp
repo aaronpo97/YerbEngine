@@ -121,30 +121,28 @@ void HowToPlayScene::renderText() const {
 }
 
 void HowToPlayScene::sDoAction(Action &action) {
+  AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
   if (action.getState() == ActionState::END) {
     return;
   }
 
   if (action.getName() == "SELECT") {
-    m_nextAudioSample = AudioSample::MenuSelect;
-    m_endTriggered    = true;
+    audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::BACKGROUND);
+    m_endTriggered = true;
   }
 
   if (action.getName() == "GO_BACK") {
-    m_nextAudioSample = AudioSample::MenuSelect;
-    m_endTriggered    = true;
+    audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::BACKGROUND);
+    m_endTriggered = true;
   }
 }
 
 void HowToPlayScene::sAudio() {
-  AudioManager &audioManager = m_gameEngine->getAudioManager();
-
-  if (audioManager.getCurrentAudioTrack() != AudioTrack::MainMenu) {
-    m_gameEngine->getAudioManager().playTrack(AudioTrack::MainMenu, -1);
+  AudioManager     &audioManager     = m_gameEngine->getAudioManager();
+  AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+  if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
+    audioManager.playTrack(AudioTrack::MAIN_MENU, -1);
   }
 
-  if (m_nextAudioSample != AudioSample::None) {
-    audioManager.playSample(m_nextAudioSample);
-    m_nextAudioSample = AudioSample::None;
-  }
+  audioSampleQueue.update();
 }

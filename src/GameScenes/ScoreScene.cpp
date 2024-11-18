@@ -74,38 +74,38 @@ void ScoreScene::renderText() const {
 }
 
 void ScoreScene::sDoAction(Action &action) {
+
+  AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+
   if (action.getState() == ActionState::END) {
     return;
   }
 
   if (action.getName() == "SELECT") {
-    m_nextAudioSample = AudioSample::MenuSelect;
+    audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::BACKGROUND);
     m_endTriggered    = true;
     return;
   }
 
   // UP takes precedence over DOWN if both are pressed
   if (action.getName() == "UP") {
-    m_nextAudioSample = AudioSample::MenuMove;
+    audioSampleQueue.queueSample(AudioSample::MENU_MOVE, AudioSamplePriority::BACKGROUND);
     m_selectedIndex > 0 ? m_selectedIndex -= 1 : m_selectedIndex = 1;
     return;
   }
 
   if (action.getName() == "DOWN") {
-    m_nextAudioSample = AudioSample::MenuMove;
+    audioSampleQueue.queueSample(AudioSample::MENU_MOVE, AudioSamplePriority::BACKGROUND);
     m_selectedIndex < 1 ? m_selectedIndex += 1 : m_selectedIndex = 0;
   }
 }
 
 void ScoreScene::sAudio() {
   AudioManager &audioManager = m_gameEngine->getAudioManager();
-
-  if (audioManager.getCurrentAudioTrack() != AudioTrack::MainMenu) {
-    m_gameEngine->getAudioManager().playTrack(AudioTrack::MainMenu, -1);
+  AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+  if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
+    m_gameEngine->getAudioManager().playTrack(AudioTrack::MAIN_MENU, -1);
   }
 
-  if (m_nextAudioSample != AudioSample::None) {
-    audioManager.playSample(m_nextAudioSample);
-    m_nextAudioSample = AudioSample::None;
-  }
+  audioSampleQueue.update();
 }
