@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AudioManager.hpp"
+#include "../SystemManagement/AudioManager.hpp"
 #include <queue>
 #include <unordered_map>
 
@@ -25,7 +25,7 @@ private:
   std::unordered_map<AudioSample, Uint64> m_lastPlayTimes;
   AudioManager                           &m_audioManager;
 
-  static constexpr Uint64                 MIN_REPLAY_INTERVAL  = 50;
+  static constexpr Uint64                 MIN_REPLAY_INTERVAL = 50;
   std::unordered_map<AudioSample, Uint64> m_cooldowns;
 
 public:

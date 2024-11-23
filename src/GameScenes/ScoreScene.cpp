@@ -30,7 +30,7 @@ void ScoreScene::onEnd() {
 }
 
 void ScoreScene::sRender() {
-  SDL_Renderer *renderer = m_gameEngine->getRenderer();
+  SDL_Renderer *renderer = m_gameEngine->getVideoManager().getRenderer();
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
   renderText();
@@ -38,7 +38,7 @@ void ScoreScene::sRender() {
 }
 
 void ScoreScene::renderText() const {
-  SDL_Renderer *renderer = m_gameEngine->getRenderer();
+  SDL_Renderer *renderer = m_gameEngine->getVideoManager().getRenderer();
   TTF_Font     *fontLg   = m_gameEngine->getFontManager().getFontLg();
   TTF_Font     *fontMd   = m_gameEngine->getFontManager().getFontMd();
 
@@ -83,7 +83,7 @@ void ScoreScene::sDoAction(Action &action) {
 
   if (action.getName() == "SELECT") {
     audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::BACKGROUND);
-    m_endTriggered    = true;
+    m_endTriggered = true;
     return;
   }
 
@@ -101,7 +101,7 @@ void ScoreScene::sDoAction(Action &action) {
 }
 
 void ScoreScene::sAudio() {
-  AudioManager &audioManager = m_gameEngine->getAudioManager();
+  AudioManager     &audioManager     = m_gameEngine->getAudioManager();
   AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
   if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
     m_gameEngine->getAudioManager().playTrack(AudioTrack::MAIN_MENU, -1);
