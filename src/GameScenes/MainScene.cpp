@@ -19,7 +19,10 @@ MainScene::MainScene(GameEngine *gameEngine) :
   const ConfigManager &configManager = gameEngine->getConfigManager();
 
   m_entities = EntityManager();
-  m_player   = SpawnHelpers::MainScene::spawnPlayer(renderer, configManager, m_entities);
+  m_player   = SpawnHelpers::MainScene::spawnPlayer(renderer, configManager, m_entities,
+                                                    m_gameEngine->getImageManager());
+
+  std::cout << "spawned the player" << std::endl;
 
   SpawnHelpers::MainScene::spawnWalls(renderer, configManager, m_entities);
 
@@ -180,7 +183,6 @@ void MainScene::sRender() {
   SDL_RenderClear(renderer);
 
   for (const auto &entity : m_entities.getEntities()) {
-
     const auto &cShape     = entity->getComponent<CShape>();
     const auto &cTransform = entity->getComponent<CTransform>();
 
@@ -194,9 +196,22 @@ void MainScene::sRender() {
     rect.x = static_cast<int>(pos.x);
     rect.y = static_cast<int>(pos.y);
 
-    const auto &[r, g, b, a] = cShape->color;
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
-    SDL_RenderFillRect(renderer, &rect);
+    if (entity->hasComponent<CSprite>()) {
+      const auto  &cSprite = entity->getComponent<CSprite>();
+      SDL_Surface *surface = cSprite->imageSurface;
+      if (surface == nullptr) {
+        continue;
+      }
+      if (SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+          texture != nullptr) {
+        SDL_RenderCopy(renderer, texture, nullptr, &rect);
+        SDL_DestroyTexture(texture);
+      }
+    } else {
+      SDL_SetRenderDrawColor(renderer, cShape->color.r, cShape->color.g, cShape->color.b,
+                             cShape->color.a);
+      SDL_RenderFillRect(renderer, &rect);
+    }
   }
 
   renderText();
@@ -206,7 +221,6 @@ void MainScene::sRender() {
 
 void MainScene::sCollision() {
   using namespace CollisionHelpers::MainScene;
-
   const ConfigManager &configManager = m_gameEngine->getConfigManager();
   const Vec2          &windowSize    = configManager.getGameConfig().windowSize;
 
@@ -217,8 +231,9 @@ void MainScene::sCollision() {
                  .score              = m_score,
                  .setScore           = [this](const int score) -> void { setScore(score); },
                  .decrementLives     = [this]() -> void { decrementLives(); },
+                 .audioSampleManager = audioSampleManager,
                  .windowSize         = windowSize,
-                 .audioSampleManager = audioSampleManager};
+  };
 
   for (auto &entity : m_entities.getEntities()) {
     handleEntityBounds(entity, windowSize);
