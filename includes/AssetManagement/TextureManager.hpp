@@ -3,9 +3,13 @@
 #include <filesystem>
 #include <unordered_map>
 
-enum class TextureName { DEFAULT, EXAMPLE };
+enum class TextureName { DEFAULT, PLAYER, WALL, COIN , ENEMY};
 const std::unordered_map<TextureName, std::filesystem::path> imagePaths = {
-    {TextureName::EXAMPLE, "assets/images/example.png"}};
+    {TextureName::PLAYER, "assets/images/player.png"},
+    {TextureName::WALL, "assets/images/wall.png"},
+    {TextureName::COIN, "assets/images/coin.png"},
+    {TextureName::ENEMY, "assets/images/enemy.png"}
+};
 
 class TextureManager {
   std::unordered_map<TextureName, SDL_Surface *> m_surfaces = {};

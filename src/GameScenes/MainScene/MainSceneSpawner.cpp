@@ -31,7 +31,7 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
   const auto cInput     = std::make_shared<CInput>();
   const auto cEffects   = std::make_shared<CEffects>();
   const auto cSprite =
-      std::make_shared<CSprite>(m_textureManager.getTexture(TextureName::EXAMPLE));
+      std::make_shared<CSprite>(m_textureManager.getTexture(TextureName::PLAYER));
 
   std::shared_ptr<Entity> player = m_entityManager.addEntity(EntityTags::Player);
   player->setComponent(cTransform);
@@ -58,7 +58,7 @@ void MainSceneSpawner::spawnEnemy(const std::shared_ptr<Entity> &player) {
   const auto cLifespan  = std::make_shared<CLifespan>(enemyConfig.lifespan);
 
   const auto cSprite =
-      std::make_shared<CSprite>(m_textureManager.getTexture(TextureName::EXAMPLE));
+      std::make_shared<CSprite>(m_textureManager.getTexture(TextureName::ENEMY));
 
   const std::shared_ptr<Entity> &enemy = m_entityManager.addEntity(EntityTags::Enemy);
   enemy->setComponent<CTransform>(cTransform);
@@ -249,9 +249,14 @@ void MainSceneSpawner::spawnWalls() {
       topLeftCornerPos.y = innerStartY + innerGapSize;
     }
 
+    const auto cSprite =
+    std::make_shared<CSprite>(m_textureManager.getTexture(TextureName::WALL));
+
+
     const std::shared_ptr<Entity> wall = m_entityManager.addEntity(EntityTags::Wall);
     wall->setComponent(shapeComponent);
     wall->setComponent(transformComponent);
+    wall->setComponent(cSprite);
   }
 
   m_entityManager.update();
@@ -322,11 +327,13 @@ void MainSceneSpawner::spawnItem(const std::shared_ptr<Entity> &player) {
   const auto cTransform = std::make_shared<CTransform>(position, velocity);
   const auto cShape     = std::make_shared<CShape>(m_renderer, shape);
   const auto cLifespan  = std::make_shared<CLifespan>(lifespan);
+  const auto cSprite = std::make_shared<CSprite>(m_textureManager.getTexture(TextureName::COIN));
 
   const auto &item = m_entityManager.addEntity(EntityTags::Item);
   item->setComponent<CTransform>(cTransform);
   item->setComponent<CShape>(cShape);
   item->setComponent<CLifespan>(cLifespan);
+  item->setComponent<CSprite>(cSprite);
 
   if (!player) {
     SDL_Log("Player missing, destroying item entity");

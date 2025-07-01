@@ -198,6 +198,9 @@ void MainScene::sRender() {
     rect.x = static_cast<int>(pos.x);
     rect.y = static_cast<int>(pos.y);
 
+
+
+
     // If there's no sprite, render a plain box
     if (!entity->hasComponent<CSprite>()) {
       SDL_SetRenderDrawColor(
