@@ -25,42 +25,56 @@ target_link_libraries(sdl_game_app PRIVATE nlohmann_json::nlohmann_json)
 if(APPLE)
         target_compile_options(sdl_game_app PRIVATE -Wno-deprecated -Wno-deprecated-declarations)
 endif()
-
 if(EMSCRIPTEN)
-        message(STATUS "Configuring for Emscripten/WebAssembly")
+    message(STATUS "Configuring for Emscripten")
 
-        set_target_properties(sdl_game_app PROPERTIES CMAKE_EXECUTABLE_SUFFIX ".js")
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
-        target_compile_options(sdl_game_app PRIVATE
-                -O3
-                -fwasm-exceptions
-                "-sUSE_SDL=2"
-                "-sUSE_SDL_IMAGE=2"
-                "-sUSE_SDL_TTF=2"
-                "-sUSE_SDL_MIXER=2"
+    set_target_properties(sdl_game_app PROPERTIES
+        OUTPUT_NAME "SDL_GAME"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+
+    set_target_properties(sdl_game_app PROPERTIES CMAKE_EXECUTABLE_SUFFIX ".js")
+
+    target_compile_options(sdl_game_app PRIVATE
+        "-sUSE_SDL=2"
+        "-sUSE_SDL_IMAGE=2"
+        "-sUSE_SDL_TTF=2"
+        "-sUSE_SDL_MIXER=2"
+    )
+
+    target_link_options(sdl_game_app PRIVATE
+        -O3
+        -fwasm-exceptions
+        "-sUSE_SDL=2"
+        "-sUSE_SDL_IMAGE=2" "-sUSE_LIBPNG=1" "-sUSE_LIBJPEG=1" "-sSDL2_IMAGE_FORMATS=['png','jpg']"
+        "-sUSE_SDL_TTF=2" "-sUSE_FREETYPE=1"
+        "-sUSE_SDL_MIXER=2"
+        "-sALLOW_MEMORY_GROWTH=1"
+        "--preload-file=${CMAKE_SOURCE_DIR}/assets@assets"
+        "--preload-file=${CMAKE_SOURCE_DIR}/config@config"
+    )
+
+    # Add SDL include dirs from Emscripten
+    execute_process(
+        COMMAND ${CMAKE_C_COMPILER} -print-file-name=include
+        OUTPUT_VARIABLE EMSCRIPTEN_INCLUDE_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    target_include_directories(sdl_game_app PRIVATE ${EMSCRIPTEN_INCLUDE_DIR})
+
+    if(NOT TARGET copy_templates)
+        add_custom_target(copy_templates ALL
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_SOURCE_DIR}/template" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         )
-
-        target_link_options(sdl_game_app PRIVATE
-                -O3
-                -fwasm-exceptions
-                "-sUSE_SDL=2"
-                "-sUSE_SDL_IMAGE=2" "-sUSE_LIBPNG=1" "-sUSE_LIBJPEG=1" "-sSDL2_IMAGE_FORMATS=['png','jpg']"
-                "-sUSE_SDL_TTF=2" "-sUSE_FREETYPE=1"
-                "-sUSE_SDL_MIXER=2"
-                "-sALLOW_MEMORY_GROWTH=1"
-                "--preload-file=${CMAKE_SOURCE_DIR}/assets@assets"
-                "--preload-file=${CMAKE_SOURCE_DIR}/config@config"
-        )
-
-        if(NOT TARGET copy_templates)
-                add_custom_target(copy_templates ALL
-                        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                        "${CMAKE_SOURCE_DIR}/template" "${CMAKE_BINARY_DIR}"
-                )
-        endif()
+    endif()
 
 else()
-        message(STATUS "Configuring for native (non-Emscripten)")
+        message(STATUS "Configuring for native")
 
         find_package(SDL2 REQUIRED)
         find_package(SDL2_image REQUIRED)
