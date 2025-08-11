@@ -42,10 +42,18 @@ void ConfigManager::parseGameConfig() {
   const auto spawnInterval =
       getJsonValue<Uint64>(gameConfigJson, "spawnInterval", "gameConfig");
 
+  const auto fontSizeSm = getJsonValue<int>(gameConfigJson,"fontSizeSm", "gameConfig" );
+  const auto fontSizeMd = getJsonValue<int>(gameConfigJson,"fontSizeMd", "gameConfig" );
+  const auto fontSizeLg = getJsonValue<int>(gameConfigJson,"fontSizeLg", "gameConfig" );
+
   m_gameConfig.windowSize    = Vec2(windowWidth, windowHeight);
   m_gameConfig.windowTitle   = windowTitle;
   m_gameConfig.fontPath      = fontPath;
   m_gameConfig.spawnInterval = spawnInterval;
+  m_gameConfig.fontSizeSm   = fontSizeSm;
+  m_gameConfig.fontSizeMd   = fontSizeMd;
+  m_gameConfig.fontSizeLg   = fontSizeLg;
+
 
   if (!fs::exists(m_gameConfig.fontPath)) {
     throw ConfigurationError("Font file not found: " + m_gameConfig.fontPath.string());
@@ -171,7 +179,8 @@ ConfigManager::ConfigManager(std::filesystem::path configPath) :
     m_configPath(std::move(configPath)) {
   try {
     loadConfig();
-    SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM, "ConfigManager successfully loaded: %s",
+    SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM,
+                "ConfigManager successfully loaded: %s",
                 m_configPath.c_str());
   } catch (const ConfigurationError &e) {
     SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Configuration error: %s", e.what());

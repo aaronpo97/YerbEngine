@@ -4,27 +4,27 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#include "../../includes/GameScenes/MainScene.hpp"
-#include "../../includes/GameScenes/MenuScene.hpp"
-#include "../../includes/GameScenes/ScoreScene.hpp"
-#include "../../includes/Helpers/CollisionHelpers.hpp"
-#include "../../includes/Helpers/MovementHelpers.hpp"
-#include "../../includes/Helpers/SpawnHelpers.hpp"
-#include "../../includes/Helpers/TextHelpers.hpp"
-#include "../../includes/Helpers/Vec2.hpp"
+#include "../../../includes/GameScenes/MainScene/MainScene.hpp"
+#include "../../../includes/GameScenes/MainScene/MainSceneSpawner.hpp"
+#include "../../../includes/GameScenes/MenuScene/MenuScene.hpp"
+#include "../../../includes/GameScenes/ScoreScene/ScoreScene.hpp"
+#include "../../../includes/Helpers/CollisionHelpers.hpp"
+#include "../../../includes/Helpers/MovementHelpers.hpp"
+#include "../../../includes/Helpers/SpawnHelpers.hpp"
+#include "../../../includes/Helpers/TextHelpers.hpp"
+#include "../../../includes/Helpers/Vec2.hpp"
 
 MainScene::MainScene(GameEngine *gameEngine) :
-    Scene(gameEngine) {
-  SDL_Renderer        *renderer      = m_gameEngine->getVideoManager().getRenderer();
-  const ConfigManager &configManager = gameEngine->getConfigManager();
-
-  m_entities = EntityManager();
-  m_player   = SpawnHelpers::MainScene::spawnPlayer(renderer, configManager, m_entities,
-                                                    m_gameEngine->getImageManager());
-
+    Scene(gameEngine),
+    m_entities(EntityManager()),
+    m_spawner(m_randomGenerator,
+              gameEngine->getConfigManager(),
+              gameEngine->getTextureManager(),
+              m_entities,
+              gameEngine->getVideoManager().getRenderer()) {
+  m_player = m_spawner.spawnPlayer();
   std::cout << "spawned the player" << std::endl;
-
-  SpawnHelpers::MainScene::spawnWalls(renderer, configManager, m_entities);
+  m_spawner.spawnWalls();
 
   // WASD
   registerAction(SDLK_w, "FORWARD");
@@ -117,9 +117,7 @@ void MainScene::sDoAction(Action &action) {
     const Vec2 mousePosition = *position;
 
     audioSampleQueue.queueSample(AudioSample::SHOOT, AudioSamplePriority::STANDARD);
-    SpawnHelpers::MainScene::spawnBullets(m_gameEngine->getVideoManager().getRenderer(),
-                                          m_gameEngine->getConfigManager(), m_entities,
-                                          m_player, mousePosition);
+    m_spawner.spawnBullets(m_player, mousePosition);
     m_lastBulletSpawnTime = currentTime;
 
     if (action.getName() == "PAUSE") {
@@ -161,15 +159,15 @@ void MainScene::renderText() const {
 
   const auto cEffects = m_player->getComponent<CEffects>();
 
-  if (cEffects->hasEffect(EffectTypes::Speed)) {
+  if (cEffects->hasEffect(Speed)) {
     constexpr SDL_Color speedBoostColor = {0, 255, 0, 255};
     const std::string   speedBoostText  = "Speed Boost Active!";
     const Vec2          speedBoostPos   = {10, 120};
-    TextHelpers::renderLineOfText(renderer, fontSm, speedBoostText, speedBoostColor,
-                                  speedBoostPos);
+    TextHelpers::renderLineOfText(
+        renderer, fontSm, speedBoostText, speedBoostColor, speedBoostPos);
   }
 
-  if (cEffects->hasEffect(EffectTypes::Slowness)) {
+  if (cEffects->hasEffect(Slowness)) {
     constexpr SDL_Color slownessColor = {255, 0, 0, 255};
     const std::string   slownessText  = "Slowness Active!";
     const Vec2          slownessPos   = {10, 120};
@@ -181,6 +179,10 @@ void MainScene::sRender() {
   SDL_Renderer *renderer = m_gameEngine->getVideoManager().getRenderer();
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
+
+  if (m_entities.getEntities().empty()) {
+    std::cout << "no entities\n";
+  }
 
   for (const auto &entity : m_entities.getEntities()) {
     const auto &cShape     = entity->getComponent<CShape>();
@@ -196,22 +198,25 @@ void MainScene::sRender() {
     rect.x = static_cast<int>(pos.x);
     rect.y = static_cast<int>(pos.y);
 
-    if (entity->hasComponent<CSprite>()) {
-      const auto  &cSprite = entity->getComponent<CSprite>();
-      SDL_Surface *surface = cSprite->imageSurface;
-      if (surface == nullptr) {
-        continue;
-      }
-      if (SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-          texture != nullptr) {
-        SDL_RenderCopy(renderer, texture, nullptr, &rect);
-        SDL_DestroyTexture(texture);
-      }
-    } else {
-      SDL_SetRenderDrawColor(renderer, cShape->color.r, cShape->color.g, cShape->color.b,
-                             cShape->color.a);
+
+
+
+    // If there's no sprite, render a plain box
+    if (!entity->hasComponent<CSprite>()) {
+      SDL_SetRenderDrawColor(
+          renderer, cShape->color.r, cShape->color.g, cShape->color.b, cShape->color.a);
       SDL_RenderFillRect(renderer, &rect);
+      continue; // continue on, render the next entity
     }
+
+    const auto  &cSprite = entity->getComponent<CSprite>();
+    SDL_Texture *texture = cSprite->getTexture();
+    // ensure that the texture is not a nullptr
+    if (!texture) {
+      continue;
+    }
+
+    SDL_RenderCopy(renderer, texture, nullptr, &rect);
   }
 
   renderText();
@@ -265,67 +270,56 @@ void MainScene::sMovement() {
 
 void MainScene::sSpawner() {
   const ConfigManager &configManager  = m_gameEngine->getConfigManager();
-  SDL_Renderer        *renderer       = m_gameEngine->getVideoManager().getRenderer();
   const Uint64         ticks          = SDL_GetTicks64();
   const Uint64         SPAWN_INTERVAL = configManager.getGameConfig().spawnInterval;
 
   if (ticks - m_lastNonPlayerEntitySpawnTime < SPAWN_INTERVAL) {
     return;
   }
+
   m_lastNonPlayerEntitySpawnTime = ticks;
 
-  const EnemyConfig          &enemyConfig            = configManager.getEnemyConfig();
-  const SpeedEffectConfig    &speedBoostEffectConfig = configManager.getSpeedEffectConfig();
-  const SlownessEffectConfig &slownessEffectConfig   = configManager.getSlownessEffectConfig();
-  const ItemConfig           &itemConfig             = configManager.getItemConfig();
+  std::mt19937 &randomGenerator = m_randomGenerator;
 
-  const auto &cEffects = m_player->getComponent<CEffects>();
-  const bool  hasSpeedBasedEffect =
-      cEffects->hasEffect(EffectTypes::Speed) || cEffects->hasEffect(EffectTypes::Slowness);
+  const EnemyConfig          &enemyCfg       = configManager.getEnemyConfig();
+  const SpeedEffectConfig    &speedEffectCfg = configManager.getSpeedEffectConfig();
+  const SlownessEffectConfig &slowEffectCfg  = configManager.getSlownessEffectConfig();
+  const ItemConfig           &itemCfg        = configManager.getItemConfig();
+
+  const auto &cEffects           = m_player->getComponent<CEffects>();
+  const bool hasSpeedBasedEffect = cEffects->hasEffect(Speed) || cEffects->hasEffect(Slowness);
 
   std::uniform_int_distribution<unsigned int> distribution(0, 100);
 
-  std::mt19937 &randomGenerator      = m_randomGenerator;
-  auto          meetsSpawnPercentage = [&randomGenerator,
-                               &distribution](const unsigned int chance) -> bool {
+  auto shouldSpawn = [&randomGenerator, &distribution](const unsigned int chance) -> bool {
     return distribution(randomGenerator) < chance;
   };
 
-  const struct SpawnDecisions {
-    bool enemy;
-    bool speedBoost;
-    bool slowness;
-    bool item;
-  } decisions = {.enemy      = meetsSpawnPercentage(enemyConfig.spawnPercentage),
-                 .speedBoost = !hasSpeedBasedEffect &&
-                               meetsSpawnPercentage(speedBoostEffectConfig.spawnPercentage),
-                 .slowness = !hasSpeedBasedEffect &&
-                             meetsSpawnPercentage(slownessEffectConfig.spawnPercentage),
-                 .item = meetsSpawnPercentage(itemConfig.spawnPercentage)};
+  const bool spawnEnemy = shouldSpawn(enemyCfg.spawnPercentage);
+  const bool spawnSpeedBoost =
+      !hasSpeedBasedEffect && shouldSpawn(speedEffectCfg.spawnPercentage);
+  const bool spawnSlowDebuff =
+      !hasSpeedBasedEffect && shouldSpawn(slowEffectCfg.spawnPercentage);
+  const bool spawnItem = shouldSpawn(itemCfg.spawnPercentage);
 
-  if (decisions.enemy) {
-    SpawnHelpers::MainScene::spawnEnemy(renderer, configManager, m_randomGenerator, m_entities,
-                                        m_player);
+  if (spawnEnemy) {
+    m_spawner.spawnEnemy(m_player);
   }
 
-  if (decisions.speedBoost) {
-    SpawnHelpers::MainScene::spawnSpeedBoostEntity(renderer, configManager, m_randomGenerator,
-                                                   m_entities, m_player);
+  if (spawnSpeedBoost) {
+    m_spawner.spawnSpeedBoostEntity(m_player);
   }
 
-  if (decisions.slowness) {
-    SpawnHelpers::MainScene::spawnSlownessEntity(renderer, configManager, m_randomGenerator,
-                                                 m_entities, m_player);
+  if (spawnSlowDebuff) {
+    m_spawner.spawnSlownessEntity(m_player);
   }
 
-  if (decisions.item) {
-    SpawnHelpers::MainScene::spawnItem(renderer, configManager, m_randomGenerator, m_entities,
-                                       m_player);
+  if (spawnItem) {
+    m_spawner.spawnItem(m_player);
   }
 }
 
 void MainScene::sEffects() const {
-
   const auto               &cEffects = m_player->getComponent<CEffects>();
   const std::vector<Effect> effects  = cEffects->getEffects();
   if (effects.empty()) {
@@ -375,14 +369,16 @@ void MainScene::sLifespan() {
     const auto &cShape = entity->getComponent<CShape>();
     if (cLifespan == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "Entity with ID %zu and tag %d lacks a lifespan component.", entity->id(),
+                   "Entity with ID %zu and tag %d lacks a lifespan component.",
+                   entity->id(),
                    tag);
       continue;
     }
 
     if (cShape == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "Entity with ID %zu and tag %d lacks a shape component.", entity->id(),
+                   "Entity with ID %zu and tag %d lacks a shape component.",
+                   entity->id(),
                    tag);
       continue;
     }
@@ -467,6 +463,5 @@ void MainScene::onSceneWindowResize() {
 
   m_entities.update();
 
-  SpawnHelpers::MainScene::spawnWalls(m_gameEngine->getVideoManager().getRenderer(),
-                                      m_gameEngine->getConfigManager(), m_entities);
+  m_spawner.spawnWalls();
 }

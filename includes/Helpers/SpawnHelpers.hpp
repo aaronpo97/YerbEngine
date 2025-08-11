@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../includes/AssetManagement/ImageManager.hpp"
+#include "../../includes/AssetManagement/TextureManager.hpp"
 #include "../Configuration/ConfigManager.hpp"
 #include "../EntityManagement/Entity.hpp"
 #include "../EntityManagement/EntityManager.hpp"
@@ -19,43 +19,3 @@ namespace SpawnHelpers {
                              EntityManager                 &entityManager,
                              const Vec2                    &windowSize);
 } // namespace SpawnHelpers
-namespace SpawnHelpers::MainScene {
-  std::shared_ptr<Entity> spawnPlayer(SDL_Renderer        *renderer,
-                                      const ConfigManager &configManager,
-                                      EntityManager       &entityManager,
-                                      ImageManager        &imageManager);
-
-  void spawnEnemy(SDL_Renderer                  *renderer,
-                  const ConfigManager           &configManager,
-                  std::mt19937                  &randomGenerator,
-                  EntityManager                 &entityManager,
-                  const std::shared_ptr<Entity> &player);
-
-  void spawnSpeedBoostEntity(SDL_Renderer                  *renderer,
-                             const ConfigManager           &configManager,
-                             std::mt19937                  &randomGenerator,
-                             EntityManager                 &entityManager,
-                             const std::shared_ptr<Entity> &player);
-
-  void spawnSlownessEntity(SDL_Renderer                  *renderer,
-                           const ConfigManager           &configManager,
-                           std::mt19937                  &randomGenerator,
-                           EntityManager                 &entityManager,
-                           const std::shared_ptr<Entity> &player);
-
-  void spawnWalls(SDL_Renderer        *renderer,
-                  const ConfigManager &configManager,
-                  EntityManager       &entityManager);
-
-  void spawnBullets(SDL_Renderer                  *renderer,
-                    const ConfigManager           &configManager,
-                    EntityManager                 &entityManager,
-                    const std::shared_ptr<Entity> &player,
-                    const Vec2                    &mousePosition);
-
-  void spawnItem(SDL_Renderer                  *renderer,
-                 const ConfigManager           &configManager,
-                 std::mt19937                  &randomGenerator,
-                 EntityManager                 &entityManager,
-                 const std::shared_ptr<Entity> &player);
-} // namespace SpawnHelpers::MainScene
