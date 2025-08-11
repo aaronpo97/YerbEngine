@@ -6,7 +6,7 @@
 #include "../EntityManagement/EntityManager.hpp"
 #include "../Helpers/Vec2.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include <memory>
 #include <random>

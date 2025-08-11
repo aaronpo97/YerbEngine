@@ -1,7 +1,7 @@
 #include "../../../includes/GameScenes/HowToPlayScene/HowToPlayScene.hpp"
 #include "../../../includes/GameScenes/MenuScene/MenuScene.hpp"
 #include "../../../includes/Helpers/TextHelpers.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 HowToPlayScene::HowToPlayScene(GameEngine *gameEngine) :
     Scene(gameEngine) {

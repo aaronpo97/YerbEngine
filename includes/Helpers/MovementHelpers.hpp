@@ -4,7 +4,7 @@
 #include "../EntityManagement/Components.hpp"
 #include "../EntityManagement/Entity.hpp"
 #include "../Helpers/Vec2.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <memory>
 
 namespace MovementHelpers {

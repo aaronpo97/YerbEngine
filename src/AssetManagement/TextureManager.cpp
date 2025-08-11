@@ -1,5 +1,5 @@
 #include "../../includes/AssetManagement/TextureManager.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <SDL_image.h>
 #include <algorithm>
 #include <filesystem>

@@ -1,6 +1,6 @@
 #include "../../includes/SystemManagement/VideoManager.hpp"
 #include "../../includes/Configuration/ConfigManager.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdexcept>
 
 #ifdef __EMSCRIPTEN__

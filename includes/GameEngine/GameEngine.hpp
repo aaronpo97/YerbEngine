@@ -7,7 +7,7 @@
 #include "../SystemManagement/AudioManager.hpp"
 #include "../SystemManagement/VideoManager.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <filesystem>
 #include <map>
 #include <string>

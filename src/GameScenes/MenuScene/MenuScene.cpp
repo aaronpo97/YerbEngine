@@ -3,7 +3,7 @@
 #include "../../../includes/GameScenes/MainScene/MainScene.hpp"
 #include "../../../includes/Helpers/TextHelpers.hpp"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 MenuScene::MenuScene(GameEngine *gameEngine) :
     Scene(gameEngine) {

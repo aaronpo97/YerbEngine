@@ -4,7 +4,7 @@
 #include "../../EntityManagement/EntityManager.hpp"
 #include "../../GameScenes/Scene.hpp"
 #include "MainSceneSpawner.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <random>
 
 class MainScene final : public Scene {

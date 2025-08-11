@@ -1,7 +1,7 @@
 #pragma once
 #include "../Configuration/ConfigManager.hpp"
 #include "../Helpers/Vec2.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 class VideoManager {
   SDL_Renderer *m_renderer = nullptr;

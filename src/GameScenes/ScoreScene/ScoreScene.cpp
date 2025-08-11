@@ -2,7 +2,7 @@
 #include "../../../includes/GameScenes/MainScene/MainScene.hpp"
 #include "../../../includes/GameScenes/MenuScene/MenuScene.hpp"
 #include "../../../includes/Helpers/TextHelpers.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 ScoreScene::ScoreScene(GameEngine *gameEngine, const int score) :
     Scene(gameEngine), m_score(score) {
