@@ -31,14 +31,16 @@ public:
     if (renderer == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
                    "CShape entity initialization failed: Renderer is null.");
-      throw std::runtime_error("CShape entity initialization failed: Renderer is null.");
+      throw std::runtime_error(
+              "CShape entity initialization failed: Renderer is null.");
     }
 
     rect.h = static_cast<int>(config.height);
     rect.w = static_cast<int>(config.width);
     color  = config.color;
 
-    SDL_SetRenderDrawColor(renderer, config.color.r, config.color.g, config.color.b, 255);
+    SDL_SetRenderDrawColor(
+            renderer, config.color.r, config.color.g, config.color.b, 255);
     SDL_RenderFillRect(renderer, &rect);
   }
 };
@@ -93,14 +95,17 @@ public:
   }
 
   void removeEffect(const EffectTypes type) {
-    std::erase_if(effects,
-                  [type](const Effect &effect) -> bool { return effect.type == type; });
+    std::erase_if(effects, [type](const Effect &effect) -> bool {
+      return effect.type == type;
+    });
   }
 
   bool hasEffect(const EffectTypes type) const {
-    return std::ranges::find_if(effects, [type](const Effect &effect) -> bool {
-             return effect.type == type;
-           }) != effects.end();
+    return std::ranges::find_if(effects,
+                                [type](const Effect &effect) -> bool {
+                                  return effect.type == type;
+                                })
+           != effects.end();
   }
 
   void clearEffects() {

@@ -3,13 +3,13 @@
 AudioSampleQueue::AudioSampleQueue(AudioManager &audioManager) :
     m_audioManager(audioManager),
     m_cooldowns{
-        {AudioSample::SHOOT, 100},
-        {AudioSample::ENEMY_COLLISION, 200},
-        {AudioSample::ITEM_ACQUIRED, 150},
-        {AudioSample::SPEED_BOOST, 150},
-        {AudioSample::SLOWNESS_DEBUFF, 150},
-        {AudioSample::BULLET_HIT_01, 100},
-        {AudioSample::BULLET_HIT_02, 100},
+            {AudioSample::SHOOT, 100},
+            {AudioSample::ENEMY_COLLISION, 200},
+            {AudioSample::ITEM_ACQUIRED, 150},
+            {AudioSample::SPEED_BOOST, 150},
+            {AudioSample::SLOWNESS_DEBUFF, 150},
+            {AudioSample::BULLET_HIT_01, 100},
+            {AudioSample::BULLET_HIT_02, 100},
     } {}
 
 void AudioSampleQueue::queueSample(const AudioSample         sample,
@@ -19,12 +19,14 @@ void AudioSampleQueue::queueSample(const AudioSample         sample,
   if (m_lastPlayTimes.contains(sample)) {
     const Uint64 lastPlayTime      = m_lastPlayTimes.find(sample)->second;
     const Uint64 timeSinceLastPlay = currentTime - lastPlayTime;
-    if (const Uint64 cooldown = m_cooldowns[sample]; timeSinceLastPlay < cooldown) {
+    if (const Uint64 cooldown = m_cooldowns[sample];
+        timeSinceLastPlay < cooldown) {
       return; // Sound is still in cooldown
     }
   }
 
-  m_sampleQueue.push({.sample = sample, .priority = priority, .timestamp = currentTime});
+  m_sampleQueue.push(
+          {.sample = sample, .priority = priority, .timestamp = currentTime});
 }
 
 void AudioSampleQueue::update() {
@@ -32,7 +34,8 @@ void AudioSampleQueue::update() {
   size_t           soundsPlayedThisFrame = 0;
   constexpr size_t MAX_SOUNDS_PER_FRAME  = AudioManager::MAX_SAMPLES_PER_FRAME;
 
-  while (!m_sampleQueue.empty() && soundsPlayedThisFrame < MAX_SOUNDS_PER_FRAME) {
+  while (!m_sampleQueue.empty()
+         && soundsPlayedThisFrame < MAX_SOUNDS_PER_FRAME) {
     const auto &[sample, priority, timestamp] = m_sampleQueue.top();
 
     // Check if sound is still in cooldown

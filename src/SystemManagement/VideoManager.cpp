@@ -20,10 +20,13 @@ VideoManager::VideoManager(ConfigManager &configManager) :
 
 void VideoManager::initializeVideoSystem() {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL video system is not ready: %s", SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                 "SDL video system is not ready: %s",
+                 SDL_GetError());
     throw std::runtime_error("SDL video system is not ready to go");
   }
-  SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "SDL video system initialized successfully!");
+  SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO,
+              "SDL video system initialized successfully!");
 }
 
 SDL_Window *VideoManager::createWindow() {
@@ -49,7 +52,9 @@ SDL_Window *VideoManager::createWindow() {
                                         windowFlags);
 
   if (window == nullptr) {
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Window could not be created: %s", SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                 "Window could not be created: %s",
+                 SDL_GetError());
     throw std::runtime_error("Window could not be created.");
   }
 
@@ -77,7 +82,8 @@ void VideoManager::updateWindowSize() {
                          static_cast<float>(currentWindowHeight)};
 
   m_configManager.updateGameWindowSize(
-      {static_cast<float>(currentWindowWidth), static_cast<float>(currentWindowHeight)});
+          {static_cast<float>(currentWindowWidth),
+           static_cast<float>(currentWindowHeight)});
 }
 
 SDL_Renderer *VideoManager::createRenderer() const {
@@ -86,9 +92,12 @@ SDL_Renderer *VideoManager::createRenderer() const {
     throw std::runtime_error("Window is not initialized");
   }
 
-  SDL_Renderer *renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_Renderer *renderer =
+          SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
   if (renderer == nullptr) {
-    SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Renderer could not be created: %s", SDL_GetError());
+    SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
+                 "Renderer could not be created: %s",
+                 SDL_GetError());
     throw std::runtime_error("Renderer could not be created");
   }
   SDL_LogInfo(SDL_LOG_CATEGORY_VIDEO, "Renderer created successfully!");
@@ -102,8 +111,11 @@ void VideoManager::setupRenderer() const {
   }
 
   constexpr SDL_Color backgroundColor = {.r = 0, .g = 0, .b = 0, .a = 255};
-  SDL_SetRenderDrawColor(
-      m_renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+  SDL_SetRenderDrawColor(m_renderer,
+                         backgroundColor.r,
+                         backgroundColor.g,
+                         backgroundColor.b,
+                         backgroundColor.a);
   SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
   SDL_RenderClear(m_renderer);
   SDL_RenderPresent(m_renderer);
@@ -135,12 +147,14 @@ void VideoManager::cleanup() {
   }
 
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "VideoManager cleaned up successfully!");
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "VideoManager cleaned up successfully!");
 }
 
 #ifdef __EMSCRIPTEN__
 bool VideoManager::isWebCanvasEnabled() {
-  return emscripten_run_script_int("getComputedStyle(Module.canvas).display !== 'none'");
+  return emscripten_run_script_int(
+          "getComputedStyle(Module.canvas).display !== 'none'");
 }
 #endif
 

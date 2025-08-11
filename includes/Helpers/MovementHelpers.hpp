@@ -22,7 +22,8 @@ namespace MovementHelpers {
                            const SlownessEffectConfig    &slownessEffectConfig,
                            const float                   &deltaTime);
 
-  void moveBullets(const std::shared_ptr<Entity> &entity, const float &deltaTime);
+  void moveBullets(const std::shared_ptr<Entity> &entity,
+                   const float                   &deltaTime);
 
   void moveItems(const std::shared_ptr<Entity> &entity, const float &deltaTime);
 } // namespace MovementHelpers

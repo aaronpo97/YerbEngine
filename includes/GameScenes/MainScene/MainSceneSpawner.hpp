@@ -24,6 +24,7 @@ public:
   void spawnSpeedBoostEntity(const std::shared_ptr<Entity> &player);
   void spawnSlownessEntity(const std::shared_ptr<Entity> &player);
   void spawnWalls();
-  void spawnBullets(const std::shared_ptr<Entity> &player, const Vec2 &mousePosition);
+  void spawnBullets(const std::shared_ptr<Entity> &player,
+                    const Vec2                    &mousePosition);
   void spawnItem(const std::shared_ptr<Entity> &player);
 };

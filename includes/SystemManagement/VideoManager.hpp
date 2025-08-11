@@ -41,10 +41,10 @@ class VideoManager {
   /**
    * @brief Creates an SDL window with specified configurations.
    *
-   * Initializes and creates an SDL window using configuration parameters from ConfigManager.
-   * Sets various window flags based on the platform and configuration, and handles errors if
-   * window creation fails. Calculates the display scale factor for High-DPI (Retina)
-   * displays.
+   * Initializes and creates an SDL window using configuration parameters from
+   * ConfigManager. Sets various window flags based on the platform and
+   * configuration, and handles errors if window creation fails. Calculates the
+   * display scale factor for High-DPI (Retina) displays.
    *
    * @return SDL_Window* Pointer to the created SDL window.
    * @throws std::runtime_error If the window could not be created.
@@ -62,10 +62,11 @@ public:
   /**
    * @brief Constructor method for the VideoManager.
    *
-   * This initializes the VideoManager object by initializing SDL_VIDEO and by creating an
-   * SDL_Window and SDL_Renderer.
+   * This initializes the VideoManager object by initializing SDL_VIDEO and by
+   * creating an SDL_Window and SDL_Renderer.
    *
-   * @param configManager The ConfigManager object associated with the GameEngine class.
+   * @param configManager The ConfigManager object associated with the
+   * GameEngine class.
    */
   explicit VideoManager(ConfigManager &configManager);
 
@@ -102,7 +103,8 @@ public:
   /**
    * @brief Cleans up the SDL resources.
    *
-   * This function destroys the SDL renderer and window, and quits the SDL video subsystem.
+   * This function destroys the SDL renderer and window, and quits the SDL video
+   * subsystem.
    */
   void cleanup();
 

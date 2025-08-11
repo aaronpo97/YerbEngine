@@ -26,13 +26,15 @@ Vec2 Entity::getCenterPos() const {
 
   if (cTransform == nullptr || cShape == nullptr) {
     SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                 "Entity lacks a transform or shape component. Unable to calculate center "
+                 "Entity lacks a transform or shape component. Unable to "
+                 "calculate center "
                  "position.");
     return {0, 0};
   }
 
   const Vec2 &pos    = cTransform->topLeftCornerPos;
-  const Vec2 &center = pos + Vec2(static_cast<float>(cShape->rect.w) / 2.0f,
-                                  static_cast<float>(cShape->rect.h) / 2.0f);
+  const Vec2 &center = pos
+                       + Vec2(static_cast<float>(cShape->rect.w) / 2.0f,
+                              static_cast<float>(cShape->rect.h) / 2.0f);
   return center;
 }

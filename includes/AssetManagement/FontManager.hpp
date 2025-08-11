@@ -20,7 +20,10 @@ class FontManager {
 public:
   ~FontManager();
 
-  FontManager(const Path &fontPath, int fontSizeSm, int fontSizeMd, int fontSizeLg);
+  FontManager(const Path &fontPath,
+              int         fontSizeSm,
+              int         fontSizeMd,
+              int         fontSizeLg);
   void      loadFonts(const Path &fontPath);
   TTF_Font *getFontLg() const;
   TTF_Font *getFontMd() const;

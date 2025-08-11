@@ -6,7 +6,10 @@ AudioManager::AudioManager(const int    frequency,
                            const Uint16 format,
                            const int    channels,
                            const int    chunksize) :
-    m_frequency(frequency), m_format(format), m_channels(channels), m_chunksize(chunksize) {
+    m_frequency(frequency),
+    m_format(format),
+    m_channels(channels),
+    m_chunksize(chunksize) {
   if (SDL_Init(SDL_INIT_AUDIO) != 0) {
     throw std::runtime_error("SDL_Init failed");
   }
@@ -42,7 +45,8 @@ void AudioManager::loadAllAudio() {
 void AudioManager::loadTrack(const AudioTrack track, const Path &filepath) {
   m_audioTracks[track] = Mix_LoadMUS(filepath.c_str());
   if (!m_audioTracks[track]) {
-    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "Mix_LoadMUS error: %s", Mix_GetError());
+    SDL_LogError(
+            SDL_LOG_CATEGORY_AUDIO, "Mix_LoadMUS error: %s", Mix_GetError());
     cleanup();
     throw std::runtime_error("Mix_LoadMUS error");
   }
@@ -51,14 +55,16 @@ void AudioManager::loadTrack(const AudioTrack track, const Path &filepath) {
 void AudioManager::loadSample(const AudioSample sample, const Path &filepath) {
   m_audioSamples[sample] = Mix_LoadWAV(filepath.c_str());
   if (!m_audioSamples[sample]) {
-    SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "Mix_LoadWAV error: %s", Mix_GetError());
+    SDL_LogError(
+            SDL_LOG_CATEGORY_AUDIO, "Mix_LoadWAV error: %s", Mix_GetError());
     cleanup();
     throw std::runtime_error("Mix_LoadWAV error");
   }
 
   setSampleVolume(sample,
-                  sample == AudioSample::BULLET_HIT_01 ? DEFAULT_SAMPLE_VOLUME / 2
-                                                       : DEFAULT_SAMPLE_VOLUME);
+                  sample == AudioSample::BULLET_HIT_01
+                          ? DEFAULT_SAMPLE_VOLUME / 2
+                          : DEFAULT_SAMPLE_VOLUME);
 }
 
 void AudioManager::playTrack(const AudioTrack track, const int loops) {
@@ -166,7 +172,8 @@ void AudioManager::cleanup() {
   Mix_Quit();
 
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
-  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "AudioManager cleaned up successfully!");
+  SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION,
+              "AudioManager cleaned up successfully!");
 }
 
 AudioTrack AudioManager::getCurrentAudioTrack() const {

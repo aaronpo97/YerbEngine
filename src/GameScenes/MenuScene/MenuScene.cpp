@@ -25,10 +25,12 @@ void MenuScene::update() {
 void MenuScene::onEnd() {
   switch (m_selectedIndex) {
     case 0:
-      m_gameEngine->loadScene("Main", std::make_shared<MainScene>(m_gameEngine));
+      m_gameEngine->loadScene("Main",
+                              std::make_shared<MainScene>(m_gameEngine));
       break;
     case 1:
-      m_gameEngine->loadScene("HowToPlay", std::make_shared<HowToPlayScene>(m_gameEngine));
+      m_gameEngine->loadScene("HowToPlay",
+                              std::make_shared<HowToPlayScene>(m_gameEngine));
       break;
     case 2:
       m_gameEngine->quit();
@@ -54,37 +56,46 @@ void MenuScene::renderText() const {
   SDL_Color     selectedColor = {0, 255, 0, 255};
 
   if (fontLg == nullptr || fontMd == nullptr || fontSm == nullptr) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load fonts as they are null.");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Failed to load fonts as they are null.");
     return;
   }
 
-  const std::string &titleText = m_gameEngine->getConfigManager().getGameConfig().windowTitle;
-  const Vec2         titlePos  = {100, 100};
-  TextHelpers::renderLineOfText(renderer, fontLg, titleText, textColor, titlePos);
+  const std::string &titleText =
+          m_gameEngine->getConfigManager().getGameConfig().windowTitle;
+  const Vec2 titlePos = {100, 100};
+  TextHelpers::renderLineOfText(
+          renderer, fontLg, titleText, textColor, titlePos);
 
-  const std::string playText  = "Play";
-  const Vec2        playPos   = titlePos + Vec2{0, 100};
-  const SDL_Color   playColor = m_selectedIndex == 0 ? selectedColor : textColor;
+  const std::string playText = "Play";
+  const Vec2        playPos  = titlePos + Vec2{0, 100};
+  const SDL_Color playColor  = m_selectedIndex == 0 ? selectedColor : textColor;
   TextHelpers::renderLineOfText(renderer, fontMd, playText, playColor, playPos);
 
-  const std::string instructionsText  = "How to Play";
-  const Vec2        instructionsPos   = playPos + Vec2{0, 50};
-  const SDL_Color   instructionsColor = m_selectedIndex == 1 ? selectedColor : textColor;
-  TextHelpers::renderLineOfText(
-      renderer, fontMd, instructionsText, instructionsColor, instructionsPos);
+  const std::string instructionsText = "How to Play";
+  const Vec2        instructionsPos  = playPos + Vec2{0, 50};
+  const SDL_Color   instructionsColor =
+          m_selectedIndex == 1 ? selectedColor : textColor;
+  TextHelpers::renderLineOfText(renderer,
+                                fontMd,
+                                instructionsText,
+                                instructionsColor,
+                                instructionsPos);
 
 #ifndef __EMSCRIPTEN__
-  const std::string quitText  = "Quit";
-  const Vec2        quitPos   = instructionsPos + Vec2{0, 50};
-  const SDL_Color   quitColor = m_selectedIndex == 2 ? selectedColor : textColor;
+  const std::string quitText = "Quit";
+  const Vec2        quitPos  = instructionsPos + Vec2{0, 50};
+  const SDL_Color quitColor  = m_selectedIndex == 2 ? selectedColor : textColor;
   TextHelpers::renderLineOfText(renderer, fontMd, quitText, quitColor, quitPos);
 #endif
 
   const std::string controlsText = "W/S to move up/down, Enter to select";
   // bottom right corner
   const Vec2 controlsPos = {
-      100, m_gameEngine->getConfigManager().getGameConfig().windowSize.y - 50};
-  TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor, controlsPos);
+          100,
+          m_gameEngine->getConfigManager().getGameConfig().windowSize.y - 50};
+  TextHelpers::renderLineOfText(
+          renderer, fontSm, controlsText, textColor, controlsPos);
 }
 
 void MenuScene::sDoAction(Action &action) {
@@ -102,21 +113,26 @@ void MenuScene::sDoAction(Action &action) {
   }
 
   if (action.getName() == "SELECT") {
-    audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::BACKGROUND);
+    audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+                                 AudioSamplePriority::BACKGROUND);
     m_endTriggered = true;
     return;
   }
 
   // UP takes precedence over DOWN if both are pressed
   if (action.getName() == "UP") {
-    audioSampleQueue.queueSample(AudioSample::MENU_MOVE, AudioSamplePriority::BACKGROUND);
-    m_selectedIndex > 0 ? m_selectedIndex -= 1 : m_selectedIndex = MAX_MENU_ITEMS - 1;
+    audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
+                                 AudioSamplePriority::BACKGROUND);
+    m_selectedIndex > 0 ? m_selectedIndex -= 1
+                        : m_selectedIndex = MAX_MENU_ITEMS - 1;
     return;
   }
 
   if (action.getName() == "DOWN") {
-    audioSampleQueue.queueSample(AudioSample::MENU_MOVE, AudioSamplePriority::BACKGROUND);
-    m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1 : m_selectedIndex = 0;
+    audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
+                                 AudioSamplePriority::BACKGROUND);
+    m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
+                                         : m_selectedIndex = 0;
   }
 }
 

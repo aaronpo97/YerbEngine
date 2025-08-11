@@ -11,11 +11,12 @@ GameEngine::GameEngine() {
   /*
    * Set up the paths for the assets and configuration files.
    *
-   * The assets directory contains all the images, audio, and font files used in the game.
-   * The configuration directory contains the configuration file for the game.
+   * The assets directory contains all the images, audio, and font files used in
+   * the game. The configuration directory contains the configuration file for
+   * the game.
    *
-   * The configuration file is a JSON file that contains the game settings such as window
-   * size, font path, and more.
+   * The configuration file is a JSON file that contains the game settings such
+   * as window size, font path, and more.
    */
   const Path ASSETS_DIR_PATH  = "assets";
   const Path CONFIG_DIR_PATH  = "config";
@@ -33,8 +34,8 @@ GameEngine::GameEngine() {
   /*
    * Initialize the managers and resources needed by the game engine.
    *
-   * The game engine is composed of several managers that handle different aspects of the
-   * game.
+   * The game engine is composed of several managers that handle different
+   * aspects of the game.
    */
   m_configManager    = createConfigManager(CONFIG_FILE_PATH);
   m_audioManager     = createAudioManager();
@@ -62,7 +63,8 @@ GameEngine::~GameEngine() {
   cleanup();
 }
 
-std::unique_ptr<ConfigManager> GameEngine::createConfigManager(const Path &configPath) {
+std::unique_ptr<ConfigManager>
+GameEngine::createConfigManager(const Path &configPath) {
   return std::make_unique<ConfigManager>(configPath);
 }
 
@@ -89,7 +91,8 @@ std::unique_ptr<AudioManager> GameEngine::createAudioManager() {
   return std::make_unique<AudioManager>(FREQUENCY, FORMAT, CHANNELS, CHUNKSIZE);
 }
 
-std::unique_ptr<AudioSampleQueue> GameEngine::initializeAudioSampleQueue() const {
+std::unique_ptr<AudioSampleQueue>
+GameEngine::initializeAudioSampleQueue() const {
   if (m_audioManager == nullptr) {
     SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "AudioManager not initialized");
     cleanup();
@@ -110,7 +113,8 @@ std::unique_ptr<FontManager> GameEngine::createFontManager() const {
   const int          fontSizeMd = m_configManager->getGameConfig().fontSizeMd;
   const int          fontSizeLg = m_configManager->getGameConfig().fontSizeLg;
 
-  return std::make_unique<FontManager>(fontPath, fontSizeSm, fontSizeMd, fontSizeLg);
+  return std::make_unique<FontManager>(
+          fontPath, fontSizeSm, fontSizeMd, fontSizeLg);
 }
 
 void GameEngine::cleanup() {
@@ -150,7 +154,8 @@ void GameEngine::quit() {
 #endif
 }
 
-void GameEngine::loadScene(const std::string &sceneName, const std::shared_ptr<Scene> &scene) {
+void GameEngine::loadScene(const std::string            &sceneName,
+                           const std::shared_ptr<Scene> &scene) {
   m_scenes[sceneName] = scene;
 
   scene->setStartTime(SDL_GetTicks64());
@@ -235,10 +240,11 @@ void GameEngine::sUserInput() {
       }
 
       const ActionState actionState =
-          event.type == SDL_KEYDOWN ? ActionState::START : ActionState::END;
+              event.type == SDL_KEYDOWN ? ActionState::START : ActionState::END;
 
-      const std::string &actionName = activeScene->getActionMap().at(event.key.keysym.sym);
-      Action             action(actionName, actionState, std::nullopt);
+      const std::string &actionName =
+              activeScene->getActionMap().at(event.key.keysym.sym);
+      Action action(actionName, actionState, std::nullopt);
       activeScene->sDoAction(action);
     }
 
@@ -248,33 +254,38 @@ void GameEngine::sUserInput() {
       }
 
       /*
-       * If the event is a mouse button event, set the action state to start on mouse
-       * down, and end on mouse up.
+       * If the event is a mouse button event, set the action state to start on
+       * mouse down, and end on mouse up.
        */
-      const ActionState actionState =
-          event.type == SDL_MOUSEBUTTONDOWN ? ActionState::START : ActionState::END;
+      const ActionState actionState = event.type == SDL_MOUSEBUTTONDOWN
+                                              ? ActionState::START
+                                              : ActionState::END;
 
-      const std::string &actionName = activeScene->getActionMap().at(event.button.button);
+      const std::string &actionName =
+              activeScene->getActionMap().at(event.button.button);
 
       // Get mouse position and convert to game coordinates
       int mouseX, mouseY;
       SDL_GetMouseState(&mouseX, &mouseY);
 
-      Vec2 gamePosition = {static_cast<float>(mouseX), static_cast<float>(mouseY)};
+      Vec2 gamePosition = {static_cast<float>(mouseX),
+                           static_cast<float>(mouseY)};
 
       Action action(actionName, actionState, gamePosition);
       activeScene->sDoAction(action);
     }
 
     // Mouse motion handling
-    if (event.type == SDL_MOUSEMOTION &&
-        activeScene->getActionMap().contains(SDL_MOUSEMOTION)) {
+    if (event.type == SDL_MOUSEMOTION
+        && activeScene->getActionMap().contains(SDL_MOUSEMOTION)) {
       int mouseX, mouseY;
       SDL_GetMouseState(&mouseX, &mouseY);
-      Vec2 gamePosition = {static_cast<float>(mouseX), static_cast<float>(mouseY)};
+      Vec2 gamePosition = {static_cast<float>(mouseX),
+                           static_cast<float>(mouseY)};
 
-      const std::string &actionName = activeScene->getActionMap().at(SDL_MOUSEMOTION);
-      Action             action(actionName, ActionState::START, gamePosition);
+      const std::string &actionName =
+              activeScene->getActionMap().at(SDL_MOUSEMOTION);
+      Action action(actionName, ActionState::START, gamePosition);
       activeScene->sDoAction(action);
     }
   }

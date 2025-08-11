@@ -48,29 +48,37 @@ void ScoreScene::renderText() const {
 
   const bool fontsLoaded = fontLg != nullptr && fontMd != nullptr;
   if (!fontsLoaded) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load fonts as they are null.");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Failed to load fonts as they are null.");
     return;
   }
 
   const std::string gameOverText = "Game Over!";
   const Vec2        gameOverPos  = {100, 300};
-  TextHelpers::renderLineOfText(renderer, fontLg, gameOverText, gameOverColor, gameOverPos);
+  TextHelpers::renderLineOfText(
+          renderer, fontLg, gameOverText, gameOverColor, gameOverPos);
 
   const std::string scoreText = "Score: " + std::to_string(m_score);
   const Vec2        scorePos  = {100, 350};
-  TextHelpers::renderLineOfText(renderer, fontMd, scoreText, textColor, scorePos);
+  TextHelpers::renderLineOfText(
+          renderer, fontMd, scoreText, textColor, scorePos);
 
-  const float bottomOfScreen = m_gameEngine->getConfigManager().getGameConfig().windowSize.y;
+  const float bottomOfScreen =
+          m_gameEngine->getConfigManager().getGameConfig().windowSize.y;
 
-  const std::string playAgainText  = "Play Again";
-  const Vec2        playAgainPos   = {100, bottomOfScreen - 200};
-  const SDL_Color   playAgainColor = m_selectedIndex == 0 ? selectedColor : textColor;
-  TextHelpers::renderLineOfText(renderer, fontMd, playAgainText, playAgainColor, playAgainPos);
+  const std::string playAgainText = "Play Again";
+  const Vec2        playAgainPos  = {100, bottomOfScreen - 200};
+  const SDL_Color   playAgainColor =
+          m_selectedIndex == 0 ? selectedColor : textColor;
+  TextHelpers::renderLineOfText(
+          renderer, fontMd, playAgainText, playAgainColor, playAgainPos);
 
-  const std::string mainMenuText  = "Main Menu";
-  const Vec2        mainMenuPos   = {100, bottomOfScreen - 150};
-  const SDL_Color   mainMenuColor = m_selectedIndex == 1 ? selectedColor : textColor;
-  TextHelpers::renderLineOfText(renderer, fontMd, mainMenuText, mainMenuColor, mainMenuPos);
+  const std::string mainMenuText = "Main Menu";
+  const Vec2        mainMenuPos  = {100, bottomOfScreen - 150};
+  const SDL_Color   mainMenuColor =
+          m_selectedIndex == 1 ? selectedColor : textColor;
+  TextHelpers::renderLineOfText(
+          renderer, fontMd, mainMenuText, mainMenuColor, mainMenuPos);
 }
 
 void ScoreScene::sDoAction(Action &action) {
@@ -82,20 +90,23 @@ void ScoreScene::sDoAction(Action &action) {
   }
 
   if (action.getName() == "SELECT") {
-    audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::BACKGROUND);
+    audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+                                 AudioSamplePriority::BACKGROUND);
     m_endTriggered = true;
     return;
   }
 
   // UP takes precedence over DOWN if both are pressed
   if (action.getName() == "UP") {
-    audioSampleQueue.queueSample(AudioSample::MENU_MOVE, AudioSamplePriority::BACKGROUND);
+    audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
+                                 AudioSamplePriority::BACKGROUND);
     m_selectedIndex > 0 ? m_selectedIndex -= 1 : m_selectedIndex = 1;
     return;
   }
 
   if (action.getName() == "DOWN") {
-    audioSampleQueue.queueSample(AudioSample::MENU_MOVE, AudioSamplePriority::BACKGROUND);
+    audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
+                                 AudioSamplePriority::BACKGROUND);
     m_selectedIndex < 1 ? m_selectedIndex += 1 : m_selectedIndex = 0;
   }
 }

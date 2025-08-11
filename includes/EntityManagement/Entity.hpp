@@ -4,7 +4,16 @@
 #include <memory>
 #include <string>
 
-enum EntityTags { Player, Wall, SpeedBoost, SlownessDebuff, Enemy, Bullet, Item, Default };
+enum EntityTags {
+  Player,
+  Wall,
+  SpeedBoost,
+  SlownessDebuff,
+  Enemy,
+  Bullet,
+  Item,
+  Default
+};
 
 typedef std::tuple<std::shared_ptr<CTransform>,
                    std::shared_ptr<CShape>,
@@ -13,7 +22,7 @@ typedef std::tuple<std::shared_ptr<CTransform>,
                    std::shared_ptr<CEffects>,
                    std::shared_ptr<CBounceTracker>,
                    std::shared_ptr<CSprite>>
-    EntityComponents;
+        EntityComponents;
 
 class Entity {
 private:
@@ -34,14 +43,16 @@ public:
   void       destroy();
   Vec2       getCenterPos() const;
 
-  template <typename ComponentType> std::shared_ptr<ComponentType> getComponent() const;
+  template <typename ComponentType>
+  std::shared_ptr<ComponentType> getComponent() const;
   template <typename ComponentType>
   void setComponent(std::shared_ptr<ComponentType> component);
   template <typename ComponentType> void removeComponent();
   template <typename ComponentType> bool hasComponent() const;
 };
 
-template <typename ComponentType> std::shared_ptr<ComponentType> Entity::getComponent() const {
+template <typename ComponentType>
+std::shared_ptr<ComponentType> Entity::getComponent() const {
   auto component = std::get<std::shared_ptr<ComponentType>>(m_components);
   return component;
 }
@@ -56,6 +67,7 @@ template <typename ComponentType> void Entity::removeComponent() {
 }
 
 template <typename ComponentType> bool Entity::hasComponent() const {
-  auto hasComponent = std::get<std::shared_ptr<ComponentType>>(m_components) != nullptr;
+  auto hasComponent =
+          std::get<std::shared_ptr<ComponentType>>(m_components) != nullptr;
   return hasComponent;
 }

@@ -20,7 +20,8 @@ namespace TextHelpers {
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "Failed to create texture from surface for text rendering: %s",
+                   "Failed to create texture from surface for text "
+                   "rendering: %s",
                    SDL_GetError());
       SDL_FreeSurface(surface); // Free the surface if texture creation fails
       return;                   // Exit if the texture creation fails

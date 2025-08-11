@@ -18,7 +18,8 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CTransform> &entityCTransform = entity->getComponent<CTransform>();
+    const std::shared_ptr<CTransform> &entityCTransform =
+            entity->getComponent<CTransform>();
     if (entityCTransform == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                    "Entity with ID %zu lacks a transform component.",
@@ -29,7 +30,8 @@ namespace MovementHelpers {
     Vec2       &position = entityCTransform->topLeftCornerPos;
     const Vec2 &velocity = entityCTransform->velocity;
 
-    position += velocity * (enemyConfig.speed * (deltaTime * BASE_MOVEMENT_MULTIPLIER));
+    position += velocity
+                * (enemyConfig.speed * (deltaTime * BASE_MOVEMENT_MULTIPLIER));
   }
 
   void moveSpeedBoosts(const std::shared_ptr<Entity> &entity,
@@ -45,7 +47,8 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CTransform> &entityCTransform = entity->getComponent<CTransform>();
+    const std::shared_ptr<CTransform> &entityCTransform =
+            entity->getComponent<CTransform>();
     if (entityCTransform == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                    "Entity with ID %zu lacks a transform component.",
@@ -56,7 +59,8 @@ namespace MovementHelpers {
     Vec2       &position = entityCTransform->topLeftCornerPos;
     const Vec2 &velocity = entityCTransform->velocity;
 
-    position += velocity * deltaTime * speedBoostEffectConfig.speed * BASE_MOVEMENT_MULTIPLIER;
+    position += velocity * deltaTime * speedBoostEffectConfig.speed
+                * BASE_MOVEMENT_MULTIPLIER;
   }
 
   void movePlayer(const std::shared_ptr<Entity> &entity,
@@ -72,7 +76,8 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CTransform> &entityCTransform = entity->getComponent<CTransform>();
+    const std::shared_ptr<CTransform> &entityCTransform =
+            entity->getComponent<CTransform>();
     if (entityCTransform == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                    "Entity with ID %zu lacks a transform component.",
@@ -80,7 +85,8 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CInput> &entityCInput = entity->getComponent<CInput>();
+    const std::shared_ptr<CInput> &entityCInput =
+            entity->getComponent<CInput>();
     if (entityCInput == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                    "Entity with ID %zu lacks an input component.",
@@ -108,7 +114,8 @@ namespace MovementHelpers {
 
     velocity.normalize();
 
-    const std::shared_ptr<CEffects> &entityEffects = entity->getComponent<CEffects>();
+    const std::shared_ptr<CEffects> &entityEffects =
+            entity->getComponent<CEffects>();
 
     float effectMultiplier = 1;
     if (entityEffects->hasEffect(EffectTypes::Speed)) {
@@ -119,8 +126,8 @@ namespace MovementHelpers {
       effectMultiplier = playerConfig.slownessMultiplier;
     }
 
-    velocity *=
-        effectMultiplier * deltaTime * BASE_MOVEMENT_MULTIPLIER * playerConfig.baseSpeed;
+    velocity *= effectMultiplier * deltaTime * BASE_MOVEMENT_MULTIPLIER
+                * playerConfig.baseSpeed;
     position += velocity;
   }
 
@@ -138,8 +145,10 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CTransform> &entityCTransform = entity->getComponent<CTransform>();
-    const std::shared_ptr<CShape>     &entityCShape     = entity->getComponent<CShape>();
+    const std::shared_ptr<CTransform> &entityCTransform =
+            entity->getComponent<CTransform>();
+    const std::shared_ptr<CShape> &entityCShape =
+            entity->getComponent<CShape>();
 
     if (entityCTransform == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
@@ -160,10 +169,12 @@ namespace MovementHelpers {
     Vec2       &position = entityCTransform->topLeftCornerPos;
     const Vec2 &velocity = entityCTransform->velocity;
 
-    position += velocity * deltaTime * slownessEffectConfig.speed * BASE_MOVEMENT_MULTIPLIER;
+    position += velocity * deltaTime * slownessEffectConfig.speed
+                * BASE_MOVEMENT_MULTIPLIER;
   }
 
-  void moveBullets(const std::shared_ptr<Entity> &entity, const float &deltaTime) {
+  void moveBullets(const std::shared_ptr<Entity> &entity,
+                   const float                   &deltaTime) {
     if (entity == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Entity is null");
       return;
@@ -174,7 +185,8 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CTransform> &entityCTransform = entity->getComponent<CTransform>();
+    const std::shared_ptr<CTransform> &entityCTransform =
+            entity->getComponent<CTransform>();
     if (entityCTransform == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                    "Entity with ID %zu lacks a transform component.",
@@ -186,9 +198,12 @@ namespace MovementHelpers {
     const Vec2 &velocity = entityCTransform->velocity;
 
     constexpr float BULLET_MOVEMENT_MULTIPLIER = 3.0f;
-    position += velocity * (deltaTime * BULLET_MOVEMENT_MULTIPLIER * BASE_MOVEMENT_MULTIPLIER);
+    position += velocity
+                * (deltaTime * BULLET_MOVEMENT_MULTIPLIER
+                   * BASE_MOVEMENT_MULTIPLIER);
   }
-  void moveItems(const std::shared_ptr<Entity> &entity, const float &deltaTime) {
+  void moveItems(const std::shared_ptr<Entity> &entity,
+                 const float                   &deltaTime) {
     if (entity == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Entity is null");
       return;
@@ -200,7 +215,8 @@ namespace MovementHelpers {
       return;
     }
 
-    const std::shared_ptr<CTransform> &entityCTransform = entity->getComponent<CTransform>();
+    const std::shared_ptr<CTransform> &entityCTransform =
+            entity->getComponent<CTransform>();
 
     if (entityCTransform == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
@@ -213,21 +229,25 @@ namespace MovementHelpers {
 
     // Use deltaTime to maintain consistent movement speed
     constexpr float ITEM_MOVEMENT_MULTIPLIER = .9f;
-    const float     time                     = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
+    const float     time = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
     // Entity id will be odd when the last bit is 1
     const bool ENTITY_ID_ODD = entity->id() & 1;
 
     if (ENTITY_ID_ODD) {
-      position.x +=
-          std::cos(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime * BASE_MOVEMENT_MULTIPLIER);
-      position.y +=
-          std::sin(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime * BASE_MOVEMENT_MULTIPLIER);
+      position.x += std::cos(time)
+                    * (ITEM_MOVEMENT_MULTIPLIER * deltaTime
+                       * BASE_MOVEMENT_MULTIPLIER);
+      position.y += std::sin(time)
+                    * (ITEM_MOVEMENT_MULTIPLIER * deltaTime
+                       * BASE_MOVEMENT_MULTIPLIER);
 
     } else {
-      position.x +=
-          std::sin(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime * BASE_MOVEMENT_MULTIPLIER);
-      position.y +=
-          std::cos(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime * BASE_MOVEMENT_MULTIPLIER);
+      position.x += std::sin(time)
+                    * (ITEM_MOVEMENT_MULTIPLIER * deltaTime
+                       * BASE_MOVEMENT_MULTIPLIER);
+      position.y += std::cos(time)
+                    * (ITEM_MOVEMENT_MULTIPLIER * deltaTime
+                       * BASE_MOVEMENT_MULTIPLIER);
     }
   }
 } // namespace MovementHelpers

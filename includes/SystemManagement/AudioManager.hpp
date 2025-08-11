@@ -101,13 +101,14 @@ public:
    *
    * Initializes SDL audio subsystem and loads all audio tracks and samples.
    *
-   * @throws std::runtime_error if SDL_Init(SDL_INIT_AUDIO) or Mix_OpenAudio fails.
+   * @throws std::runtime_error if SDL_Init(SDL_INIT_AUDIO) or Mix_OpenAudio
+   * fails.
    *
    * @param frequency The frequency to playback audio at (in Hz).
    * @param format Audio format, one of SDL's AUDIO_* values.
    * @param channels number of channels.
-   * @param chunksize Audio buffer size in sample FRAMES (total samples divided by channel
-   * count).
+   * @param chunksize Audio buffer size in sample FRAMES (total samples divided
+   * by channel count).
    */
   explicit AudioManager(int    frequency = 44100,
                         Uint16 format    = MIX_DEFAULT_FORMAT,
@@ -115,8 +116,9 @@ public:
                         int    chunksize = 2048);
 
   static constexpr size_t MAX_SAMPLES_PER_FRAME = 4;
-  static constexpr int    DEFAULT_SAMPLE_VOLUME = MIX_MAX_VOLUME / MAX_SAMPLES_PER_FRAME;
-  static constexpr int    DEFAULT_TRACK_VOLUME  = MIX_MAX_VOLUME * 0.8;
+  static constexpr int    DEFAULT_SAMPLE_VOLUME =
+          MIX_MAX_VOLUME / MAX_SAMPLES_PER_FRAME;
+  static constexpr int DEFAULT_TRACK_VOLUME = MIX_MAX_VOLUME * 0.8;
 
   /**
    * Destructor for AudioManager.
@@ -129,7 +131,8 @@ public:
    * Loads all audio tracks and samples.
    *
    * This function loads all audio tracks and samples into the AudioManager.
-   * It uses the loadTrack() and loadSample() methods to load each track and sample.
+   * It uses the loadTrack() and loadSample() methods to load each track and
+   * sample.
    */
   void loadAllAudio();
 

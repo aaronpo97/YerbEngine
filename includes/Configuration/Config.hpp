@@ -21,8 +21,8 @@ struct GameConfig {
   std::filesystem::path fontPath;
   Uint64                spawnInterval = 0;
   int                   fontSizeSm;
-  int fontSizeMd;
-  int fontSizeLg;
+  int                   fontSizeMd;
+  int                   fontSizeLg;
 };
 
 struct PlayerConfig {

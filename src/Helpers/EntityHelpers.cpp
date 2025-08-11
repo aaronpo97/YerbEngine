@@ -18,9 +18,10 @@ namespace EntityHelpers {
 
       const Vec2 &candidateCenter = candidate->getCenterPos();
 
-      const float deltaX          = center.x - candidateCenter.x;
-      const float deltaY          = center.y - candidateCenter.y;
-      const float distanceSquared = MathHelpers::pythagorasSquared(deltaX, deltaY);
+      const float deltaX = center.x - candidateCenter.x;
+      const float deltaY = center.y - candidateCenter.y;
+      const float distanceSquared =
+              MathHelpers::pythagorasSquared(deltaX, deltaY);
 
       if (distanceSquared >= radiusSquared) {
         continue;
