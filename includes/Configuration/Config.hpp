@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Helpers/Vec2.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <filesystem>
 
 class ShapeConfig {
@@ -21,8 +21,8 @@ struct GameConfig {
   std::filesystem::path fontPath;
   Uint64                spawnInterval = 0;
   int                   fontSizeSm;
-  int fontSizeMd;
-  int fontSizeLg;
+  int                   fontSizeMd;
+  int                   fontSizeLg;
 };
 
 struct PlayerConfig {

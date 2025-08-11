@@ -1,6 +1,7 @@
 #include "../../includes/AssetManagement/TextureManager.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <SDL_image.h>
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <ranges>
@@ -8,7 +9,8 @@
 TextureManager::TextureManager(SDL_Renderer *renderer) :
     m_renderer(renderer) {
   if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == -1) {
-    std::cout << "SDL_image could not initialize! SDL_image Error: %s\n" << IMG_GetError();
+    std::cout << "SDL_image could not initialize! SDL_image Error: %s\n"
+              << IMG_GetError();
   }
 
   for (const auto &name : imagePaths | std::views::keys) {
@@ -35,7 +37,8 @@ void TextureManager::loadTexture(const TextureName name) {
   SDL_Surface                 *img  = IMG_Load(path.c_str());
 
   if (img == nullptr) {
-    std::cout << "Unable to load image! SDL_image Error:\n" << path.c_str() << IMG_GetError();
+    std::cout << "Unable to load image! SDL_image Error:\n"
+              << path.c_str() << IMG_GetError();
   }
 
   m_surfaces[name] = img;
@@ -43,8 +46,9 @@ void TextureManager::loadTexture(const TextureName name) {
 }
 
 SDL_Texture *TextureManager::getTexture(const TextureName name) {
-  if (std::ranges::find_if(imagePaths, [&](const auto &pair) { return pair.first == name; }) ==
-      imagePaths.end()) {
+  if (std::ranges::find_if(imagePaths,
+                           [&](const auto &pair) { return pair.first == name; })
+      == imagePaths.end()) {
     std::cout << "Image not found in ImageManager\n";
     return nullptr;
   }

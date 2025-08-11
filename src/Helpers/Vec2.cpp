@@ -53,8 +53,8 @@ float Vec2::length() const {
   return std::sqrt(x * x + y * y);
 }
 
-// the normalize function will make the vector a unit vector (length of 1) pointing in the
-// same direction
+// the normalize function will make the vector a unit vector (length of 1)
+// pointing in the same direction
 Vec2 Vec2::normalize() {
   const float len = length();
   if (len > 0) { // Avoid division by zero

@@ -12,12 +12,14 @@ namespace CollisionHelpers {
   std::bitset<4> detectOutOfBounds(const std::shared_ptr<Entity> &entity,
                                    const Vec2                    &window_size) {
 
-    const std::shared_ptr<CTransform> &cTransform = entity->getComponent<CTransform>();
-    const std::shared_ptr<CShape>     &cShape     = entity->getComponent<CShape>();
+    const std::shared_ptr<CTransform> &cTransform =
+            entity->getComponent<CTransform>();
+    const std::shared_ptr<CShape> &cShape = entity->getComponent<CShape>();
 
     if (!cTransform || !cShape) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                   "Entity with ID %zu and tag %u lacks a transform or shape component.",
+                   "Entity with ID %zu and tag %u lacks a transform or "
+                   "shape component.",
                    entity->id(),
                    entity->tag());
 
@@ -28,10 +30,11 @@ namespace CollisionHelpers {
     const auto  rectHeight    = static_cast<float>(cShape->rect.h);
     const auto  rectWidth     = static_cast<float>(cShape->rect.w);
 
-    const bool collidesWithTop    = topLeftCorner.y <= 0;
-    const bool collidesWithBottom = topLeftCorner.y + rectHeight >= window_size.y;
-    const bool collidesWithLeft   = topLeftCorner.x <= 0;
-    const bool collidesWithRight  = topLeftCorner.x + rectWidth >= window_size.x;
+    const bool collidesWithTop = topLeftCorner.y <= 0;
+    const bool collidesWithBottom =
+            topLeftCorner.y + rectHeight >= window_size.y;
+    const bool collidesWithLeft  = topLeftCorner.x <= 0;
+    const bool collidesWithRight = topLeftCorner.x + rectWidth >= window_size.x;
 
     std::bitset<4> collidesWithBoundary;
     collidesWithBoundary[TOP]    = collidesWithTop;
@@ -50,7 +53,8 @@ namespace CollisionHelpers {
 
     if (!cShapeA) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                   "Entity with ID %zu and tag %u lacks a collision component.",
+                   "Entity with ID %zu and tag %u lacks a collision "
+                   "component.",
                    entityA->id(),
                    entityA->tag());
       return {0, 0};
@@ -58,7 +62,8 @@ namespace CollisionHelpers {
 
     if (!cShapeB) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                   "Entity with ID %zu and tag %u lacks a collision component.",
+                   "Entity with ID %zu and tag %u lacks a collision "
+                   "component.",
                    entityB->id(),
                    entityB->tag());
       return {0, 0};
@@ -76,25 +81,28 @@ namespace CollisionHelpers {
     const Vec2 &centerA = entityA->getCenterPos();
     const Vec2 &centerB = entityB->getCenterPos();
 
-    const auto delta = Vec2(std::abs(centerA.x - centerB.x), std::abs(centerA.y - centerB.y));
+    const auto delta = Vec2(std::abs(centerA.x - centerB.x),
+                            std::abs(centerA.y - centerB.y));
 
     const Vec2 overlap = {
-        halfSizeA.x + halfSizeB.x - delta.x,
-        halfSizeA.y + halfSizeB.y - delta.y,
+            halfSizeA.x + halfSizeB.x - delta.x,
+            halfSizeA.y + halfSizeB.y - delta.y,
     };
 
     return overlap;
   }
 
-  bool calculateCollisionBetweenEntities(const std::shared_ptr<Entity> &entityA,
-                                         const std::shared_ptr<Entity> &entityB) {
+  bool
+  calculateCollisionBetweenEntities(const std::shared_ptr<Entity> &entityA,
+                                    const std::shared_ptr<Entity> &entityB) {
     const Vec2 overlap           = calculateOverlap(entityA, entityB);
     const bool collisionDetected = overlap.x > 0 && overlap.y > 0;
     return collisionDetected;
   }
 
-  std::bitset<4> getPositionRelativeToEntity(const std::shared_ptr<Entity> &entityA,
-                                             const std::shared_ptr<Entity> &entityB) {
+  std::bitset<4>
+  getPositionRelativeToEntity(const std::shared_ptr<Entity> &entityA,
+                              const std::shared_ptr<Entity> &entityB) {
     const Vec2 &centerA = entityA->getCenterPos();
     const Vec2 &centerB = entityB->getCenterPos();
 
@@ -114,12 +122,14 @@ namespace CollisionHelpers::MainScene::Enforce {
                            const std::bitset<4>          &collides,
                            const Vec2                    &window_size) {
 
-    const std::shared_ptr<CShape>     &cShape     = entity->getComponent<CShape>();
-    const std::shared_ptr<CTransform> &cTransform = entity->getComponent<CTransform>();
+    const std::shared_ptr<CShape>     &cShape = entity->getComponent<CShape>();
+    const std::shared_ptr<CTransform> &cTransform =
+            entity->getComponent<CTransform>();
 
     if (!cShape || !cTransform) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                   "Entity with ID %zu and tag %u lacks a transform or shape component.",
+                   "Entity with ID %zu and tag %u lacks a transform or "
+                   "shape component.",
                    entity->id(),
                    entity->tag());
     };
@@ -159,9 +169,10 @@ namespace CollisionHelpers::MainScene::Enforce {
 
     const Vec2 &overlap = calculateOverlap(entity, wall);
 
-    const bool           mustResolveCollisionVertically   = overlap.x > overlap.y;
-    const bool           mustResolveCollisionHorizontally = overlap.x < overlap.y;
-    const std::bitset<4> positionRelativeToWall = getPositionRelativeToEntity(entity, wall);
+    const bool mustResolveCollisionVertically   = overlap.x > overlap.y;
+    const bool mustResolveCollisionHorizontally = overlap.x < overlap.y;
+    const std::bitset<4> positionRelativeToWall =
+            getPositionRelativeToEntity(entity, wall);
 
     const bool playerAboveWall   = positionRelativeToWall[ABOVE];
     const bool playerBelowWall   = positionRelativeToWall[BELOW];
@@ -200,12 +211,12 @@ namespace CollisionHelpers::MainScene::Enforce {
 
     const Vec2 &overlap = calculateOverlap(entityA, entityB);
 
-    const bool           mustResolveCollisionVertically   = overlap.x > overlap.y;
-    const bool           mustResolveCollisionHorizontally = overlap.x < overlap.y;
+    const bool mustResolveCollisionVertically   = overlap.x > overlap.y;
+    const bool mustResolveCollisionHorizontally = overlap.x < overlap.y;
     const std::bitset<4> entityARelativePosition =
-        getPositionRelativeToEntity(entityA, entityB);
+            getPositionRelativeToEntity(entityA, entityB);
     const std::bitset<4> entityBRelativePosition =
-        getPositionRelativeToEntity(entityB, entityA);
+            getPositionRelativeToEntity(entityB, entityA);
 
     const bool entityAAboveEntityB   = entityARelativePosition[ABOVE];
     const bool entityABelowEntityB   = entityARelativePosition[BELOW];
@@ -261,30 +272,36 @@ namespace CollisionHelpers::MainScene::Enforce {
 } // namespace CollisionHelpers::MainScene::Enforce
 
 namespace CollisionHelpers::MainScene {
-  void handleEntityBounds(const std::shared_ptr<Entity> &entity, const Vec2 &windowSize) {
+  void handleEntityBounds(const std::shared_ptr<Entity> &entity,
+                          const Vec2                    &windowSize) {
     const auto tag = entity->tag();
     if (tag == EntityTags::SpeedBoost) {
-      const std::bitset<4> speedBoostCollides = detectOutOfBounds(entity, windowSize);
+      const std::bitset<4> speedBoostCollides =
+              detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, speedBoostCollides);
     }
 
     if (tag == EntityTags::Player) {
-      const std::bitset<4> playerCollides = detectOutOfBounds(entity, windowSize);
+      const std::bitset<4> playerCollides =
+              detectOutOfBounds(entity, windowSize);
       Enforce::enforcePlayerBounds(entity, playerCollides, windowSize);
     }
 
     if (tag == EntityTags::Enemy) {
-      const std::bitset<4> enemyCollides = detectOutOfBounds(entity, windowSize);
+      const std::bitset<4> enemyCollides =
+              detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, enemyCollides);
     }
 
     if (tag == EntityTags::SlownessDebuff) {
-      const std::bitset<4> slownessCollides = detectOutOfBounds(entity, windowSize);
+      const std::bitset<4> slownessCollides =
+              detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, slownessCollides);
     }
 
     if (tag == EntityTags::Bullet) {
-      const std::bitset<4> bulletCollides = detectOutOfBounds(entity, windowSize);
+      const std::bitset<4> bulletCollides =
+              detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, bulletCollides);
     }
     if (tag == EntityTags::Item) {
@@ -293,7 +310,8 @@ namespace CollisionHelpers::MainScene {
     }
   }
 
-  void handleEntityEntityCollision(const CollisionPair &collisionPair, const GameState &args) {
+  void handleEntityEntityCollision(const CollisionPair &collisionPair,
+                                   const GameState     &args) {
     const std::shared_ptr<Entity> &entity      = collisionPair.entityA;
     const std::shared_ptr<Entity> &otherEntity = collisionPair.entityB;
 
@@ -305,10 +323,10 @@ namespace CollisionHelpers::MainScene {
     constexpr Uint64 minSpeedBoostDuration = 9000;
     constexpr Uint64 maxSpeedBoostDuration = 15000;
 
-    std::uniform_int_distribution<Uint64> randomSlownessDuration(minSlownessDuration,
-                                                                 maxSlownessDuration);
-    std::uniform_int_distribution<Uint64> randomSpeedBoostDuration(minSpeedBoostDuration,
-                                                                   maxSpeedBoostDuration);
+    std::uniform_int_distribution<Uint64> randomSlownessDuration(
+            minSlownessDuration, maxSlownessDuration);
+    std::uniform_int_distribution<Uint64> randomSpeedBoostDuration(
+            minSpeedBoostDuration, maxSpeedBoostDuration);
 
     const int                      m_score           = args.score;
     EntityManager                 &m_entities        = args.entityManager;
@@ -322,7 +340,8 @@ namespace CollisionHelpers::MainScene {
     }
 
     const bool entitiesCollided =
-        CollisionHelpers::calculateCollisionBetweenEntities(entity, otherEntity);
+            CollisionHelpers::calculateCollisionBetweenEntities(entity,
+                                                                otherEntity);
 
     if (!entitiesCollided) {
       return;
@@ -346,7 +365,8 @@ namespace CollisionHelpers::MainScene {
 
     if (tag == EntityTags::Bullet && otherTag == EntityTags::Enemy) {
       AudioSample nextSample = AudioSample::BULLET_HIT_02;
-      args.audioSampleManager.queueSample(nextSample, AudioSamplePriority::STANDARD);
+      args.audioSampleManager.queueSample(nextSample,
+                                          AudioSamplePriority::STANDARD);
 
       const auto &cBounceTracker = entity->getComponent<CBounceTracker>();
 
@@ -365,15 +385,17 @@ namespace CollisionHelpers::MainScene {
                                           AudioSamplePriority::BACKGROUND);
     }
 
-    if (tag == EntityTags::Bullet &&
-        (otherTag == EntityTags::SlownessDebuff || otherTag == EntityTags::SpeedBoost ||
-         otherTag == EntityTags::Item)) {
+    if (tag == EntityTags::Bullet
+        && (otherTag == EntityTags::SlownessDebuff
+            || otherTag == EntityTags::SpeedBoost
+            || otherTag == EntityTags::Item)) {
       otherEntity->destroy();
       entity->destroy();
 
       if (m_score > 15) {
-        const auto updatedScore =
-            otherTag == EntityTags::SlownessDebuff ? m_score + 15 : m_score - 15;
+        const auto updatedScore = otherTag == EntityTags::SlownessDebuff
+                                          ? m_score + 15
+                                          : m_score - 15;
         setScore(updatedScore);
       }
     }
@@ -385,13 +407,17 @@ namespace CollisionHelpers::MainScene {
       otherEntity->destroy();
       decrementLives();
 
-      const std::shared_ptr<CTransform> &cTransform = entity->getComponent<CTransform>();
-      const std::shared_ptr<CEffects>   &cEffects   = entity->getComponent<CEffects>();
-      cTransform->topLeftCornerPos                  = {windowSize.x / 2, windowSize.y / 2};
+      const std::shared_ptr<CTransform> &cTransform =
+              entity->getComponent<CTransform>();
+      const std::shared_ptr<CEffects> &cEffects =
+              entity->getComponent<CEffects>();
+      cTransform->topLeftCornerPos = {windowSize.x / 2, windowSize.y / 2};
 
       constexpr float    REMOVAL_RADIUS   = 150.0f;
       const EntityVector entitiesToRemove = EntityHelpers::getEntitiesInRadius(
-          entity, m_entities.getEntities(EntityTags::Enemy), REMOVAL_RADIUS);
+              entity,
+              m_entities.getEntities(EntityTags::Enemy),
+              REMOVAL_RADIUS);
 
       for (const std::shared_ptr<Entity> &entityToRemove : entitiesToRemove) {
         entityToRemove->destroy();
@@ -405,23 +431,29 @@ namespace CollisionHelpers::MainScene {
       const Uint64 duration  = randomSlownessDuration(m_randomGenerator);
 
       const auto &cEffects = entity->getComponent<CEffects>();
-      cEffects->addEffect(
-          {.startTime = startTime, .duration = duration, .type = EffectTypes::Slowness});
+      cEffects->addEffect({.startTime = startTime,
+                           .duration  = duration,
+                           .type      = EffectTypes::Slowness});
 
       EntityVector        effectsToCheck;
-      const EntityVector &slownessDebuffs = m_entities.getEntities(EntityTags::SlownessDebuff);
-      const EntityVector &speedBoosts     = m_entities.getEntities(EntityTags::SpeedBoost);
+      const EntityVector &slownessDebuffs =
+              m_entities.getEntities(EntityTags::SlownessDebuff);
+      const EntityVector &speedBoosts =
+              m_entities.getEntities(EntityTags::SpeedBoost);
 
+      effectsToCheck.insert(effectsToCheck.end(),
+                            slownessDebuffs.begin(),
+                            slownessDebuffs.end());
       effectsToCheck.insert(
-          effectsToCheck.end(), slownessDebuffs.begin(), slownessDebuffs.end());
-      effectsToCheck.insert(effectsToCheck.end(), speedBoosts.begin(), speedBoosts.end());
+              effectsToCheck.end(), speedBoosts.begin(), speedBoosts.end());
 
       const AudioSample nextSample = AudioSample::SLOWNESS_DEBUFF;
-      args.audioSampleManager.queueSample(nextSample, AudioSamplePriority::STANDARD);
+      args.audioSampleManager.queueSample(nextSample,
+                                          AudioSamplePriority::STANDARD);
 
-      constexpr float    REMOVAL_RADIUS = 150.0f;
-      const EntityVector entitiesToRemove =
-          EntityHelpers::getEntitiesInRadius(entity, effectsToCheck, REMOVAL_RADIUS);
+      constexpr float    REMOVAL_RADIUS   = 150.0f;
+      const EntityVector entitiesToRemove = EntityHelpers::getEntitiesInRadius(
+              entity, effectsToCheck, REMOVAL_RADIUS);
 
       for (const auto &entityToRemove : entitiesToRemove) {
         entityToRemove->destroy();
@@ -437,18 +469,22 @@ namespace CollisionHelpers::MainScene {
       const Uint64 duration  = randomSpeedBoostDuration(m_randomGenerator);
       const auto  &cEffects  = entity->getComponent<CEffects>();
 
-      cEffects->addEffect(
-          {.startTime = startTime, .duration = duration, .type = EffectTypes::Speed});
+      cEffects->addEffect({.startTime = startTime,
+                           .duration  = duration,
+                           .type      = EffectTypes::Speed});
 
       const AudioSample nextSample = AudioSample::SPEED_BOOST;
-      args.audioSampleManager.queueSample(nextSample, AudioSamplePriority::STANDARD);
+      args.audioSampleManager.queueSample(nextSample,
+                                          AudioSamplePriority::STANDARD);
 
-      const EntityVector &slownessDebuffs = m_entities.getEntities(EntityTags::SlownessDebuff);
-      const EntityVector &speedBoosts     = m_entities.getEntities(EntityTags::SpeedBoost);
+      const EntityVector &slownessDebuffs =
+              m_entities.getEntities(EntityTags::SlownessDebuff);
+      const EntityVector &speedBoosts =
+              m_entities.getEntities(EntityTags::SpeedBoost);
 
-      constexpr float    REMOVAL_RADIUS = 150.0f;
-      const EntityVector entitiesToRemove =
-          EntityHelpers::getEntitiesInRadius(entity, speedBoosts, REMOVAL_RADIUS);
+      constexpr float    REMOVAL_RADIUS   = 150.0f;
+      const EntityVector entitiesToRemove = EntityHelpers::getEntitiesInRadius(
+              entity, speedBoosts, REMOVAL_RADIUS);
 
       for (const auto &entityToRemove : entitiesToRemove) {
         entityToRemove->destroy();
@@ -460,7 +496,8 @@ namespace CollisionHelpers::MainScene {
         const auto     &cLifespan  = speedBoost->getComponent<CLifespan>();
         Uint64         &lifespan   = cLifespan->lifespan;
 
-        lifespan = static_cast<Uint64>(std::round(static_cast<float>(lifespan) * MULTIPLIER));
+        lifespan = static_cast<Uint64>(
+                std::round(static_cast<float>(lifespan) * MULTIPLIER));
       }
       for (const auto &slowDebuff : slownessDebuffs) {
         slowDebuff->destroy();

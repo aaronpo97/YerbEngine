@@ -43,7 +43,7 @@ MainScene::MainScene(GameEngine *gameEngine) :
 
 void MainScene::update() {
   const Uint64 currentTime = SDL_GetTicks64();
-  m_deltaTime              = static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f;
+  m_deltaTime = static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f;
 
   if (!m_paused && !m_gameOver) {
     sMovement();
@@ -65,7 +65,8 @@ void MainScene::update() {
 
 void MainScene::sDoAction(Action &action) {
   if (m_player == nullptr) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Player entity is null, cannot process action.");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Player entity is null, cannot process action.");
     return;
   }
 
@@ -75,7 +76,8 @@ void MainScene::sDoAction(Action &action) {
   const auto &cInput = m_player->getComponent<CInput>();
 
   if (cInput == nullptr) {
-    SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Player entity lacks an input component.");
+    SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                 "Player entity lacks an input component.");
     return;
   }
 
@@ -104,30 +106,35 @@ void MainScene::sDoAction(Action &action) {
   }
   if (action.getName() == "SHOOT") {
     const auto currentTime = SDL_GetTicks64();
-    const auto spawnBullet = currentTime - m_lastBulletSpawnTime > m_bulletSpawnCooldown;
+    const auto spawnBullet =
+            currentTime - m_lastBulletSpawnTime > m_bulletSpawnCooldown;
     if (!spawnBullet) {
       return;
     }
 
     const std::optional<Vec2> position = action.getPos();
     if (!position.has_value()) {
-      SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "A mouse event was called without a position.");
+      SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
+                   "A mouse event was called without a position.");
       return;
     }
     const Vec2 mousePosition = *position;
 
-    audioSampleQueue.queueSample(AudioSample::SHOOT, AudioSamplePriority::STANDARD);
+    audioSampleQueue.queueSample(AudioSample::SHOOT,
+                                 AudioSamplePriority::STANDARD);
     m_spawner.spawnBullets(m_player, mousePosition);
     m_lastBulletSpawnTime = currentTime;
 
     if (action.getName() == "PAUSE") {
-      audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::CRITICAL);
+      audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+                                   AudioSamplePriority::CRITICAL);
       m_paused = !m_paused;
     }
   }
 
   if (action.getName() == "GO_BACK") {
-    audioSampleQueue.queueSample(AudioSample::MENU_SELECT, AudioSamplePriority::CRITICAL);
+    audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+                                 AudioSamplePriority::CRITICAL);
     m_endTriggered = true;
   }
 }
@@ -140,19 +147,22 @@ void MainScene::renderText() const {
   constexpr SDL_Color scoreColor = {255, 255, 255, 255};
   const std::string   scoreText  = "Score: " + std::to_string(m_score);
   const Vec2          scorePos   = {10, 10};
-  TextHelpers::renderLineOfText(renderer, fontMd, scoreText, scoreColor, scorePos);
+  TextHelpers::renderLineOfText(
+          renderer, fontMd, scoreText, scoreColor, scorePos);
 
   constexpr SDL_Color livesColor = {255, 255, 255, 255};
   const std::string   livesText  = "Lives: " + std::to_string(m_lives);
   const Vec2          livesPos   = {10, 40};
-  TextHelpers::renderLineOfText(renderer, fontMd, livesText, livesColor, livesPos);
+  TextHelpers::renderLineOfText(
+          renderer, fontMd, livesText, livesColor, livesPos);
 
   const Uint64        timeRemaining = m_timeRemaining;
   const Uint64        minutes       = timeRemaining / 60000;
   const Uint64        seconds       = timeRemaining % 60000 / 1000;
   constexpr SDL_Color timeColor     = {255, 255, 255, 255};
-  const std::string   timeText      = "Time: " + std::to_string(minutes) + ":" +
-                               (seconds < 10 ? "0" : "") + std::to_string(seconds);
+  const std::string   timeText      = "Time: " + std::to_string(minutes) + ":"
+                               + (seconds < 10 ? "0" : "")
+                               + std::to_string(seconds);
   const Vec2 timePos = {10, 70};
 
   TextHelpers::renderLineOfText(renderer, fontMd, timeText, timeColor, timePos);
@@ -164,14 +174,15 @@ void MainScene::renderText() const {
     const std::string   speedBoostText  = "Speed Boost Active!";
     const Vec2          speedBoostPos   = {10, 120};
     TextHelpers::renderLineOfText(
-        renderer, fontSm, speedBoostText, speedBoostColor, speedBoostPos);
+            renderer, fontSm, speedBoostText, speedBoostColor, speedBoostPos);
   }
 
   if (cEffects->hasEffect(Slowness)) {
     constexpr SDL_Color slownessColor = {255, 0, 0, 255};
     const std::string   slownessText  = "Slowness Active!";
     const Vec2          slownessPos   = {10, 120};
-    TextHelpers::renderLineOfText(renderer, fontSm, slownessText, slownessColor, slownessPos);
+    TextHelpers::renderLineOfText(
+            renderer, fontSm, slownessText, slownessColor, slownessPos);
   }
 }
 
@@ -198,13 +209,13 @@ void MainScene::sRender() {
     rect.x = static_cast<int>(pos.x);
     rect.y = static_cast<int>(pos.y);
 
-
-
-
     // If there's no sprite, render a plain box
     if (!entity->hasComponent<CSprite>()) {
-      SDL_SetRenderDrawColor(
-          renderer, cShape->color.r, cShape->color.g, cShape->color.b, cShape->color.a);
+      SDL_SetRenderDrawColor(renderer,
+                             cShape->color.r,
+                             cShape->color.g,
+                             cShape->color.b,
+                             cShape->color.a);
       SDL_RenderFillRect(renderer, &rect);
       continue; // continue on, render the next entity
     }
@@ -231,19 +242,20 @@ void MainScene::sCollision() {
 
   AudioSampleQueue &audioSampleManager = m_gameEngine->getAudioSampleQueue();
   const GameState   gameState          = {
-                 .entityManager      = m_entities,
-                 .randomGenerator    = m_randomGenerator,
-                 .score              = m_score,
-                 .setScore           = [this](const int score) -> void { setScore(score); },
-                 .decrementLives     = [this]() -> void { decrementLives(); },
-                 .audioSampleManager = audioSampleManager,
-                 .windowSize         = windowSize,
+                     .entityManager   = m_entities,
+                     .randomGenerator = m_randomGenerator,
+                     .score           = m_score,
+                     .setScore = [this](const int score) -> void { setScore(score); },
+                     .decrementLives     = [this]() -> void { decrementLives(); },
+                     .audioSampleManager = audioSampleManager,
+                     .windowSize         = windowSize,
   };
 
   for (auto &entity : m_entities.getEntities()) {
     handleEntityBounds(entity, windowSize);
     for (auto &otherEntity : m_entities.getEntities()) {
-      const CollisionPair collisionPair = {.entityA = entity, .entityB = otherEntity};
+      const CollisionPair collisionPair = {.entityA = entity,
+                                           .entityB = otherEntity};
       handleEntityEntityCollision(collisionPair, gameState);
     }
   }
@@ -252,26 +264,30 @@ void MainScene::sCollision() {
 }
 
 void MainScene::sMovement() {
-  const ConfigManager        &configManager          = m_gameEngine->getConfigManager();
-  const PlayerConfig         &playerConfig           = configManager.getPlayerConfig();
-  const EnemyConfig          &enemyConfig            = configManager.getEnemyConfig();
-  const SlownessEffectConfig &slownessEffectConfig   = configManager.getSlownessEffectConfig();
-  const SpeedEffectConfig    &speedBoostEffectConfig = configManager.getSpeedEffectConfig();
+  const ConfigManager        &configManager = m_gameEngine->getConfigManager();
+  const PlayerConfig         &playerConfig  = configManager.getPlayerConfig();
+  const EnemyConfig          &enemyConfig   = configManager.getEnemyConfig();
+  const SlownessEffectConfig &slownessEffectConfig =
+          configManager.getSlownessEffectConfig();
+  const SpeedEffectConfig &speedBoostEffectConfig =
+          configManager.getSpeedEffectConfig();
 
   for (const std::shared_ptr<Entity> &entity : m_entities.getEntities()) {
-    MovementHelpers::moveSpeedBoosts(entity, speedBoostEffectConfig, m_deltaTime);
+    MovementHelpers::moveSpeedBoosts(
+            entity, speedBoostEffectConfig, m_deltaTime);
     MovementHelpers::moveEnemies(entity, enemyConfig, m_deltaTime);
     MovementHelpers::movePlayer(entity, playerConfig, m_deltaTime);
-    MovementHelpers::moveSlownessDebuffs(entity, slownessEffectConfig, m_deltaTime);
+    MovementHelpers::moveSlownessDebuffs(
+            entity, slownessEffectConfig, m_deltaTime);
     MovementHelpers::moveBullets(entity, m_deltaTime);
     MovementHelpers::moveItems(entity, m_deltaTime);
   }
 }
 
 void MainScene::sSpawner() {
-  const ConfigManager &configManager  = m_gameEngine->getConfigManager();
-  const Uint64         ticks          = SDL_GetTicks64();
-  const Uint64         SPAWN_INTERVAL = configManager.getGameConfig().spawnInterval;
+  const ConfigManager &configManager = m_gameEngine->getConfigManager();
+  const Uint64         ticks         = SDL_GetTicks64();
+  const Uint64 SPAWN_INTERVAL = configManager.getGameConfig().spawnInterval;
 
   if (ticks - m_lastNonPlayerEntitySpawnTime < SPAWN_INTERVAL) {
     return;
@@ -281,25 +297,29 @@ void MainScene::sSpawner() {
 
   std::mt19937 &randomGenerator = m_randomGenerator;
 
-  const EnemyConfig          &enemyCfg       = configManager.getEnemyConfig();
-  const SpeedEffectConfig    &speedEffectCfg = configManager.getSpeedEffectConfig();
-  const SlownessEffectConfig &slowEffectCfg  = configManager.getSlownessEffectConfig();
-  const ItemConfig           &itemCfg        = configManager.getItemConfig();
+  const EnemyConfig       &enemyCfg = configManager.getEnemyConfig();
+  const SpeedEffectConfig &speedEffectCfg =
+          configManager.getSpeedEffectConfig();
+  const SlownessEffectConfig &slowEffectCfg =
+          configManager.getSlownessEffectConfig();
+  const ItemConfig &itemCfg = configManager.getItemConfig();
 
-  const auto &cEffects           = m_player->getComponent<CEffects>();
-  const bool hasSpeedBasedEffect = cEffects->hasEffect(Speed) || cEffects->hasEffect(Slowness);
+  const auto &cEffects = m_player->getComponent<CEffects>();
+  const bool  hasSpeedBasedEffect =
+          cEffects->hasEffect(Speed) || cEffects->hasEffect(Slowness);
 
   std::uniform_int_distribution<unsigned int> distribution(0, 100);
 
-  auto shouldSpawn = [&randomGenerator, &distribution](const unsigned int chance) -> bool {
+  auto shouldSpawn = [&randomGenerator,
+                      &distribution](const unsigned int chance) -> bool {
     return distribution(randomGenerator) < chance;
   };
 
   const bool spawnEnemy = shouldSpawn(enemyCfg.spawnPercentage);
   const bool spawnSpeedBoost =
-      !hasSpeedBasedEffect && shouldSpawn(speedEffectCfg.spawnPercentage);
+          !hasSpeedBasedEffect && shouldSpawn(speedEffectCfg.spawnPercentage);
   const bool spawnSlowDebuff =
-      !hasSpeedBasedEffect && shouldSpawn(slowEffectCfg.spawnPercentage);
+          !hasSpeedBasedEffect && shouldSpawn(slowEffectCfg.spawnPercentage);
   const bool spawnItem = shouldSpawn(itemCfg.spawnPercentage);
 
   if (spawnEnemy) {
@@ -342,8 +362,10 @@ void MainScene::sTimer() {
 
   // Check if the timer was recently operated by comparing the current time
   // with the last frame time and the scene's start time.
-  const bool   wasTimerRecentlyOperated = currentTime - m_lastFrameTime < m_SceneStartTime;
-  const Uint64 elapsedTime = !wasTimerRecentlyOperated ? 0 : currentTime - m_lastFrameTime;
+  const bool wasTimerRecentlyOperated =
+          currentTime - m_lastFrameTime < m_SceneStartTime;
+  const Uint64 elapsedTime =
+          !wasTimerRecentlyOperated ? 0 : currentTime - m_lastFrameTime;
 
   if (m_timeRemaining < elapsedTime) {
     m_timeRemaining = 0;
@@ -386,8 +408,10 @@ void MainScene::sLifespan() {
     const Uint64 currentTime = SDL_GetTicks();
     const Uint64 elapsedTime = currentTime - cLifespan->birthTime;
     // Calculate the lifespan percentage, ensuring it's clamped between 0 and 1
-    const float lifespanPercentage = std::min(
-        1.0f, static_cast<float>(elapsedTime) / static_cast<float>(cLifespan->lifespan));
+    const float lifespanPercentage =
+            std::min(1.0f,
+                     static_cast<float>(elapsedTime)
+                             / static_cast<float>(cLifespan->lifespan));
 
     const bool entityExpired = elapsedTime > cLifespan->lifespan;
     if (!entityExpired && entity->tag() == EntityTags::Enemy) {
@@ -396,7 +420,9 @@ void MainScene::sLifespan() {
     if (!entityExpired) {
       constexpr float MAX_COLOR_VALUE = 255.0f;
       const Uint8     alpha           = static_cast<Uint8>(std::max(
-          0.0f, std::min(MAX_COLOR_VALUE, MAX_COLOR_VALUE * (1.0f - lifespanPercentage))));
+              0.0f,
+              std::min(MAX_COLOR_VALUE,
+                       MAX_COLOR_VALUE * (1.0f - lifespanPercentage))));
 
       SDL_Color &color = cShape->color;
       color            = {.r = color.r, .g = color.g, .b = color.b, .a = alpha};
@@ -441,7 +467,8 @@ void MainScene::onEnd() {
     m_gameEngine->loadScene("Menu", std::make_shared<MenuScene>(m_gameEngine));
     return;
   }
-  m_gameEngine->loadScene("ScoreScene", std::make_shared<ScoreScene>(m_gameEngine, m_score));
+  m_gameEngine->loadScene("ScoreScene",
+                          std::make_shared<ScoreScene>(m_gameEngine, m_score));
 }
 
 void MainScene::sAudio() {

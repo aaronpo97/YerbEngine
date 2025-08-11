@@ -27,11 +27,14 @@ private:
   std::filesystem::path m_configPath;
 
   template <typename JsonReturnType>
-  static JsonReturnType
-  getJsonValue(const json &jsonValue, const std::string &key, const std::string &context);
+  static JsonReturnType getJsonValue(const json        &jsonValue,
+                                     const std::string &key,
+                                     const std::string &context);
 
-  static SDL_Color   parseColor(const json &colorJson, const std::string &context);
-  static ShapeConfig parseShapeConfig(const json &shapeJson, const std::string &context);
+  static SDL_Color   parseColor(const json        &colorJson,
+                                const std::string &context);
+  static ShapeConfig parseShapeConfig(const json        &shapeJson,
+                                      const std::string &context);
   void               parseGameConfig();
   void               parseItemConfig();
   void               parsePlayerConfig();
@@ -43,7 +46,8 @@ private:
   void               loadConfig();
 
 public:
-  explicit ConfigManager(std::filesystem::path configPath = "assets/config.json");
+  explicit ConfigManager(
+          std::filesystem::path configPath = "assets/config.json");
 
   const GameConfig           &getGameConfig() const;
   const ItemConfig           &getItemConfig() const;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./Vec2.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <SDL_ttf.h>
 #include <iostream>
 

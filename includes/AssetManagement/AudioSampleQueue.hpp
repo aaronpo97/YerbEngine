@@ -15,7 +15,8 @@ struct QueuedSample {
     if (priority != other.priority) {
       return priority < other.priority;
     }
-    return timestamp > other.timestamp; // Earlier sounds first within same priority
+    return timestamp
+           > other.timestamp; // Earlier sounds first within same priority
   }
 };
 

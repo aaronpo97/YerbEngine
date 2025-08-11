@@ -17,14 +17,16 @@ namespace CollisionHelpers {
   std::bitset<4> detectOutOfBounds(const std::shared_ptr<Entity> &entity,
                                    const Vec2                    &window_size);
 
-  bool calculateCollisionBetweenEntities(const std::shared_ptr<Entity> &entityA,
-                                         const std::shared_ptr<Entity> &entityB);
+  bool
+  calculateCollisionBetweenEntities(const std::shared_ptr<Entity> &entityA,
+                                    const std::shared_ptr<Entity> &entityB);
 
   Vec2 calculateOverlap(const std::shared_ptr<Entity> &entityA,
                         const std::shared_ptr<Entity> &entityB);
 
-  std::bitset<4> getPositionRelativeToEntity(const std::shared_ptr<Entity> &entityA,
-                                             const std::shared_ptr<Entity> &entityB);
+  std::bitset<4>
+  getPositionRelativeToEntity(const std::shared_ptr<Entity> &entityA,
+                              const std::shared_ptr<Entity> &entityB);
 
 } // namespace CollisionHelpers
 
@@ -44,8 +46,10 @@ namespace CollisionHelpers::MainScene {
     const Vec2                      windowSize;
   };
 
-  void handleEntityBounds(const std::shared_ptr<Entity> &entity, const Vec2 &windowSize);
-  void handleEntityEntityCollision(const CollisionPair &collisionPair, const GameState &args);
+  void handleEntityBounds(const std::shared_ptr<Entity> &entity,
+                          const Vec2                    &windowSize);
+  void handleEntityEntityCollision(const CollisionPair &collisionPair,
+                                   const GameState     &args);
 
 } // namespace CollisionHelpers::MainScene
 
