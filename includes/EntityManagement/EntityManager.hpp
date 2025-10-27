@@ -1,26 +1,33 @@
 #pragma once
 
 #include "./Entity.hpp"
+#include <list>
 #include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
-// Store all entity objects in a vector.
-typedef std::vector<std::shared_ptr<Entity>> EntityVector;
-
-// Store separate vectors of Entity objects by their tag for quick retrieval.
-typedef std::map<EntityTags, EntityVector> EntityMap;
+using EntityList = std::list<std::shared_ptr<Entity>>;
+using EntityMap  = std::unordered_map<EntityTags, EntityList>;
 
 class EntityManager {
-  EntityVector m_entities;
-  EntityVector m_toAdd;
-  EntityMap    m_entityMap;
-  size_t       m_totalEntities = 0;
+  EntityList m_entities;
+  EntityList m_toAdd;
+  EntityMap  m_entityMap;
+  size_t     m_totalEntities = 0;
 
 public:
-  EntityManager();
+  EntityManager() = default;
+  ~EntityManager() = default;
+
+  // No copying or moving allowed
+  EntityManager(const EntityManager &) = delete;
+  EntityManager &operator=(const EntityManager &) = delete;
+  EntityManager(EntityManager &&) = delete;
+  EntityManager &operator=(EntityManager &&) = delete;
+
   std::shared_ptr<Entity> addEntity(const EntityTags tag);
-  EntityVector           &getEntities();
-  EntityVector           &getEntities(const EntityTags tag);
+  EntityList             &getEntities();
+  EntityList             &getEntities(const EntityTags tag);
   void                    update();
 };

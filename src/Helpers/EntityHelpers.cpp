@@ -4,13 +4,13 @@
 #include <vector>
 
 namespace EntityHelpers {
-  EntityVector getEntitiesInRadius(const std::shared_ptr<Entity> &entity,
-                                   const EntityVector            &candidates,
-                                   const float                   &radius) {
+  EntityList getEntitiesInRadius(const std::shared_ptr<Entity> &entity,
+                                 const EntityList              &candidates,
+                                 const float                   &radius) {
 
-    EntityVector result;
-    const Vec2  &center        = entity->getCenterPos();
-    const float  radiusSquared = radius * radius;
+    EntityList  result;
+    const Vec2 &center        = entity->getCenterPos();
+    const float radiusSquared = radius * radius;
 
     for (const auto &candidate : candidates) {
       if (candidate == entity)

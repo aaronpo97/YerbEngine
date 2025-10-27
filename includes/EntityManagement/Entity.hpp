@@ -15,14 +15,13 @@ enum EntityTags {
   Default
 };
 
-typedef std::tuple<std::shared_ptr<CTransform>,
-                   std::shared_ptr<CShape>,
-                   std::shared_ptr<CInput>,
-                   std::shared_ptr<CLifespan>,
-                   std::shared_ptr<CEffects>,
-                   std::shared_ptr<CBounceTracker>,
-                   std::shared_ptr<CSprite>>
-        EntityComponents;
+using EntityComponents = std::tuple<std::shared_ptr<CTransform>,
+                                    std::shared_ptr<CShape>,
+                                    std::shared_ptr<CInput>,
+                                    std::shared_ptr<CLifespan>,
+                                    std::shared_ptr<CEffects>,
+                                    std::shared_ptr<CBounceTracker>,
+                                    std::shared_ptr<CSprite>>;
 
 class Entity {
 private:

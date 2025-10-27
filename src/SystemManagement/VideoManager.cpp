@@ -7,7 +7,7 @@
 #include <emscripten.h>
 #endif
 
-typedef std::filesystem::path Path;
+using Path = std::filesystem::path;
 
 VideoManager::VideoManager(ConfigManager &configManager) :
     m_configManager(configManager) {

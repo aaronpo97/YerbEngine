@@ -5,12 +5,14 @@
 #include <emscripten.h>
 #endif
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
 #ifndef __EMSCRIPTEN__
   SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 #endif
-  auto gameEngine = GameEngine();
-  gameEngine.run();
+
+  const auto engine = std::make_unique<GameEngine>();
+
+  engine->run();
 
   return 0;
 }

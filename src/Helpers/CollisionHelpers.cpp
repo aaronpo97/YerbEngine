@@ -413,8 +413,8 @@ namespace CollisionHelpers::MainScene {
               entity->getComponent<CEffects>();
       cTransform->topLeftCornerPos = {windowSize.x / 2, windowSize.y / 2};
 
-      constexpr float    REMOVAL_RADIUS   = 150.0f;
-      const EntityVector entitiesToRemove = EntityHelpers::getEntitiesInRadius(
+      constexpr float  REMOVAL_RADIUS   = 150.0f;
+      const EntityList entitiesToRemove = EntityHelpers::getEntitiesInRadius(
               entity,
               m_entities.getEntities(EntityTags::Enemy),
               REMOVAL_RADIUS);
@@ -435,10 +435,10 @@ namespace CollisionHelpers::MainScene {
                            .duration  = duration,
                            .type      = EffectTypes::Slowness});
 
-      EntityVector        effectsToCheck;
-      const EntityVector &slownessDebuffs =
+      EntityList        effectsToCheck;
+      const EntityList &slownessDebuffs =
               m_entities.getEntities(EntityTags::SlownessDebuff);
-      const EntityVector &speedBoosts =
+      const EntityList &speedBoosts =
               m_entities.getEntities(EntityTags::SpeedBoost);
 
       effectsToCheck.insert(effectsToCheck.end(),
@@ -451,8 +451,8 @@ namespace CollisionHelpers::MainScene {
       args.audioSampleManager.queueSample(nextSample,
                                           AudioSamplePriority::STANDARD);
 
-      constexpr float    REMOVAL_RADIUS   = 150.0f;
-      const EntityVector entitiesToRemove = EntityHelpers::getEntitiesInRadius(
+      constexpr float  REMOVAL_RADIUS   = 150.0f;
+      const EntityList entitiesToRemove = EntityHelpers::getEntitiesInRadius(
               entity, effectsToCheck, REMOVAL_RADIUS);
 
       for (const auto &entityToRemove : entitiesToRemove) {
@@ -477,13 +477,13 @@ namespace CollisionHelpers::MainScene {
       args.audioSampleManager.queueSample(nextSample,
                                           AudioSamplePriority::STANDARD);
 
-      const EntityVector &slownessDebuffs =
+      const EntityList &slownessDebuffs =
               m_entities.getEntities(EntityTags::SlownessDebuff);
-      const EntityVector &speedBoosts =
+      const EntityList &speedBoosts =
               m_entities.getEntities(EntityTags::SpeedBoost);
 
-      constexpr float    REMOVAL_RADIUS   = 150.0f;
-      const EntityVector entitiesToRemove = EntityHelpers::getEntitiesInRadius(
+      constexpr float  REMOVAL_RADIUS   = 150.0f;
+      const EntityList entitiesToRemove = EntityHelpers::getEntitiesInRadius(
               entity, speedBoosts, REMOVAL_RADIUS);
 
       for (const auto &entityToRemove : entitiesToRemove) {

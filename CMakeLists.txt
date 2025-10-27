@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21...3.28)
-project(SDL_GAME VERSION 1.0 LANGUAGES CXX)
+project(YerbEngine VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,40 +13,41 @@ FetchContent_MakeAvailable(json)
 
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 file(GLOB_RECURSE SRC_FILES "${SRC_DIR}/*.cpp")
-add_executable(sdl_game_app ${SRC_FILES})
+add_executable(yerb_engine ${SRC_FILES})
 
-set_target_properties(sdl_game_app PROPERTIES
-        OUTPUT_NAME "SDL_GAME"
+set_target_properties(yerb_engine PROPERTIES
+        OUTPUT_NAME "YerbEngine"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-target_link_libraries(sdl_game_app PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(yerb_engine PRIVATE nlohmann_json::nlohmann_json)
 
 if(APPLE)
-        target_compile_options(sdl_game_app PRIVATE -Wno-deprecated -Wno-deprecated-declarations)
+        target_compile_options(yerb_engine PRIVATE -Wno-deprecated -Wno-deprecated-declarations)
 endif()
+
 if(EMSCRIPTEN)
     message(STATUS "Configuring for Emscripten")
 
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
-    set_target_properties(sdl_game_app PROPERTIES
-        OUTPUT_NAME "SDL_GAME"
+    set_target_properties(yerb_engine PROPERTIES
+        OUTPUT_NAME "YerbEngine"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
 
-    set_target_properties(sdl_game_app PROPERTIES CMAKE_EXECUTABLE_SUFFIX ".js")
+    set_target_properties(yerb_engine PROPERTIES CMAKE_EXECUTABLE_SUFFIX ".js")
 
-    target_compile_options(sdl_game_app PRIVATE
+    target_compile_options(yerb_engine PRIVATE
         "-sUSE_SDL=2"
         "-sUSE_SDL_IMAGE=2"
         "-sUSE_SDL_TTF=2"
         "-sUSE_SDL_MIXER=2"
     )
 
-    target_link_options(sdl_game_app PRIVATE
+    target_link_options(yerb_engine PRIVATE
         -O3
         -fwasm-exceptions
         "-sUSE_SDL=2"
@@ -64,7 +65,7 @@ if(EMSCRIPTEN)
         OUTPUT_VARIABLE EMSCRIPTEN_INCLUDE_DIR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    target_include_directories(sdl_game_app PRIVATE ${EMSCRIPTEN_INCLUDE_DIR})
+    target_include_directories(yerb_engine PRIVATE ${EMSCRIPTEN_INCLUDE_DIR})
 
     if(NOT TARGET copy_templates)
         add_custom_target(copy_templates ALL
@@ -76,12 +77,12 @@ if(EMSCRIPTEN)
 else()
         message(STATUS "Configuring for native")
 
-        find_package(SDL2 REQUIRED)
+        find_package(SDL2       REQUIRED)
         find_package(SDL2_image REQUIRED)
-        find_package(SDL2_ttf REQUIRED)
+        find_package(SDL2_ttf   REQUIRED)
         find_package(SDL2_mixer REQUIRED)
 
-        target_link_libraries(sdl_game_app PRIVATE
+        target_link_libraries(yerb_engine PRIVATE
                 SDL2::SDL2
                 SDL2_image::SDL2_image
                 SDL2_ttf::SDL2_ttf
@@ -104,9 +105,9 @@ else()
                 )
         endif()
 
-        add_dependencies(sdl_game_app copy_assets_runtime copy_config_runtime)
+        add_dependencies(yerb_engine copy_assets_runtime copy_config_runtime)
 
-        add_custom_command(TARGET sdl_game_app POST_BUILD
+        add_custom_command(TARGET yerb_engine POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${OUT_DIR}/assets"
                 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${OUT_DIR}/config"
         )

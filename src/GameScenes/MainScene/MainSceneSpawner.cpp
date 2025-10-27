@@ -120,7 +120,6 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
   speedBoost->setComponent<CShape>(cShape);
   speedBoost->setComponent<CLifespan>(cLifespan);
 
-  // @todo Check for nullptr player
   if (!player) {
     SDL_Log("Player missing, destroying speed boost");
     speedBoost->destroy();
@@ -291,7 +290,7 @@ void MainSceneSpawner::spawnWalls() {
 void MainSceneSpawner::spawnBullets(const std::shared_ptr<Entity> &player,
                                     const Vec2 &mousePosition) {
 
-  const EntityVector walls = m_entityManager.getEntities(EntityTags::Wall);
+  const EntityList walls = m_entityManager.getEntities(EntityTags::Wall);
 
   const auto &[lifespan, speed, shape] = m_configManager.getBulletConfig();
 
