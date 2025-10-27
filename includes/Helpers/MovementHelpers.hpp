@@ -8,22 +8,23 @@
 #include <memory>
 
 namespace MovementHelpers {
-  void moveEnemies(const std::shared_ptr<Entity> &entity,
-                   const EnemyConfig             &enemyConfig,
-                   const float                   &deltaTime);
-  void moveSpeedBoosts(const std::shared_ptr<Entity> &entity,
-                       const SpeedEffectConfig       &speedBoostEffectConfig,
-                       const float                   &deltaTime);
-  void movePlayer(const std::shared_ptr<Entity> &entity,
-                  const PlayerConfig            &playerConfig,
-                  const float                   &deltaTime);
+    void moveEnemies(std::shared_ptr<Entity> const &entity,
+                     EnemyConfig const             &enemyConfig,
+                     float const                   &deltaTime);
+    void moveSpeedBoosts(std::shared_ptr<Entity> const &entity,
+                         SpeedEffectConfig const       &speedBoostEffectConfig,
+                         float const                   &deltaTime);
+    void movePlayer(std::shared_ptr<Entity> const &entity,
+                    PlayerConfig const            &playerConfig,
+                    float const                   &deltaTime);
 
-  void moveSlownessDebuffs(const std::shared_ptr<Entity> &entity,
-                           const SlownessEffectConfig    &slownessEffectConfig,
-                           const float                   &deltaTime);
+    void moveSlownessDebuffs(std::shared_ptr<Entity> const &entity,
+                             SlownessEffectConfig const &slownessEffectConfig,
+                             float const                &deltaTime);
 
-  void moveBullets(const std::shared_ptr<Entity> &entity,
-                   const float                   &deltaTime);
+    void moveBullets(std::shared_ptr<Entity> const &entity,
+                     float const                   &deltaTime);
 
-  void moveItems(const std::shared_ptr<Entity> &entity, const float &deltaTime);
+    void moveItems(std::shared_ptr<Entity> const &entity,
+                   float const                   &deltaTime);
 } // namespace MovementHelpers

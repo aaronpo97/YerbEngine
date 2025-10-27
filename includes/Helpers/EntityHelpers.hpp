@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace EntityHelpers {
-  EntityList getEntitiesInRadius(const std::shared_ptr<Entity> &entity,
-                                 const EntityList              &candidates,
-                                 const float                   &radius);
+    EntityList getEntitiesInRadius(std::shared_ptr<Entity> const &entity,
+                                   EntityList const              &candidates,
+                                   float const                   &radius);
 } // namespace EntityHelpers

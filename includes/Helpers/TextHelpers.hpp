@@ -6,9 +6,9 @@
 #include <iostream>
 
 namespace TextHelpers {
-  void renderLineOfText(SDL_Renderer      *renderer,
-                        TTF_Font          *font,
-                        const std::string &text,
-                        const SDL_Color   &color,
-                        const Vec2        &position);
+    void renderLineOfText(SDL_Renderer      *renderer,
+                          TTF_Font          *font,
+                          std::string const &text,
+                          SDL_Color const   &color,
+                          Vec2 const        &position);
 }

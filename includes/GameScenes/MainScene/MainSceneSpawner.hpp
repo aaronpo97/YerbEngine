@@ -5,26 +5,26 @@
 #include <random>
 
 class MainSceneSpawner {
-  std::mt19937   &m_randomGenerator;
-  ConfigManager  &m_configManager;
-  TextureManager &m_textureManager;
-  EntityManager  &m_entityManager;
-  SDL_Renderer   *m_renderer;
+    std::mt19937   &m_randomGenerator;
+    ConfigManager  &m_configManager;
+    TextureManager &m_textureManager;
+    EntityManager  &m_entityManager;
+    SDL_Renderer   *m_renderer;
 
-public:
-  MainSceneSpawner(std::mt19937   &randomGenerator,
-                   ConfigManager  &configManager,
-                   TextureManager &textureManager,
-                   EntityManager  &entityManager,
-                   SDL_Renderer   *renderer);
+  public:
+    MainSceneSpawner(std::mt19937   &randomGenerator,
+                     ConfigManager  &configManager,
+                     TextureManager &textureManager,
+                     EntityManager  &entityManager,
+                     SDL_Renderer   *renderer);
 
-  std::shared_ptr<Entity> spawnPlayer();
+    std::shared_ptr<Entity> spawnPlayer();
 
-  void spawnEnemy(const std::shared_ptr<Entity> &player);
-  void spawnSpeedBoostEntity(const std::shared_ptr<Entity> &player);
-  void spawnSlownessEntity(const std::shared_ptr<Entity> &player);
-  void spawnWalls();
-  void spawnBullets(const std::shared_ptr<Entity> &player,
-                    const Vec2                    &mousePosition);
-  void spawnItem(const std::shared_ptr<Entity> &player);
+    void spawnEnemy(std::shared_ptr<Entity> const &player);
+    void spawnSpeedBoostEntity(std::shared_ptr<Entity> const &player);
+    void spawnSlownessEntity(std::shared_ptr<Entity> const &player);
+    void spawnWalls();
+    void spawnBullets(std::shared_ptr<Entity> const &player,
+                      Vec2 const                    &mousePosition);
+    void spawnItem(std::shared_ptr<Entity> const &player);
 };

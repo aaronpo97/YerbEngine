@@ -12,11 +12,11 @@
 #include <random>
 
 namespace SpawnHelpers {
-  Vec2 createRandomPosition(std::mt19937 &randomGenerator,
-                            const Vec2   &windowSize);
-  Vec2 createValidVelocity(std::mt19937 &randomGenerator, int attempts = 5);
-  bool validateSpawnPosition(const std::shared_ptr<Entity> &entity,
-                             const std::shared_ptr<Entity> &player,
-                             EntityManager                 &entityManager,
-                             const Vec2                    &windowSize);
+    Vec2 createRandomPosition(std::mt19937 &randomGenerator,
+                              Vec2 const   &windowSize);
+    Vec2 createValidVelocity(std::mt19937 &randomGenerator, int attempts = 5);
+    bool validateSpawnPosition(std::shared_ptr<Entity> const &entity,
+                               std::shared_ptr<Entity> const &player,
+                               EntityManager                 &entityManager,
+                               Vec2 const                    &windowSize);
 } // namespace SpawnHelpers

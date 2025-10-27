@@ -1,26 +1,26 @@
 #pragma once
 #include <iostream>
 class Vec2 {
-public:
-  float x, y;
+  public:
+    float x, y;
 
-  Vec2(float x = 0, float y = 0);
+    Vec2(float x = 0, float y = 0);
 
-  bool operator==(const Vec2 &rhs) const;
-  bool operator!=(const Vec2 &rhs) const;
+    bool operator==(Vec2 const &rhs) const;
+    bool operator!=(Vec2 const &rhs) const;
 
-  Vec2 operator-(const Vec2 &rhs) const;
-  Vec2 operator+(const Vec2 &rhs) const;
-  Vec2 operator*(const float val) const;
-  Vec2 operator/(const float val) const;
+    Vec2 operator-(Vec2 const &rhs) const;
+    Vec2 operator+(Vec2 const &rhs) const;
+    Vec2 operator*(float const val) const;
+    Vec2 operator/(float const val) const;
 
-  void operator+=(const Vec2 &rhs);
-  void operator-=(const Vec2 &rhs);
-  void operator*=(const float val);
-  void operator/=(const float val);
+    void operator+=(Vec2 const &rhs);
+    void operator-=(Vec2 const &rhs);
+    void operator*=(float const val);
+    void operator/=(float const val);
 
-  friend std::ostream &operator<<(std::ostream &os, const Vec2 &vec2);
+    friend std::ostream &operator<<(std::ostream &os, Vec2 const &vec2);
 
-  Vec2  normalize();
-  float length() const;
+    Vec2  normalize();
+    float length() const;
 };

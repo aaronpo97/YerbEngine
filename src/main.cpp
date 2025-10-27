@@ -7,12 +7,12 @@
 
 int main(int argc, char **argv) {
 #ifndef __EMSCRIPTEN__
-  SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+    SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 #endif
 
-  const auto engine = std::make_unique<GameEngine>();
+    const auto engine = std::make_unique<GameEngine>();
 
-  engine->run();
+    engine->run();
 
-  return 0;
+    return 0;
 }

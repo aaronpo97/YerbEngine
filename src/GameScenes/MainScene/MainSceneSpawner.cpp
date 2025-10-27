@@ -5,393 +5,393 @@ MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
                                    ConfigManager  &configManager,
                                    TextureManager &textureManager,
                                    EntityManager  &entityManager,
-                                   SDL_Renderer   *renderer) :
-    m_randomGenerator(randomGenerator),
-    m_configManager(configManager),
-    m_textureManager(textureManager),
-    m_entityManager(entityManager),
-    m_renderer(renderer) {
-  std::cout << "spawner created\n";
+                                   SDL_Renderer   *renderer)
+    : m_randomGenerator(randomGenerator), m_configManager(configManager),
+      m_textureManager(textureManager), m_entityManager(entityManager),
+      m_renderer(renderer) {
+    std::cout << "spawner created\n";
 }
 
 std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
-  const PlayerConfig &playerConfig = m_configManager.getPlayerConfig();
-  const GameConfig   &gameConfig   = m_configManager.getGameConfig();
+    PlayerConfig const &playerConfig = m_configManager.getPlayerConfig();
+    GameConfig const   &gameConfig   = m_configManager.getGameConfig();
 
-  const Vec2 &windowSize   = gameConfig.windowSize;
-  const auto  playerHeight = static_cast<float>(playerConfig.shape.height);
-  const auto  playerWidth  = static_cast<float>(playerConfig.shape.width);
-  const Vec2  centerPosition =
-          windowSize / 2 - Vec2(playerWidth / 2, playerHeight / 2);
+    Vec2 const &windowSize   = gameConfig.windowSize;
+    auto const  playerHeight = static_cast<float>(playerConfig.shape.height);
+    auto const  playerWidth  = static_cast<float>(playerConfig.shape.width);
+    Vec2 const  centerPosition =
+        windowSize / 2 - Vec2(playerWidth / 2, playerHeight / 2);
 
-  const Vec2 &playerPosition = centerPosition;
-  const Vec2  playerVelocity = {0, 0};
+    Vec2 const &playerPosition = centerPosition;
+    Vec2 const  playerVelocity = {0, 0};
 
-  const auto cShape = std::make_shared<CShape>(m_renderer, playerConfig.shape);
-  const auto cTransform =
-          std::make_shared<CTransform>(playerPosition, playerVelocity);
-  const auto cInput   = std::make_shared<CInput>();
-  const auto cEffects = std::make_shared<CEffects>();
-  const auto cSprite  = std::make_shared<CSprite>(
-          m_textureManager.getTexture(TextureName::PLAYER));
+    auto const cShape =
+        std::make_shared<CShape>(m_renderer, playerConfig.shape);
+    auto const cTransform =
+        std::make_shared<CTransform>(playerPosition, playerVelocity);
+    auto const cInput   = std::make_shared<CInput>();
+    auto const cEffects = std::make_shared<CEffects>();
+    auto const cSprite  = std::make_shared<CSprite>(
+        m_textureManager.getTexture(TextureName::PLAYER));
 
-  std::shared_ptr<Entity> player =
-          m_entityManager.addEntity(EntityTags::Player);
-  player->setComponent(cTransform);
-  player->setComponent(cShape);
-  player->setComponent(cInput);
-  player->setComponent(cEffects);
-  player->setComponent(cSprite);
+    std::shared_ptr<Entity> player =
+        m_entityManager.addEntity(EntityTags::Player);
+    player->setComponent(cTransform);
+    player->setComponent(cShape);
+    player->setComponent(cInput);
+    player->setComponent(cEffects);
+    player->setComponent(cSprite);
 
-  m_entityManager.update();
-  return player;
+    m_entityManager.update();
+    return player;
 }
-void MainSceneSpawner::spawnEnemy(const std::shared_ptr<Entity> &player) {
-  constexpr int MAX_SPAWN_ATTEMPTS = 10;
+void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
+    constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-  const GameConfig  &gameConfig  = m_configManager.getGameConfig();
-  const EnemyConfig &enemyConfig = m_configManager.getEnemyConfig();
-  const Vec2        &windowSize  = gameConfig.windowSize;
+    GameConfig const  &gameConfig  = m_configManager.getGameConfig();
+    EnemyConfig const &enemyConfig = m_configManager.getEnemyConfig();
+    Vec2 const        &windowSize  = gameConfig.windowSize;
 
-  const Vec2 velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
-  const Vec2 position =
-          SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
+    Vec2 const velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
+    Vec2 const position =
+        SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
-  const auto cTransform = std::make_shared<CTransform>(position, velocity);
-  const auto cShape = std::make_shared<CShape>(m_renderer, enemyConfig.shape);
-  const auto cLifespan = std::make_shared<CLifespan>(enemyConfig.lifespan);
+    auto const cTransform = std::make_shared<CTransform>(position, velocity);
+    auto const cShape = std::make_shared<CShape>(m_renderer, enemyConfig.shape);
+    auto const cLifespan = std::make_shared<CLifespan>(enemyConfig.lifespan);
 
-  const auto cSprite = std::make_shared<CSprite>(
-          m_textureManager.getTexture(TextureName::ENEMY));
+    auto const cSprite = std::make_shared<CSprite>(
+        m_textureManager.getTexture(TextureName::ENEMY));
 
-  const std::shared_ptr<Entity> &enemy =
-          m_entityManager.addEntity(EntityTags::Enemy);
-  enemy->setComponent<CTransform>(cTransform);
-  enemy->setComponent<CShape>(cShape);
-  enemy->setComponent<CLifespan>(cLifespan);
-  enemy->setComponent<CSprite>(cSprite);
+    std::shared_ptr<Entity> const &enemy =
+        m_entityManager.addEntity(EntityTags::Enemy);
+    enemy->setComponent<CTransform>(cTransform);
+    enemy->setComponent<CShape>(cShape);
+    enemy->setComponent<CLifespan>(cLifespan);
+    enemy->setComponent<CSprite>(cSprite);
 
-  if (!player) {
-    SDL_Log("Player missing, destroying enemy");
-    enemy->destroy();
-    return;
-  }
+    if (!player) {
+        SDL_Log("Player missing, destroying enemy");
+        enemy->destroy();
+        return;
+    }
 
-  bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
-          enemy, player, m_entityManager, windowSize);
-  int spawnAttempt = 1;
+    bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        enemy, player, m_entityManager, windowSize);
+    int spawnAttempt = 1;
 
-  while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
-    const auto newPosition =
+    while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
+        auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-    enemy->getComponent<CTransform>()->topLeftCornerPos = newPosition;
-    isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        enemy->getComponent<CTransform>()->topLeftCornerPos = newPosition;
+        isValidSpawn = SpawnHelpers::validateSpawnPosition(
             enemy, player, m_entityManager, windowSize);
-    spawnAttempt += 1;
-  }
+        spawnAttempt += 1;
+    }
 
-  if (!isValidSpawn) {
-    enemy->destroy();
-  }
+    if (!isValidSpawn) {
+        enemy->destroy();
+    }
 
-  m_entityManager.update();
+    m_entityManager.update();
 }
 void MainSceneSpawner::spawnSpeedBoostEntity(
-        const std::shared_ptr<Entity> &player) {
-  constexpr int MAX_SPAWN_ATTEMPTS = 10;
+    std::shared_ptr<Entity> const &player) {
+    constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-  const GameConfig        &gameConfig = m_configManager.getGameConfig();
-  const SpeedEffectConfig &speedEffectConfig =
-          m_configManager.getSpeedEffectConfig();
-  const Vec2 &windowSize = gameConfig.windowSize;
+    GameConfig const        &gameConfig = m_configManager.getGameConfig();
+    SpeedEffectConfig const &speedEffectConfig =
+        m_configManager.getSpeedEffectConfig();
+    Vec2 const &windowSize = gameConfig.windowSize;
 
-  const Vec2 velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
-  const Vec2 position =
-          SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
+    Vec2 const velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
+    Vec2 const position =
+        SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
-  const auto cTransform = std::make_shared<CTransform>(position, velocity);
-  const auto cShape =
-          std::make_shared<CShape>(m_renderer, speedEffectConfig.shape);
-  const auto cLifespan =
-          std::make_shared<CLifespan>(speedEffectConfig.lifespan);
+    auto const cTransform = std::make_shared<CTransform>(position, velocity);
+    auto const cShape =
+        std::make_shared<CShape>(m_renderer, speedEffectConfig.shape);
+    auto const cLifespan =
+        std::make_shared<CLifespan>(speedEffectConfig.lifespan);
 
-  const auto &speedBoost = m_entityManager.addEntity(EntityTags::SpeedBoost);
-  speedBoost->setComponent<CTransform>(cTransform);
-  speedBoost->setComponent<CShape>(cShape);
-  speedBoost->setComponent<CLifespan>(cLifespan);
+    auto const &speedBoost = m_entityManager.addEntity(EntityTags::SpeedBoost);
+    speedBoost->setComponent<CTransform>(cTransform);
+    speedBoost->setComponent<CShape>(cShape);
+    speedBoost->setComponent<CLifespan>(cLifespan);
 
-  if (!player) {
-    SDL_Log("Player missing, destroying speed boost");
-    speedBoost->destroy();
-    return;
-  }
+    if (!player) {
+        SDL_Log("Player missing, destroying speed boost");
+        speedBoost->destroy();
+        return;
+    }
 
-  bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
-          speedBoost, player, m_entityManager, windowSize);
-  int spawnAttempt = 1;
+    bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        speedBoost, player, m_entityManager, windowSize);
+    int spawnAttempt = 1;
 
-  while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
-    const auto newPosition =
+    while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
+        auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-    speedBoost->getComponent<CTransform>()->topLeftCornerPos = newPosition;
-    isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        speedBoost->getComponent<CTransform>()->topLeftCornerPos = newPosition;
+        isValidSpawn = SpawnHelpers::validateSpawnPosition(
             speedBoost, player, m_entityManager, windowSize);
-    spawnAttempt += 1;
-  }
+        spawnAttempt += 1;
+    }
 
-  if (!isValidSpawn) {
-    speedBoost->destroy();
-  }
+    if (!isValidSpawn) {
+        speedBoost->destroy();
+    }
 
-  m_entityManager.update();
+    m_entityManager.update();
 }
 void MainSceneSpawner::spawnSlownessEntity(
-        const std::shared_ptr<Entity> &player) {
-  constexpr int MAX_SPAWN_ATTEMPTS = 10;
+    std::shared_ptr<Entity> const &player) {
+    constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-  const GameConfig &gameConfig = m_configManager.getGameConfig();
+    GameConfig const &gameConfig = m_configManager.getGameConfig();
 
-  const auto windowSize = gameConfig.windowSize;
+    auto const windowSize = gameConfig.windowSize;
 
-  const SlownessEffectConfig &slownessEffectConfig =
-          m_configManager.getSlownessEffectConfig();
+    SlownessEffectConfig const &slownessEffectConfig =
+        m_configManager.getSlownessEffectConfig();
 
-  const auto velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
-  const auto position =
-          SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
+    auto const velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
+    auto const position =
+        SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
-  const auto cTransform = std::make_shared<CTransform>(position, velocity);
-  const auto cShape =
-          std::make_shared<CShape>(m_renderer, slownessEffectConfig.shape);
-  const auto cLifespan =
-          std::make_shared<CLifespan>(slownessEffectConfig.lifespan);
+    auto const cTransform = std::make_shared<CTransform>(position, velocity);
+    auto const cShape =
+        std::make_shared<CShape>(m_renderer, slownessEffectConfig.shape);
+    auto const cLifespan =
+        std::make_shared<CLifespan>(slownessEffectConfig.lifespan);
 
-  const std::shared_ptr<Entity> &slownessEntity =
-          m_entityManager.addEntity(EntityTags::SlownessDebuff);
+    std::shared_ptr<Entity> const &slownessEntity =
+        m_entityManager.addEntity(EntityTags::SlownessDebuff);
 
-  slownessEntity->setComponent<CTransform>(cTransform);
-  slownessEntity->setComponent<CShape>(cShape);
-  slownessEntity->setComponent<CLifespan>(cLifespan);
+    slownessEntity->setComponent<CTransform>(cTransform);
+    slownessEntity->setComponent<CShape>(cShape);
+    slownessEntity->setComponent<CLifespan>(cLifespan);
 
-  if (!player) {
-    SDL_Log("Player missing destroying slowness debuff");
-    slownessEntity->destroy();
-    return;
-  }
+    if (!player) {
+        SDL_Log("Player missing destroying slowness debuff");
+        slownessEntity->destroy();
+        return;
+    }
 
-  bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
-          slownessEntity, player, m_entityManager, windowSize);
-  int spawnAttempt = 1;
+    bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        slownessEntity, player, m_entityManager, windowSize);
+    int spawnAttempt = 1;
 
-  while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
-    const auto newPosition =
+    while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
+        auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-    slownessEntity->getComponent<CTransform>()->topLeftCornerPos = newPosition;
-    isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        slownessEntity->getComponent<CTransform>()->topLeftCornerPos =
+            newPosition;
+        isValidSpawn = SpawnHelpers::validateSpawnPosition(
             slownessEntity, player, m_entityManager, windowSize);
-    spawnAttempt += 1;
-  }
+        spawnAttempt += 1;
+    }
 
-  if (!isValidSpawn) {
-    slownessEntity->destroy();
-  }
+    if (!isValidSpawn) {
+        slownessEntity->destroy();
+    }
 
-  m_entityManager.update();
+    m_entityManager.update();
 }
 
 void MainSceneSpawner::spawnWalls() {
-  const GameConfig &gameConfig = m_configManager.getGameConfig();
+    GameConfig const &gameConfig = m_configManager.getGameConfig();
 
-  constexpr SDL_Color wallColor  = {.r = 176, .g = 196, .b = 222, .a = 255};
-  const float         wallHeight = gameConfig.windowSize.y * 0.6f;
-  const float         wallWidth  = gameConfig.windowSize.x * 0.025f;
+    constexpr SDL_Color wallColor  = {.r = 176, .g = 196, .b = 222, .a = 255};
+    float const         wallHeight = gameConfig.windowSize.y * 0.6f;
+    float const         wallWidth  = gameConfig.windowSize.x * 0.025f;
 
-  const auto wallConfig = ShapeConfig(wallHeight, wallWidth, wallColor);
+    auto const wallConfig = ShapeConfig(wallHeight, wallWidth, wallColor);
 
-  constexpr size_t WALL_COUNT = 8;
+    constexpr size_t WALL_COUNT = 8;
 
-  const float innerWidth  = gameConfig.windowSize.x * 0.6f;
-  const float innerHeight = gameConfig.windowSize.y * 0.6f;
-  const float innerStartX = (gameConfig.windowSize.x - innerWidth) / 2;
-  const float innerStartY = (gameConfig.windowSize.y - innerHeight) / 2;
+    float const innerWidth  = gameConfig.windowSize.x * 0.6f;
+    float const innerHeight = gameConfig.windowSize.y * 0.6f;
+    float const innerStartX = (gameConfig.windowSize.x - innerWidth) / 2;
+    float const innerStartY = (gameConfig.windowSize.y - innerHeight) / 2;
 
-  const float outerWidth  = gameConfig.windowSize.x;
-  const float outerHeight = gameConfig.windowSize.y;
-  const float outerStartX = (gameConfig.windowSize.x - outerWidth) / 2;
-  const float outerStartY = (gameConfig.windowSize.y - outerHeight) / 2;
+    float const outerWidth  = gameConfig.windowSize.x;
+    float const outerHeight = gameConfig.windowSize.y;
+    float const outerStartX = (gameConfig.windowSize.x - outerWidth) / 2;
+    float const outerStartY = (gameConfig.windowSize.y - outerHeight) / 2;
 
-  // Gap sizes proportional to respective rectangles
-  const float innerGapSize = innerWidth * 0.15f;
-  const float outerGapSize = outerWidth * 0.18f;
+    // Gap sizes proportional to respective rectangles
+    float const innerGapSize = innerWidth * 0.15f;
+    float const outerGapSize = outerWidth * 0.18f;
 
-  for (int i = 0; i < WALL_COUNT; i++) {
-    const auto shapeComponent =
+    for (int i = 0; i < WALL_COUNT; i++) {
+        auto const shapeComponent =
             std::make_shared<CShape>(m_renderer, wallConfig);
-    const auto transformComponent = std::make_shared<CTransform>();
+        auto const transformComponent = std::make_shared<CTransform>();
 
-    Vec2 &topLeftCornerPos = transformComponent->topLeftCornerPos;
+        Vec2 &topLeftCornerPos = transformComponent->topLeftCornerPos;
 
-    const bool isOuterWall       = i >= 4;
-    const bool isHorizontal      = (i % 2 == 0);
-    const bool isOuterHorizontal = isOuterWall && isHorizontal;
-    const bool isOuterVertical   = isOuterWall && !isHorizontal;
-    const bool isInnerHorizontal = !isOuterWall && isHorizontal;
-    const bool isInnerVertical   = !isOuterWall && !isHorizontal;
+        bool const isOuterWall       = i >= 4;
+        bool const isHorizontal      = (i % 2 == 0);
+        bool const isOuterHorizontal = isOuterWall && isHorizontal;
+        bool const isOuterVertical   = isOuterWall && !isHorizontal;
+        bool const isInnerHorizontal = !isOuterWall && isHorizontal;
+        bool const isInnerVertical   = !isOuterWall && !isHorizontal;
 
-    if (isOuterHorizontal) {
-      shapeComponent->rect.h = static_cast<int>(wallWidth);
-      shapeComponent->rect.w =
-              static_cast<int>(outerWidth - (2 * outerGapSize));
+        if (isOuterHorizontal) {
+            shapeComponent->rect.h = static_cast<int>(wallWidth);
+            shapeComponent->rect.w =
+                static_cast<int>(outerWidth - (2 * outerGapSize));
 
-      topLeftCornerPos.x = outerStartX + outerGapSize;
-      topLeftCornerPos.y =
-              (i == 4) ? outerStartY : outerStartY + outerHeight - wallWidth;
-    }
-    if (isOuterVertical) {
-      shapeComponent->rect.h =
-              static_cast<int>(outerHeight - (2 * outerGapSize));
-      shapeComponent->rect.w = static_cast<int>(wallWidth);
+            topLeftCornerPos.x = outerStartX + outerGapSize;
+            topLeftCornerPos.y =
+                (i == 4) ? outerStartY : outerStartY + outerHeight - wallWidth;
+        }
+        if (isOuterVertical) {
+            shapeComponent->rect.h =
+                static_cast<int>(outerHeight - (2 * outerGapSize));
+            shapeComponent->rect.w = static_cast<int>(wallWidth);
 
-      topLeftCornerPos.x =
-              (i == 5) ? outerStartX : outerStartX + outerWidth - wallWidth;
-      topLeftCornerPos.y = outerStartY + outerGapSize;
-    }
-    if (isInnerHorizontal) {
-      shapeComponent->rect.h = static_cast<int>(wallWidth);
-      shapeComponent->rect.w =
-              static_cast<int>(innerWidth - (2 * innerGapSize));
+            topLeftCornerPos.x =
+                (i == 5) ? outerStartX : outerStartX + outerWidth - wallWidth;
+            topLeftCornerPos.y = outerStartY + outerGapSize;
+        }
+        if (isInnerHorizontal) {
+            shapeComponent->rect.h = static_cast<int>(wallWidth);
+            shapeComponent->rect.w =
+                static_cast<int>(innerWidth - (2 * innerGapSize));
 
-      topLeftCornerPos.x = innerStartX + innerGapSize;
-      topLeftCornerPos.y =
-              (i == 0) ? innerStartY : innerStartY + innerHeight - wallWidth;
-    }
-    if (isInnerVertical) {
-      shapeComponent->rect.h =
-              static_cast<int>(innerHeight - (2 * innerGapSize));
-      shapeComponent->rect.w = static_cast<int>(wallWidth);
+            topLeftCornerPos.x = innerStartX + innerGapSize;
+            topLeftCornerPos.y =
+                (i == 0) ? innerStartY : innerStartY + innerHeight - wallWidth;
+        }
+        if (isInnerVertical) {
+            shapeComponent->rect.h =
+                static_cast<int>(innerHeight - (2 * innerGapSize));
+            shapeComponent->rect.w = static_cast<int>(wallWidth);
 
-      topLeftCornerPos.x =
-              (i == 1) ? innerStartX : innerStartX + innerWidth - wallWidth;
-      topLeftCornerPos.y = innerStartY + innerGapSize;
-    }
+            topLeftCornerPos.x =
+                (i == 1) ? innerStartX : innerStartX + innerWidth - wallWidth;
+            topLeftCornerPos.y = innerStartY + innerGapSize;
+        }
 
-    const auto cSprite = std::make_shared<CSprite>(
+        auto const cSprite = std::make_shared<CSprite>(
             m_textureManager.getTexture(TextureName::WALL));
 
-    const std::shared_ptr<Entity> wall =
+        std::shared_ptr<Entity> const wall =
             m_entityManager.addEntity(EntityTags::Wall);
-    wall->setComponent(shapeComponent);
-    wall->setComponent(transformComponent);
-    wall->setComponent(cSprite);
-  }
-
-  m_entityManager.update();
-}
-void MainSceneSpawner::spawnBullets(const std::shared_ptr<Entity> &player,
-                                    const Vec2 &mousePosition) {
-
-  const EntityList walls = m_entityManager.getEntities(EntityTags::Wall);
-
-  const auto &[lifespan, speed, shape] = m_configManager.getBulletConfig();
-
-  if (!player) {
-    SDL_Log("player missing, not creating bullet");
-    return;
-  }
-  const Vec2 &playerCenter = player->getCenterPos();
-  const float playerHalfWidth =
-          static_cast<float>(player->getComponent<CShape>()->rect.w) / 2;
-
-  Vec2 direction;
-  direction.x = mousePosition.x - playerCenter.x;
-  direction.y = mousePosition.y - playerCenter.y;
-  direction.normalize();
-
-  const float                   bulletSpeed    = speed;
-  Vec2                          bulletVelocity = direction * bulletSpeed;
-  const std::shared_ptr<Entity> bullet =
-          m_entityManager.addEntity(EntityTags::Bullet);
-
-  const float bulletHalfWidth  = shape.width / 2;
-  const float bulletHalfHeight = shape.height / 2;
-
-  const auto spawnOffset =
-          bulletHalfWidth + static_cast<float>(playerHalfWidth);
-
-  Vec2 bulletPos;
-  // Set bullet position slightly offset from player center in the direction of
-  // travel
-  bulletPos.x = playerCenter.x + direction.x * spawnOffset - bulletHalfWidth;
-  bulletPos.y = playerCenter.y + direction.y * spawnOffset - bulletHalfHeight;
-
-  const auto cTransform =
-          std::make_shared<CTransform>(bulletPos, bulletVelocity);
-  const auto cLifespan      = std::make_shared<CLifespan>(lifespan);
-  const auto cBounceTracker = std::make_shared<CBounceTracker>();
-  const auto cShape         = std::make_shared<CShape>(
-          m_renderer, ShapeConfig(shape.height, shape.width, shape.color));
-
-  bullet->setComponent<CShape>(cShape);
-  bullet->setComponent<CTransform>(cTransform);
-  bullet->setComponent<CLifespan>(cLifespan);
-  bullet->setComponent<CBounceTracker>(cBounceTracker);
-
-  for (const std::shared_ptr<Entity> &wall : walls) {
-    if (CollisionHelpers::calculateCollisionBetweenEntities(bullet, wall)) {
-      bullet->destroy();
-      break;
+        wall->setComponent(shapeComponent);
+        wall->setComponent(transformComponent);
+        wall->setComponent(cSprite);
     }
-  }
 
-  m_entityManager.update();
+    m_entityManager.update();
+}
+void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
+                                    Vec2 const &mousePosition) {
+
+    EntityList const walls = m_entityManager.getEntities(EntityTags::Wall);
+
+    auto const &[lifespan, speed, shape] = m_configManager.getBulletConfig();
+
+    if (!player) {
+        SDL_Log("player missing, not creating bullet");
+        return;
+    }
+    Vec2 const &playerCenter = player->getCenterPos();
+    float const playerHalfWidth =
+        static_cast<float>(player->getComponent<CShape>()->rect.w) / 2;
+
+    Vec2 direction;
+    direction.x = mousePosition.x - playerCenter.x;
+    direction.y = mousePosition.y - playerCenter.y;
+    direction.normalize();
+
+    float const                   bulletSpeed    = speed;
+    Vec2                          bulletVelocity = direction * bulletSpeed;
+    std::shared_ptr<Entity> const bullet =
+        m_entityManager.addEntity(EntityTags::Bullet);
+
+    float const bulletHalfWidth  = shape.width / 2;
+    float const bulletHalfHeight = shape.height / 2;
+
+    auto const spawnOffset =
+        bulletHalfWidth + static_cast<float>(playerHalfWidth);
+
+    Vec2 bulletPos;
+    // Set bullet position slightly offset from player center in the direction
+    // of travel
+    bulletPos.x = playerCenter.x + direction.x * spawnOffset - bulletHalfWidth;
+    bulletPos.y = playerCenter.y + direction.y * spawnOffset - bulletHalfHeight;
+
+    auto const cTransform =
+        std::make_shared<CTransform>(bulletPos, bulletVelocity);
+    auto const cLifespan      = std::make_shared<CLifespan>(lifespan);
+    auto const cBounceTracker = std::make_shared<CBounceTracker>();
+    auto const cShape         = std::make_shared<CShape>(
+        m_renderer, ShapeConfig(shape.height, shape.width, shape.color));
+
+    bullet->setComponent<CShape>(cShape);
+    bullet->setComponent<CTransform>(cTransform);
+    bullet->setComponent<CLifespan>(cLifespan);
+    bullet->setComponent<CBounceTracker>(cBounceTracker);
+
+    for (std::shared_ptr<Entity> const &wall : walls) {
+        if (CollisionHelpers::calculateCollisionBetweenEntities(bullet, wall)) {
+            bullet->destroy();
+            break;
+        }
+    }
+
+    m_entityManager.update();
 }
 
-void MainSceneSpawner::spawnItem(const std::shared_ptr<Entity> &player) {
-  constexpr int MAX_SPAWN_ATTEMPTS = 10;
+void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
+    constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-  const GameConfig &gameConfig = m_configManager.getGameConfig();
-  const auto &[spawnPercentage, lifespan, speed, shape] =
-          m_configManager.getItemConfig();
-  const Vec2 &windowSize = gameConfig.windowSize;
+    GameConfig const &gameConfig = m_configManager.getGameConfig();
+    auto const &[spawnPercentage, lifespan, speed, shape] =
+        m_configManager.getItemConfig();
+    Vec2 const &windowSize = gameConfig.windowSize;
 
-  const auto position =
-          SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-  const auto velocity   = Vec2(0, 0);
-  const auto cTransform = std::make_shared<CTransform>(position, velocity);
-  const auto cShape     = std::make_shared<CShape>(m_renderer, shape);
-  const auto cLifespan  = std::make_shared<CLifespan>(lifespan);
-  const auto cSprite    = std::make_shared<CSprite>(
-          m_textureManager.getTexture(TextureName::COIN));
+    auto const position =
+        SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
+    auto const velocity   = Vec2(0, 0);
+    auto const cTransform = std::make_shared<CTransform>(position, velocity);
+    auto const cShape     = std::make_shared<CShape>(m_renderer, shape);
+    auto const cLifespan  = std::make_shared<CLifespan>(lifespan);
+    auto const cSprite    = std::make_shared<CSprite>(
+        m_textureManager.getTexture(TextureName::COIN));
 
-  const auto &item = m_entityManager.addEntity(EntityTags::Item);
-  item->setComponent<CTransform>(cTransform);
-  item->setComponent<CShape>(cShape);
-  item->setComponent<CLifespan>(cLifespan);
-  item->setComponent<CSprite>(cSprite);
+    auto const &item = m_entityManager.addEntity(EntityTags::Item);
+    item->setComponent<CTransform>(cTransform);
+    item->setComponent<CShape>(cShape);
+    item->setComponent<CLifespan>(cLifespan);
+    item->setComponent<CSprite>(cSprite);
 
-  if (!player) {
-    SDL_Log("Player missing, destroying item entity");
-    item->destroy();
-    return;
-  }
+    if (!player) {
+        SDL_Log("Player missing, destroying item entity");
+        item->destroy();
+        return;
+    }
 
-  bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
-          item, player, m_entityManager, windowSize);
-  int spawnAttempt = 1;
+    bool isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        item, player, m_entityManager, windowSize);
+    int spawnAttempt = 1;
 
-  while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
-    const auto newPosition =
+    while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
+        auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-    item->getComponent<CTransform>()->topLeftCornerPos = newPosition;
+        item->getComponent<CTransform>()->topLeftCornerPos = newPosition;
 
-    isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        isValidSpawn = SpawnHelpers::validateSpawnPosition(
             item, player, m_entityManager, windowSize);
-    spawnAttempt += 1;
-  }
+        spawnAttempt += 1;
+    }
 
-  if (!isValidSpawn) {
-    item->destroy();
-  }
+    if (!isValidSpawn) {
+        item->destroy();
+    }
 
-  m_entityManager.update();
+    m_entityManager.update();
 }

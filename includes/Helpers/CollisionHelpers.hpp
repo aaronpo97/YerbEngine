@@ -14,57 +14,57 @@
 
 namespace CollisionHelpers {
 
-  std::bitset<4> detectOutOfBounds(const std::shared_ptr<Entity> &entity,
-                                   const Vec2                    &window_size);
+    std::bitset<4> detectOutOfBounds(std::shared_ptr<Entity> const &entity,
+                                     Vec2 const &window_size);
 
-  bool
-  calculateCollisionBetweenEntities(const std::shared_ptr<Entity> &entityA,
-                                    const std::shared_ptr<Entity> &entityB);
+    bool
+    calculateCollisionBetweenEntities(std::shared_ptr<Entity> const &entityA,
+                                      std::shared_ptr<Entity> const &entityB);
 
-  Vec2 calculateOverlap(const std::shared_ptr<Entity> &entityA,
-                        const std::shared_ptr<Entity> &entityB);
+    Vec2 calculateOverlap(std::shared_ptr<Entity> const &entityA,
+                          std::shared_ptr<Entity> const &entityB);
 
-  std::bitset<4>
-  getPositionRelativeToEntity(const std::shared_ptr<Entity> &entityA,
-                              const std::shared_ptr<Entity> &entityB);
+    std::bitset<4>
+    getPositionRelativeToEntity(std::shared_ptr<Entity> const &entityA,
+                                std::shared_ptr<Entity> const &entityB);
 
 } // namespace CollisionHelpers
 
 namespace CollisionHelpers::MainScene {
-  struct CollisionPair {
-    const std::shared_ptr<Entity> &entityA;
-    const std::shared_ptr<Entity> &entityB;
-  };
+    struct CollisionPair {
+        std::shared_ptr<Entity> const &entityA;
+        std::shared_ptr<Entity> const &entityB;
+    };
 
-  struct GameState {
-    EntityManager                  &entityManager;
-    std::mt19937                   &randomGenerator;
-    const int                       score;
-    const std::function<void(int)> &setScore;
-    const std::function<void()>     decrementLives;
-    AudioSampleQueue               &audioSampleManager;
-    const Vec2                      windowSize;
-  };
+    struct GameState {
+        EntityManager                  &entityManager;
+        std::mt19937                   &randomGenerator;
+        int const                       score;
+        std::function<void(int)> const &setScore;
+        std::function<void()> const     decrementLives;
+        AudioSampleQueue               &audioSampleManager;
+        Vec2 const                      windowSize;
+    };
 
-  void handleEntityBounds(const std::shared_ptr<Entity> &entity,
-                          const Vec2                    &windowSize);
-  void handleEntityEntityCollision(const CollisionPair &collisionPair,
-                                   const GameState     &args);
+    void handleEntityBounds(std::shared_ptr<Entity> const &entity,
+                            Vec2 const                    &windowSize);
+    void handleEntityEntityCollision(CollisionPair const &collisionPair,
+                                     GameState const     &args);
 
 } // namespace CollisionHelpers::MainScene
 
 namespace CollisionHelpers::MainScene::Enforce {
-  void enforcePlayerBounds(const std::shared_ptr<Entity> &entity,
-                           const std::bitset<4>          &collides,
-                           const Vec2                    &window_size);
+    void enforcePlayerBounds(std::shared_ptr<Entity> const &entity,
+                             std::bitset<4> const          &collides,
+                             Vec2 const                    &window_size);
 
-  void enforceNonPlayerBounds(const std::shared_ptr<Entity> &entity,
-                              const std::bitset<4>          &collides);
+    void enforceNonPlayerBounds(std::shared_ptr<Entity> const &entity,
+                                std::bitset<4> const          &collides);
 
-  void enforceCollisionWithWall(const std::shared_ptr<Entity> &entity,
-                                const std::shared_ptr<Entity> &wall);
+    void enforceCollisionWithWall(std::shared_ptr<Entity> const &entity,
+                                  std::shared_ptr<Entity> const &wall);
 
-  void enforceEntityEntityCollision(const std::shared_ptr<Entity> &entityA,
-                                    const std::shared_ptr<Entity> &entityB);
+    void enforceEntityEntityCollision(std::shared_ptr<Entity> const &entityA,
+                                      std::shared_ptr<Entity> const &entityB);
 
 } // namespace CollisionHelpers::MainScene::Enforce

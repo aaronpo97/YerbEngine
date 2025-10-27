@@ -5,17 +5,17 @@
 
 enum ActionState { START, END };
 class Action {
-private:
-  std::string         m_name;  // Action name, e.g., "SHOOT", "JUMP"
-  ActionState         m_state; // State of the action
-  std::optional<Vec2> m_pos;
+  private:
+    std::string         m_name;  // Action name, e.g., "SHOOT", "JUMP"
+    ActionState         m_state; // State of the action
+    std::optional<Vec2> m_pos;
 
-public:
-  Action(std::string                name,
-         const ActionState         &state,
-         const std::optional<Vec2> &pos);
+  public:
+    Action(std::string                name,
+           ActionState const         &state,
+           std::optional<Vec2> const &pos);
 
-  const std::string         &getName() const;
-  const ActionState         &getState() const;
-  const std::optional<Vec2> &getPos() const;
+    std::string const         &getName() const;
+    ActionState const         &getState() const;
+    std::optional<Vec2> const &getPos() const;
 };

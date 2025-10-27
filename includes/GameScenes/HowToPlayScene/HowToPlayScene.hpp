@@ -4,17 +4,17 @@
 #include "../Scene.hpp"
 
 class HowToPlayScene final : public Scene {
-private:
-  void renderText() const;
+  private:
+    void renderText() const;
 
-public:
-  explicit HowToPlayScene(GameEngine *gameEngine);
+  public:
+    explicit HowToPlayScene(GameEngine *gameEngine);
 
-  void update() override;
-  void onEnd() override;
-  void sRender() override;
-  void sDoAction(Action &action) override;
-  void sAudio() override;
+    void update() override;
+    void onEnd() override;
+    void sRender() override;
+    void sDoAction(Action &action) override;
+    void sAudio() override;
 
-  void onSceneWindowResize() override {};
+    void onSceneWindowResize() override {};
 };
