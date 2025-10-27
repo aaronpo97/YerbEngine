@@ -1,6 +1,6 @@
-#include "demo/includes/MainScene/MainSceneSpawner.hpp"
-#include <YerbEngine/Helpers/CollisionHelpers.hpp>
-#include <YerbEngine/Helpers/SpawnHelpers.hpp>
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
+
 MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
                                    ConfigManager  &configManager,
                                    TextureManager &textureManager,

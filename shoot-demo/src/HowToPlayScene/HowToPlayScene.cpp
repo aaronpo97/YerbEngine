@@ -1,6 +1,6 @@
-#include "demo/includes/HowToPlayScene/HowToPlayScene.hpp"
-#include "demo/includes/MenuScene/MenuScene.hpp"
-#include <YerbEngine/Helpers/TextHelpers.hpp>
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/HowToPlayScene/HowToPlayScene.hpp"
+#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include <SDL.h>
 
 HowToPlayScene::HowToPlayScene(GameEngine *gameEngine) : Scene(gameEngine) {

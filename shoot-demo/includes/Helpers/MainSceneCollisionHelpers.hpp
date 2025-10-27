@@ -1,15 +1,10 @@
 #pragma once
 
+#include <YerbEngine/YerbEngine.hpp>
 #include <bitset>
 #include <functional>
 #include <memory>
 #include <random>
-
-#include <YerbEngine/AssetManagement/AudioSampleQueue.hpp>
-#include <YerbEngine/EntityManagement/Entity.hpp>
-#include <YerbEngine/EntityManagement/EntityManager.hpp>
-#include <YerbEngine/Helpers/Vec2.hpp>
-#include <YerbEngine/SystemManagement/AudioManager.hpp>
 
 namespace CollisionHelpers::MainScene {
     struct CollisionPair {

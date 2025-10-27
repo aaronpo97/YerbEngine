@@ -1,5 +1,5 @@
-#include <YerbEngine/GameEngine/GameEngine.hpp>
-#include "demo/includes/MenuScene/MenuScene.hpp"
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include <SDL_main.h>
 
 #ifdef __EMSCRIPTEN__

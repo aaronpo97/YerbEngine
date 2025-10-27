@@ -1,7 +1,5 @@
 #pragma once
-#include <YerbEngine/GameEngine/Action.hpp>
-#include <YerbEngine/GameEngine/GameEngine.hpp>
-#include <YerbEngine/GameScenes/Scene.hpp>
+#include <YerbEngine/YerbEngine.hpp>
 #include <map>
 #include <string>
 

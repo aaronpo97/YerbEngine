@@ -4,16 +4,12 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#include "demo/includes/MainScene/MainScene.hpp"
-#include "demo/includes/MainScene/MainSceneSpawner.hpp"
-#include "demo/includes/MenuScene/MenuScene.hpp"
-#include "demo/includes/ScoreScene/ScoreScene.hpp"
-#include <YerbEngine/Helpers/CollisionHelpers.hpp>
-#include "demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
-#include <YerbEngine/Helpers/MovementHelpers.hpp>
-#include <YerbEngine/Helpers/SpawnHelpers.hpp>
-#include <YerbEngine/Helpers/TextHelpers.hpp>
-#include <YerbEngine/Helpers/Vec2.hpp>
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/MainScene/MainScene.hpp"
+#include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
+#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
+#include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
+#include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
 
 MainScene::MainScene(GameEngine *gameEngine)
     : Scene(gameEngine), m_entities(EntityManager()),

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <YerbEngine/AssetManagement/AudioSampleQueue.hpp>
-#include <YerbEngine/EntityManagement/EntityManager.hpp>
-#include <YerbEngine/GameScenes/Scene.hpp>
+#include <YerbEngine/YerbEngine.hpp>
 #include "MainSceneSpawner.hpp"
 #include <SDL.h>
 #include <random>
