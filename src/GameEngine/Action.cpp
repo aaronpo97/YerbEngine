@@ -1,7 +1,7 @@
 #include <utility>
 
-#include "../../includes/GameEngine/Action.hpp"
-#include "../../includes/Helpers/Vec2.hpp"
+#include "includes/GameEngine/Action.hpp"
+#include "includes/Helpers/Vec2.hpp"
 
 Action::Action(std::string                name,
                const ActionState         &state,

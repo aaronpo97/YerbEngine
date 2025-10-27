@@ -1,7 +1,7 @@
-#include "../../includes/Helpers/SpawnHelpers.hpp"
-#include "../../includes/EntityManagement/Entity.hpp"
-#include "../../includes/Helpers/CollisionHelpers.hpp"
-#include "../../includes/Helpers/MathHelpers.hpp"
+#include "includes/Helpers/SpawnHelpers.hpp"
+#include "includes/EntityManagement/Entity.hpp"
+#include "includes/Helpers/CollisionHelpers.hpp"
+#include "includes/Helpers/MathHelpers.hpp"
 
 namespace SpawnHelpers {
   Vec2 createRandomPosition(std::mt19937 &randomGenerator,

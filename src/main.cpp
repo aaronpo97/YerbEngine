@@ -1,4 +1,4 @@
-#include "../includes/GameEngine/GameEngine.hpp"
+#include "includes/GameEngine/GameEngine.hpp"
 #include <SDL_main.h>
 
 #ifdef __EMSCRIPTEN__

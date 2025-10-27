@@ -20,6 +20,9 @@ set_target_properties(yerb_engine PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
+# Add includes directory to search path with YerbEngine namespace
+target_include_directories(yerb_engine PRIVATE "${CMAKE_SOURCE_DIR}")
+
 target_link_libraries(yerb_engine PRIVATE nlohmann_json::nlohmann_json)
 
 if(APPLE)

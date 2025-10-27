@@ -1,4 +1,4 @@
-#include "../../includes/EntityManagement/Entity.hpp"
+#include "includes/EntityManagement/Entity.hpp"
 #include <iostream>
 
 Entity::Entity(const size_t id, const EntityTags tag) :

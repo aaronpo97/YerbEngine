@@ -1,5 +1,5 @@
-#include "../../includes/SystemManagement/VideoManager.hpp"
-#include "../../includes/Configuration/ConfigManager.hpp"
+#include "includes/SystemManagement/VideoManager.hpp"
+#include "includes/Configuration/ConfigManager.hpp"
 #include <SDL.h>
 #include <stdexcept>
 

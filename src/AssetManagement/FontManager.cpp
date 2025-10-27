@@ -1,4 +1,4 @@
-#include "../../includes/AssetManagement/FontManager.hpp"
+#include "includes/AssetManagement/FontManager.hpp"
 
 FontManager::FontManager(const Path &fontPath,
                          const int   fontSizeSm,

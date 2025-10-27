@@ -1,4 +1,4 @@
-#include "../../includes/Helpers/MathHelpers.hpp"
+#include "includes/Helpers/MathHelpers.hpp"
 
 namespace MathHelpers {
   float degreesToRadians(const float degrees) {

@@ -1,6 +1,6 @@
-#include "../../../includes/GameScenes/MainScene/MainSceneSpawner.hpp"
-#include "../../../includes/Helpers/CollisionHelpers.hpp"
-#include "../../../includes/Helpers/SpawnHelpers.hpp"
+#include "includes/GameScenes/MainScene/MainSceneSpawner.hpp"
+#include "includes/Helpers/CollisionHelpers.hpp"
+#include "includes/Helpers/SpawnHelpers.hpp"
 MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
                                    ConfigManager  &configManager,
                                    TextureManager &textureManager,

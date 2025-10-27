@@ -1,4 +1,4 @@
-#include "../../includes/AssetManagement/AudioSampleQueue.hpp"
+#include "includes/AssetManagement/AudioSampleQueue.hpp"
 
 AudioSampleQueue::AudioSampleQueue(AudioManager &audioManager) :
     m_audioManager(audioManager),

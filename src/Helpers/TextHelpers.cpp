@@ -1,4 +1,4 @@
-#include "../../includes/Helpers/TextHelpers.hpp"
+#include "includes/Helpers/TextHelpers.hpp"
 
 namespace TextHelpers {
   void renderLineOfText(SDL_Renderer      *renderer,

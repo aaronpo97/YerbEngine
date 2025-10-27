@@ -1,4 +1,4 @@
-#include "../../includes/Configuration/ConfigManager.hpp"
+#include "includes/Configuration/ConfigManager.hpp"
 #include <fstream>
 
 template <typename JsonReturnType>
