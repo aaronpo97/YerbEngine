@@ -1,6 +1,6 @@
 
-#include "includes/EntityManagement/EntityManager.hpp"
-#include "includes/EntityManagement/Entity.hpp"
+#include <YerbEngine/EntityManagement/EntityManager.hpp>
+#include <YerbEngine/EntityManagement/Entity.hpp>
 #include <ranges>
 
 std::shared_ptr<Entity> EntityManager::addEntity(EntityTags const tag) {

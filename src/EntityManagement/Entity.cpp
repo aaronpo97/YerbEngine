@@ -1,4 +1,4 @@
-#include "includes/EntityManagement/Entity.hpp"
+#include <YerbEngine/EntityManagement/Entity.hpp>
 #include <iostream>
 
 Entity::Entity(size_t const id, EntityTags const tag) : m_id(id), m_tag(tag) {}

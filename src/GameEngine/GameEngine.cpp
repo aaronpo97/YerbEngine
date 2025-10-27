@@ -1,7 +1,6 @@
-#include "includes/GameEngine/GameEngine.hpp"
-#include "includes/GameScenes/MainScene/MainScene.hpp"
-#include "includes/GameScenes/MenuScene/MenuScene.hpp"
-#include "includes/SystemManagement/VideoManager.hpp"
+#include <YerbEngine/GameEngine/GameEngine.hpp>
+#include <YerbEngine/GameScenes/Scene.hpp>
+#include <YerbEngine/SystemManagement/VideoManager.hpp>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -51,13 +50,9 @@ GameEngine::GameEngine() {
 
     /*
      * Log to console that the game engine has been initialized successfully.
-     *
-     * Sets up the menu scene and loads it into the game engine.
      */
     SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM,
                 "Game engine initialized successfully!");
-    std::shared_ptr<Scene> const menuScene = std::make_shared<MenuScene>(this);
-    loadScene("Menu", menuScene);
 }
 
 GameEngine::~GameEngine() { cleanup(); }

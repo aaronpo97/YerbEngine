@@ -11,23 +11,39 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
+
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
-file(GLOB_RECURSE SRC_FILES "${SRC_DIR}/*.cpp")
-add_executable(yerb_engine ${SRC_FILES})
+file(GLOB_RECURSE CORE_SRC_FILES 
+    "${SRC_DIR}/*.cpp"
+)
+
+add_library(yerb_engine_core STATIC ${CORE_SRC_FILES})
+
+target_include_directories(yerb_engine_core PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(yerb_engine_core PUBLIC nlohmann_json::nlohmann_json)
+
+if(APPLE)
+    target_compile_options(yerb_engine_core PRIVATE -Wno-deprecated -Wno-deprecated-declarations)
+endif()
+
+
+# Demo Executable
+set(DEMO_DIR "${CMAKE_SOURCE_DIR}/demo")
+file(GLOB_RECURSE DEMO_SRC_FILES "${DEMO_DIR}/src/*.cpp")
+
+add_executable(yerb_engine ${DEMO_SRC_FILES})
 
 set_target_properties(yerb_engine PROPERTIES
         OUTPUT_NAME "YerbEngine"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-# Add includes directory to search path with YerbEngine namespace
-target_include_directories(yerb_engine PRIVATE "${CMAKE_SOURCE_DIR}")
-
-target_link_libraries(yerb_engine PRIVATE nlohmann_json::nlohmann_json)
-
-if(APPLE)
-        target_compile_options(yerb_engine PRIVATE -Wno-deprecated -Wno-deprecated-declarations)
-endif()
+# Link demo to core library
+target_link_libraries(yerb_engine PRIVATE yerb_engine_core)
 
 if(EMSCRIPTEN)
     message(STATUS "Configuring for Emscripten")
@@ -43,7 +59,7 @@ if(EMSCRIPTEN)
 
     set_target_properties(yerb_engine PROPERTIES CMAKE_EXECUTABLE_SUFFIX ".js")
 
-    target_compile_options(yerb_engine PRIVATE
+    target_compile_options(yerb_engine_core PUBLIC
         "-sUSE_SDL=2"
         "-sUSE_SDL_IMAGE=2"
         "-sUSE_SDL_TTF=2"
@@ -68,7 +84,7 @@ if(EMSCRIPTEN)
         OUTPUT_VARIABLE EMSCRIPTEN_INCLUDE_DIR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    target_include_directories(yerb_engine PRIVATE ${EMSCRIPTEN_INCLUDE_DIR})
+    target_include_directories(yerb_engine_core PUBLIC ${EMSCRIPTEN_INCLUDE_DIR})
 
     if(NOT TARGET copy_templates)
         add_custom_target(copy_templates ALL
@@ -85,7 +101,7 @@ else()
         find_package(SDL2_ttf   REQUIRED)
         find_package(SDL2_mixer REQUIRED)
 
-        target_link_libraries(yerb_engine PRIVATE
+        target_link_libraries(yerb_engine_core PUBLIC
                 SDL2::SDL2
                 SDL2_image::SDL2_image
                 SDL2_ttf::SDL2_ttf

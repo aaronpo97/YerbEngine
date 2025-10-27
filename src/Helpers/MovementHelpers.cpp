@@ -1,4 +1,4 @@
-#include "includes/Helpers/MovementHelpers.hpp"
+#include <YerbEngine/Helpers/MovementHelpers.hpp>
 
 constexpr float BASE_MOVEMENT_MULTIPLIER = 50.0f;
 
