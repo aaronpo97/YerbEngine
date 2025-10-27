@@ -1,21 +1,15 @@
 #include <utility>
 
-#include "../../includes/GameEngine/Action.hpp"
-#include "../../includes/Helpers/Vec2.hpp"
+#include <YerbEngine/GameEngine/Action.hpp>
+#include <YerbEngine/Helpers/Vec2.hpp>
 
 Action::Action(std::string                name,
-               const ActionState         &state,
-               const std::optional<Vec2> &pos) :
-    m_name(std::move(name)), m_state(state), m_pos(pos) {}
+               ActionState const         &state,
+               std::optional<Vec2> const &pos)
+    : m_name(std::move(name)), m_state(state), m_pos(pos) {}
 
-const std::string &Action::getName() const {
-  return m_name;
-}
+std::string const &Action::getName() const { return m_name; }
 
-const ActionState &Action::getState() const {
-  return m_state;
-}
+ActionState const &Action::getState() const { return m_state; }
 
-const std::optional<Vec2> &Action::getPos() const {
-  return m_pos;
-}
+std::optional<Vec2> const &Action::getPos() const { return m_pos; }
