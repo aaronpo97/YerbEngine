@@ -230,7 +230,7 @@ void MainScene::sRender() {
 }
 
 void MainScene::sCollision() {
-    using namespace CollisionHelpers::MainScene;
+    using namespace ShootDemo::CollisionHelpers::MainScene;
     ConfigManager const &configManager = m_gameEngine->getConfigManager();
     Vec2 const          &windowSize = configManager.getGameConfig().windowSize;
 

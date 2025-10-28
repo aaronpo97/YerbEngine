@@ -1,6 +1,6 @@
 #pragma once
-
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 
 class HowToPlayScene final : public Scene {
   private:

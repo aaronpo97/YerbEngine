@@ -1,6 +1,7 @@
 #pragma once
 
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 
 class ScoreScene final : public Scene {
   private:

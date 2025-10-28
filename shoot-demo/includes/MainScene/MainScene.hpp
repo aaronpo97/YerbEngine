@@ -3,6 +3,7 @@
 #include <MainScene/MainSceneSpawner.hpp>
 #include <SDL.h>
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 #include <random>
 
 class MainScene final : public Scene {

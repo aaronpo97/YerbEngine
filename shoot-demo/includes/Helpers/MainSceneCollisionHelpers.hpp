@@ -1,12 +1,13 @@
 #pragma once
 
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 #include <bitset>
 #include <functional>
 #include <memory>
 #include <random>
 
-namespace CollisionHelpers::MainScene {
+namespace ShootDemo::CollisionHelpers::MainScene {
     struct CollisionPair {
         std::shared_ptr<Entity> const &entityA;
         std::shared_ptr<Entity> const &entityB;
@@ -27,9 +28,9 @@ namespace CollisionHelpers::MainScene {
     void handleEntityEntityCollision(CollisionPair const &collisionPair,
                                      GameState const     &args);
 
-} // namespace CollisionHelpers::MainScene
+} // namespace ShootDemo::CollisionHelpers::MainScene
 
-namespace CollisionHelpers::MainScene::Enforce {
+namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
     void enforcePlayerBounds(std::shared_ptr<Entity> const &entity,
                              std::bitset<4> const          &collides,
                              Vec2 const                    &window_size);
@@ -43,4 +44,4 @@ namespace CollisionHelpers::MainScene::Enforce {
     void enforceEntityEntityCollision(std::shared_ptr<Entity> const &entityA,
                                       std::shared_ptr<Entity> const &entityB);
 
-} // namespace CollisionHelpers::MainScene::Enforce
+} // namespace ShootDemo::CollisionHelpers::MainScene::Enforce
