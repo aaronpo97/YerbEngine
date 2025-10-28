@@ -19,16 +19,24 @@ classDiagram
         -unique_ptr~VideoManager~ m_videoManager
         +void run()
         +void quit()
+        +bool isRunning()
         +void loadScene(string name, shared_ptr~Scene~ scene)
         +ConfigManager& getConfigManager()
         +FontManager& getFontManager()
         +AudioManager& getAudioManager()
+        +AudioSampleQueue& getAudioSampleQueue()
         +TextureManager& getTextureManager()
         +VideoManager& getVideoManager()
         -void update()
         -void sUserInput()
         -static void mainLoop(void* arg)
         -static void cleanup()
+        -unique_ptr~ConfigManager~ createConfigManager(Path)
+        -unique_ptr~TextureManager~ createTextureManager()
+        -unique_ptr~VideoManager~ createVideoManager()
+        -unique_ptr~AudioManager~ createAudioManager()
+        -unique_ptr~FontManager~ createFontManager()
+        -unique_ptr~AudioSampleQueue~ initializeAudioSampleQueue()
     }
 
     class Scene {
@@ -43,7 +51,9 @@ classDiagram
         #ActionMap m_actionMap
         +void registerAction(int inputKey, string actionName)
         +void setPaused(bool paused)
+        +void setStartTime(Uint64 startTime)
         +ActionMap getActionMap()
+        +Uint64 getStartTime()
         +update()* void
         +onEnd()* void
         +sRender()* void
@@ -55,11 +65,16 @@ classDiagram
     class MainScene {
         -EntityManager m_entities
         -shared_ptr~Entity~ m_player
+        -MainSceneSpawner m_spawner
         -int m_score
         -int m_lives
         -Uint64 m_timeRemaining
+        -Uint64 m_lastNonPlayerEntitySpawnTime
+        -Uint64 m_lastBulletSpawnTime
+        -Uint64 m_bulletSpawnCooldown
         -bool m_gameOver
-        -MainSceneSpawner m_spawner
+        -random_device m_rd
+        -mt19937 m_randomGenerator
         +void update()
         +void onEnd()
         +void sRender()
@@ -72,14 +87,61 @@ classDiagram
         +void sLifespan()
         +void sEffects()
         +void sTimer()
+        +int getScore()
+        +void setScore(int score)
+        +void decrementLives()
+        +void setGameOver()
+        -void renderText()
     }
 
     class MenuScene {
-        -int m_selectedMenuIndex
-        -vector~string~ m_menuOptions
+        -bool m_playButtonClicked
+        -bool m_instructionsButtonClicked
+        -unsigned int m_selectedIndex
         +void update()
+        +void onEnd()
         +void sRender()
         +void sDoAction(Action& action)
+        +void sAudio()
+        +void onSceneWindowResize()
+        -void renderText()
+    }
+
+    class ScoreScene {
+        -unsigned int m_score
+        -unsigned int m_selectedIndex
+        +void update()
+        +void onEnd()
+        +void sRender()
+        +void sDoAction(Action& action)
+        +void sAudio()
+        +void onSceneWindowResize()
+        -void renderText()
+    }
+
+    class HowToPlayScene {
+        +void update()
+        +void onEnd()
+        +void sRender()
+        +void sDoAction(Action& action)
+        +void sAudio()
+        +void onSceneWindowResize()
+        -void renderText()
+    }
+
+    class MainSceneSpawner {
+        -mt19937& m_randomGenerator
+        -ConfigManager& m_configManager
+        -TextureManager& m_textureManager
+        -EntityManager& m_entityManager
+        -SDL_Renderer* m_renderer
+        +shared_ptr~Entity~ spawnPlayer()
+        +void spawnEnemy(shared_ptr~Entity~ player)
+        +void spawnSpeedBoostEntity(shared_ptr~Entity~ player)
+        +void spawnSlownessEntity(shared_ptr~Entity~ player)
+        +void spawnWalls()
+        +void spawnBullets(shared_ptr~Entity~ player, Vec2 mousePosition)
+        +void spawnItem(shared_ptr~Entity~ player)
     }
 
     class Action {
@@ -89,6 +151,12 @@ classDiagram
         +string getName()
         +ActionState getState()
         +optional~Vec2~ getPos()
+    }
+
+    class ActionState {
+        <<enumeration>>
+        START
+        END
     }
 
     %% ===========================
@@ -134,6 +202,12 @@ classDiagram
         Default
     }
 
+    class EffectTypes {
+        <<enumeration>>
+        Speed
+        Slowness
+    }
+
     %% ===========================
     %% Component Classes
     %% ===========================
@@ -144,6 +218,7 @@ classDiagram
     }
 
     class CShape {
+        -SDL_Renderer* renderer
         +SDL_Rect rect
         +SDL_Color color
     }
@@ -158,6 +233,13 @@ classDiagram
     class CLifespan {
         +Uint64 birthTime
         +Uint64 lifespan
+    }
+
+    class Effect {
+        <<struct>>
+        +Uint64 startTime
+        +Uint64 duration
+        +EffectTypes type
     }
 
     class CEffects {
@@ -199,6 +281,8 @@ classDiagram
         +EnemyConfig getEnemyConfig()
         +BulletConfig getBulletConfig()
         +ItemConfig getItemConfig()
+        +SpeedEffectConfig getSpeedEffectConfig()
+        +SlownessEffectConfig getSlownessEffectConfig()
         +void updatePlayerShape(ShapeConfig)
         +void updatePlayerSpeed(float)
         +void updateGameWindowSize(Vec2)
@@ -213,9 +297,10 @@ classDiagram
         -ConfigManager& m_configManager
         +SDL_Renderer* getRenderer()
         +SDL_Window* getWindow()
+        +Vec2 getWindowSize()
+        +void updateWindowSize()
         +void clearScreen()
         +void display()
-        +Vec2 getWindowSize()
         -void initializeVideoSystem()
         -void setupRenderer()
         -SDL_Renderer* createRenderer()
@@ -236,6 +321,27 @@ classDiagram
         +void setSampleVolume(int volume)
         -void loadAudioTracks()
         -void loadAudioSamples()
+    }
+
+    class AudioTrack {
+        <<enumeration>>
+        NONE
+        MAIN_MENU
+        PLAY
+    }
+
+    class AudioSample {
+        <<enumeration>>
+        NONE
+        ITEM_ACQUIRED
+        ENEMY_COLLISION
+        SPEED_BOOST
+        SLOWNESS_DEBUFF
+        MENU_MOVE
+        MENU_SELECT
+        SHOOT
+        BULLET_HIT_01
+        BULLET_HIT_02
     }
 
     class FontManager {
@@ -274,15 +380,10 @@ classDiagram
 
     class CollisionHelpers {
         <<namespace>>
-        +bool detectOutOfBounds(Entity, Vec2 windowSize)
-        +optional~Vec2~ calculateCollisionBetweenEntities(Entity, Entity)
-        +Vec2 calculateOverlap(SDL_Rect, SDL_Rect)
-    }
-
-    class MovementHelpers {
-        <<namespace>>
-        +void applyMovement(Entity, float deltaTime)
-        +void applyVelocity(Entity, Vec2 velocity)
+        +bitset~4~ detectOutOfBounds(shared_ptr~Entity~, Vec2 windowSize)
+        +bool calculateCollisionBetweenEntities(shared_ptr~Entity~, shared_ptr~Entity~)
+        +Vec2 calculateOverlap(shared_ptr~Entity~, shared_ptr~Entity~)
+        +bitset~4~ getPositionRelativeToEntity(shared_ptr~Entity~, shared_ptr~Entity~)
     }
 
     class SpawnHelpers {
@@ -307,9 +408,11 @@ classDiagram
 
     class MathHelpers {
         <<namespace>>
-        +float pythagoras(float x, float y)
-        +float distance(Vec2 p1, Vec2 p2)
-        +Vec2 normalize(Vec2)
+        +float pi
+        +float degreesToRadians(float degrees)
+        +float radiansToDegrees(float radians)
+        +float pythagorasSquared(float a, float b)
+        +float pythagoras(float a, float b)
     }
 
     %% ===========================
@@ -332,34 +435,67 @@ classDiagram
     %% ===========================
 
     class GameConfig {
+        <<struct>>
         +Vec2 windowSize
         +string windowTitle
-        +int frameRate
-        +bool fullscreen
+        +filesystem::path fontPath
+        +Uint64 spawnInterval
+        +int fontSizeSm
+        +int fontSizeMd
+        +int fontSizeLg
     }
 
     class PlayerConfig {
-        +ShapeConfig shape
+        <<struct>>
         +float baseSpeed
-        +int maxHealth
+        +float speedBoostMultiplier
+        +float slownessMultiplier
+        +ShapeConfig shape
     }
 
     class EnemyConfig {
+        <<struct>>
+        +Uint8 spawnPercentage
+        +Uint64 lifespan
+        +float speed
         +ShapeConfig shape
-        +float baseSpeed
-        +float spawnPercentage
-        +int maxEnemies
     }
 
     class BulletConfig {
-        +ShapeConfig shape
-        +float speed
+        <<struct>>
         +Uint64 lifespan
+        +float speed
+        +ShapeConfig shape
+    }
+
+    class ItemConfig {
+        <<struct>>
+        +Uint8 spawnPercentage
+        +Uint64 lifespan
+        +float speed
+        +ShapeConfig shape
+    }
+
+    class SpeedEffectConfig {
+        <<struct>>
+        +Uint8 spawnPercentage
+        +Uint64 lifespan
+        +float speed
+        +ShapeConfig shape
+    }
+
+    class SlownessEffectConfig {
+        <<struct>>
+        +Uint8 spawnPercentage
+        +Uint64 lifespan
+        +float speed
+        +ShapeConfig shape
     }
 
     class ShapeConfig {
-        +float width
+        <<struct>>
         +float height
+        +float width
         +SDL_Color color
     }
 
@@ -379,11 +515,18 @@ classDiagram
     %% Scene hierarchy
     Scene <|-- MainScene : inherits
     Scene <|-- MenuScene : inherits
+    Scene <|-- ScoreScene : inherits
+    Scene <|-- HowToPlayScene : inherits
     Scene --> GameEngine : uses
     Scene --> Action : processes
+    Action --> ActionState : has
 
     %% Scenes use EntityManager
     MainScene "1" *-- "1" EntityManager : owns
+    MainScene "1" *-- "1" MainSceneSpawner : owns
+    MainSceneSpawner --> EntityManager : spawns entities in
+    MainSceneSpawner --> ConfigManager : uses
+    MainSceneSpawner --> TextureManager : uses
     
     %% EntityManager manages Entities
     EntityManager "1" o-- "*" Entity : manages
@@ -398,9 +541,11 @@ classDiagram
     Entity "1" *-- "0..1" CBounceTracker : has
     Entity "1" *-- "0..1" CSprite : has
 
-    %% Components use utility classes
+    %% Components relationships
     CTransform --> Vec2 : uses
     CSprite --> TextureManager : gets texture from
+    CEffects --> Effect : contains
+    Effect --> EffectTypes : typed by
 
     %% Managers depend on Config
     VideoManager --> ConfigManager : uses
@@ -408,27 +553,42 @@ classDiagram
     ConfigManager --> PlayerConfig : provides
     ConfigManager --> EnemyConfig : provides
     ConfigManager --> BulletConfig : provides
+    ConfigManager --> ItemConfig : provides
+    ConfigManager --> SpeedEffectConfig : provides
+    ConfigManager --> SlownessEffectConfig : provides
     
     %% Config uses ShapeConfig
     PlayerConfig --> ShapeConfig : contains
     EnemyConfig --> ShapeConfig : contains
     BulletConfig --> ShapeConfig : contains
+    ItemConfig --> ShapeConfig : contains
+    SpeedEffectConfig --> ShapeConfig : contains
+    SlownessEffectConfig --> ShapeConfig : contains
+
+    %% AudioManager uses enums
+    AudioManager --> AudioTrack : manages
+    AudioManager --> AudioSample : manages
+    AudioSampleQueue --> AudioSample : queues
 
     %% Helpers are used by Scenes
     MainScene ..> CollisionHelpers : uses
-    MainScene ..> MovementHelpers : uses
     MainScene ..> SpawnHelpers : uses
     MainScene ..> EntityHelpers : uses
     MainScene ..> TextHelpers : uses
+    MenuScene ..> TextHelpers : uses
+    ScoreScene ..> TextHelpers : uses
+    HowToPlayScene ..> TextHelpers : uses
     
     %% Helpers use utility classes
     CollisionHelpers ..> Vec2 : uses
-    MovementHelpers ..> Vec2 : uses
+    CollisionHelpers ..> Entity : operates on
+    SpawnHelpers ..> Vec2 : uses
+    SpawnHelpers ..> Entity : creates
     MathHelpers ..> Vec2 : uses
     TextHelpers ..> Vec2 : uses
 
-    %% SDL dependencies
-    VideoManager --> SDL : uses
-    AudioManager --> SDL : uses
-    CShape --> SDL : uses
-    CSprite --> SDL : uses
+    %% SDL dependencies (shown implicitly through types)
+    note for VideoManager "Uses SDL_Window and SDL_Renderer"
+    note for AudioManager "Uses SDL_mixer (Mix_Music, Mix_Chunk)"
+    note for CShape "Renders using SDL_Rect and SDL_Color"
+    note for CSprite "Wraps SDL_Texture"
