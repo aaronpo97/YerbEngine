@@ -1,5 +1,5 @@
-#include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
-#include <YerbEngine/YerbEngine.hpp>
+#include <MainScene/MainSceneSpawner.hpp>
+#include <YerbEngine.hpp>
 
 MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
                                    ConfigManager  &configManager,
@@ -22,8 +22,8 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
     Vec2 const  centerPosition =
         windowSize / 2 - Vec2(playerWidth / 2, playerHeight / 2);
 
-    Vec2 const &playerPosition = centerPosition;
-    Vec2 const  playerVelocity = {0, 0};
+    Vec2 const    &playerPosition = centerPosition;
+    constexpr Vec2 playerVelocity{0, 0};
 
     auto const cShape =
         std::make_shared<CShape>(m_renderer, playerConfig.shape);

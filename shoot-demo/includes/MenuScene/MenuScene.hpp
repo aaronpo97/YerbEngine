@@ -1,5 +1,5 @@
 #pragma once
-#include <YerbEngine/YerbEngine.hpp>
+#include <YerbEngine.hpp>
 #include <map>
 #include <string>
 

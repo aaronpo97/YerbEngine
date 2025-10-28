@@ -4,13 +4,16 @@ set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB_RECURSE DEMO_SRC_FILES "${DEMO_DIR}/src/*.cpp")
 
 add_library(demo_includes INTERFACE)
-target_include_directories(demo_includes INTERFACE "${CMAKE_SOURCE_DIR}")
+target_include_directories(demo_includes INTERFACE 
+    "${CMAKE_SOURCE_DIR}/YerbEngine/includes"
+    "${DEMO_DIR}/includes"
+)
 
 add_executable(shoot-demo ${DEMO_SRC_FILES})
 
-
 target_include_directories(shoot-demo PRIVATE 
-    "${CMAKE_SOURCE_DIR}"
+    "${CMAKE_SOURCE_DIR}/YerbEngine/includes"
+    "${DEMO_DIR}/includes"
 )
 
 target_compile_definitions(shoot-demo PRIVATE DEMO_DIR="demo-1")

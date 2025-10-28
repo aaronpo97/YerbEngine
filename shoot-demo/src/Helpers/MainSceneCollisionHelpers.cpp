@@ -1,5 +1,5 @@
-#include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
-#include <YerbEngine/YerbEngine.hpp>
+#include <Helpers/MainSceneCollisionHelpers.hpp>
+#include <YerbEngine.hpp>
 
 #include <bitset>
 
@@ -271,7 +271,7 @@ namespace CollisionHelpers::MainScene {
         if (tag == EntityTags::Bullet && otherTag == EntityTags::Enemy) {
             AudioSample nextSample = AudioSample::BULLET_HIT_02;
             args.audioSampleManager.queueSample(nextSample,
-                                                AudioSamplePriority::STANDARD);
+                                                PriorityLevel::STANDARD);
 
             auto const &cBounceTracker = entity->getComponent<CBounceTracker>();
 
@@ -286,8 +286,8 @@ namespace CollisionHelpers::MainScene {
         }
 
         if (tag == EntityTags::Bullet && otherTag == EntityTags::Wall) {
-            args.audioSampleManager.queueSample(
-                AudioSample::BULLET_HIT_01, AudioSamplePriority::BACKGROUND);
+            args.audioSampleManager.queueSample(AudioSample::BULLET_HIT_01,
+                                                PriorityLevel::BACKGROUND);
         }
 
         if (tag == EntityTags::Bullet &&
@@ -307,7 +307,7 @@ namespace CollisionHelpers::MainScene {
 
         if (tag == EntityTags::Player && otherTag == EntityTags::Enemy) {
             args.audioSampleManager.queueSample(AudioSample::ENEMY_COLLISION,
-                                                AudioSamplePriority::STANDARD);
+                                                PriorityLevel::STANDARD);
             setScore(m_score > 10 ? m_score - 10 : 0);
             otherEntity->destroy();
             decrementLives();
@@ -316,8 +316,8 @@ namespace CollisionHelpers::MainScene {
                 entity->getComponent<CTransform>();
             std::shared_ptr<CEffects> const &cEffects =
                 entity->getComponent<CEffects>();
-            cTransform->topLeftCornerPos = {windowSize.x() / 2,
-                                            windowSize.y() / 2};
+            cTransform->topLeftCornerPos =
+                Vec2{windowSize.x() / 2, windowSize.y() / 2};
 
             constexpr float  REMOVAL_RADIUS = 150.0f;
             EntityList const entitiesToRemove =
@@ -356,7 +356,7 @@ namespace CollisionHelpers::MainScene {
 
             AudioSample const nextSample = AudioSample::SLOWNESS_DEBUFF;
             args.audioSampleManager.queueSample(nextSample,
-                                                AudioSamplePriority::STANDARD);
+                                                PriorityLevel::STANDARD);
 
             constexpr float  REMOVAL_RADIUS = 150.0f;
             EntityList const entitiesToRemove =
@@ -383,7 +383,7 @@ namespace CollisionHelpers::MainScene {
 
             AudioSample const nextSample = AudioSample::SPEED_BOOST;
             args.audioSampleManager.queueSample(nextSample,
-                                                AudioSamplePriority::STANDARD);
+                                                PriorityLevel::STANDARD);
 
             EntityList const &slownessDebuffs =
                 m_entities.getEntities(EntityTags::SlownessDebuff);
@@ -415,7 +415,7 @@ namespace CollisionHelpers::MainScene {
 
         if (tag == EntityTags::Player && otherTag == EntityTags::Item) {
             args.audioSampleManager.queueSample(AudioSample::ITEM_ACQUIRED,
-                                                AudioSamplePriority::STANDARD);
+                                                PriorityLevel::STANDARD);
             setScore(m_score + 90);
             otherEntity->destroy();
         }

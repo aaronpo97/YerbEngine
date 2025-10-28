@@ -4,12 +4,12 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
-#include "shoot-demo/includes/MainScene/MainScene.hpp"
-#include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
-#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
-#include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
-#include "shoot-demo/includes/Helpers/MovementHelpers.hpp"
+#include <Helpers/MainSceneCollisionHelpers.hpp>
+#include <Helpers/MovementHelpers.hpp>
+#include <MainScene/MainScene.hpp>
+#include <MainScene/MainSceneSpawner.hpp>
+#include <MenuScene/MenuScene.hpp>
+#include <ScoreScene/ScoreScene.hpp>
 
 MainScene::MainScene(GameEngine *gameEngine)
     : Scene(gameEngine), m_entities(EntityManager()),
@@ -117,20 +117,20 @@ void MainScene::sDoAction(Action &action) {
         Vec2 const mousePosition = *position;
 
         audioSampleQueue.queueSample(AudioSample::SHOOT,
-                                     AudioSamplePriority::STANDARD);
+                                     PriorityLevel::STANDARD);
         m_spawner.spawnBullets(m_player, mousePosition);
         m_lastBulletSpawnTime = currentTime;
 
         if (action.getName() == "PAUSE") {
             audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
-                                         AudioSamplePriority::CRITICAL);
+                                         PriorityLevel::CRITICAL);
             m_paused = !m_paused;
         }
     }
 
     if (action.getName() == "GO_BACK") {
         audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
-                                     AudioSamplePriority::CRITICAL);
+                                     PriorityLevel::CRITICAL);
         m_endTriggered = true;
     }
 }
@@ -140,36 +140,36 @@ void MainScene::renderText() const {
     TTF_Font     *fontSm   = m_gameEngine->getFontManager().getFontSm();
     TTF_Font     *fontMd   = m_gameEngine->getFontManager().getFontMd();
 
-    constexpr SDL_Color scoreColor = {255, 255, 255, 255};
-    std::string const   scoreText  = "Score: " + std::to_string(m_score);
-    Vec2 const          scorePos   = {10, 10};
-    TextHelpers::renderLineOfText(renderer, fontMd, scoreText, scoreColor,
+    constexpr SDL_Color plainTextColor = {255, 255, 255, 255};
+
+    std::string const scoreText = "Score: " + std::to_string(m_score);
+    Vec2 constexpr scorePos{10, 10};
+    TextHelpers::renderLineOfText(renderer, fontMd, scoreText, plainTextColor,
                                   scorePos);
 
-    constexpr SDL_Color livesColor = {255, 255, 255, 255};
-    std::string const   livesText  = "Lives: " + std::to_string(m_lives);
-    Vec2 const          livesPos   = {10, 40};
-    TextHelpers::renderLineOfText(renderer, fontMd, livesText, livesColor,
+    std::string const livesText = "Lives: " + std::to_string(m_lives);
+    Vec2 constexpr livesPos{10, 40};
+    TextHelpers::renderLineOfText(renderer, fontMd, livesText, plainTextColor,
                                   livesPos);
 
-    Uint64 const        timeRemaining = m_timeRemaining;
-    Uint64 const        minutes       = timeRemaining / 60000;
-    Uint64 const        seconds       = timeRemaining % 60000 / 1000;
-    constexpr SDL_Color timeColor     = {255, 255, 255, 255};
-    std::string const   timeText = "Time: " + std::to_string(minutes) + ":" +
+    Uint64 const timeRemaining = m_timeRemaining;
+    Uint64 const minutes       = timeRemaining / 60000;
+    Uint64 const seconds       = timeRemaining % 60000 / 1000;
+
+    std::string const timeText = "Time: " + std::to_string(minutes) + ":" +
                                  (seconds < 10 ? "0" : "") +
                                  std::to_string(seconds);
-    Vec2 const timePos = {10, 70};
+    Vec2 constexpr timePos{10, 70};
 
-    TextHelpers::renderLineOfText(renderer, fontMd, timeText, timeColor,
+    TextHelpers::renderLineOfText(renderer, fontMd, timeText, plainTextColor,
                                   timePos);
 
     auto const cEffects = m_player->getComponent<CEffects>();
 
     if (cEffects->hasEffect(Speed)) {
-        constexpr SDL_Color speedBoostColor = {0, 255, 0, 255};
-        std::string const   speedBoostText  = "Speed Boost Active!";
-        Vec2 const          speedBoostPos   = {10, 120};
+        SDL_Color constexpr speedBoostColor = {0, 255, 0, 255};
+        std::string const speedBoostText    = "Speed Boost Active!";
+        Vec2 constexpr speedBoostPos{10, 120};
         TextHelpers::renderLineOfText(renderer, fontSm, speedBoostText,
                                       speedBoostColor, speedBoostPos);
     }
@@ -177,7 +177,7 @@ void MainScene::renderText() const {
     if (cEffects->hasEffect(Slowness)) {
         constexpr SDL_Color slownessColor = {255, 0, 0, 255};
         std::string const   slownessText  = "Slowness Active!";
-        Vec2 const          slownessPos   = {10, 120};
+        Vec2 constexpr slownessPos{10, 120};
         TextHelpers::renderLineOfText(renderer, fontSm, slownessText,
                                       slownessColor, slownessPos);
     }

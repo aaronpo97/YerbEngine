@@ -21,7 +21,7 @@ fi
 
 echo "Formatting files..."
 
-find YerbEngine src -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" | xargs clang-format -i
+find YerbEngine/includes YerbEngine/src -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" | xargs clang-format -i
 
 if [ -d "shoot-demo" ]; then
     find shoot-demo -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" | xargs clang-format -i

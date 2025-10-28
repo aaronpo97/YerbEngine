@@ -1,0 +1,434 @@
+---
+title: YerbEngine Architecture
+---
+
+classDiagram
+    %% ===========================
+    %% Core Engine Classes
+    %% ===========================
+    
+    class GameEngine {
+        -map~string, shared_ptr~Scene~~ m_scenes
+        -string m_currentSceneName
+        -bool m_isRunning
+        -unique_ptr~ConfigManager~ m_configManager
+        -unique_ptr~FontManager~ m_fontManager
+        -unique_ptr~AudioManager~ m_audioManager
+        -unique_ptr~TextureManager~ m_texture_manager
+        -unique_ptr~AudioSampleQueue~ m_audioSampleQueue
+        -unique_ptr~VideoManager~ m_videoManager
+        +void run()
+        +void quit()
+        +void loadScene(string name, shared_ptr~Scene~ scene)
+        +ConfigManager& getConfigManager()
+        +FontManager& getFontManager()
+        +AudioManager& getAudioManager()
+        +TextureManager& getTextureManager()
+        +VideoManager& getVideoManager()
+        -void update()
+        -void sUserInput()
+        -static void mainLoop(void* arg)
+        -static void cleanup()
+    }
+
+    class Scene {
+        <<abstract>>
+        #GameEngine* m_gameEngine
+        #Uint64 m_lastFrameTime
+        #float m_deltaTime
+        #bool m_endTriggered
+        #bool m_hasEnded
+        #bool m_paused
+        #Uint64 m_SceneStartTime
+        #ActionMap m_actionMap
+        +void registerAction(int inputKey, string actionName)
+        +void setPaused(bool paused)
+        +ActionMap getActionMap()
+        +update()* void
+        +onEnd()* void
+        +sRender()* void
+        +sDoAction(Action& action)* void
+        +sAudio()* void
+        +onSceneWindowResize()* void
+    }
+
+    class MainScene {
+        -EntityManager m_entities
+        -shared_ptr~Entity~ m_player
+        -int m_score
+        -int m_lives
+        -Uint64 m_timeRemaining
+        -bool m_gameOver
+        -MainSceneSpawner m_spawner
+        +void update()
+        +void onEnd()
+        +void sRender()
+        +void sDoAction(Action& action)
+        +void sAudio()
+        +void onSceneWindowResize()
+        +void sCollision()
+        +void sMovement()
+        +void sSpawner()
+        +void sLifespan()
+        +void sEffects()
+        +void sTimer()
+    }
+
+    class MenuScene {
+        -int m_selectedMenuIndex
+        -vector~string~ m_menuOptions
+        +void update()
+        +void sRender()
+        +void sDoAction(Action& action)
+    }
+
+    class Action {
+        -string m_name
+        -ActionState m_state
+        -optional~Vec2~ m_pos
+        +string getName()
+        +ActionState getState()
+        +optional~Vec2~ getPos()
+    }
+
+    %% ===========================
+    %% Entity Component System
+    %% ===========================
+
+    class Entity {
+        -bool m_active
+        -size_t m_id
+        -EntityTags m_tag
+        -EntityComponents m_components
+        +bool isActive()
+        +EntityTags tag()
+        +size_t id()
+        +void destroy()
+        +Vec2 getCenterPos()
+        +shared_ptr~T~ getComponent~T~()
+        +void setComponent~T~(shared_ptr~T~)
+        +void removeComponent~T~()
+        +bool hasComponent~T~()
+    }
+
+    class EntityManager {
+        -EntityList m_entities
+        -EntityList m_toAdd
+        -EntityMap m_entityMap
+        -size_t m_totalEntities
+        +shared_ptr~Entity~ addEntity(EntityTags tag)
+        +EntityList& getEntities()
+        +EntityList& getEntities(EntityTags tag)
+        +void update()
+    }
+
+    class EntityTags {
+        <<enumeration>>
+        Player
+        Wall
+        SpeedBoost
+        SlownessDebuff
+        Enemy
+        Bullet
+        Item
+        Default
+    }
+
+    %% ===========================
+    %% Component Classes
+    %% ===========================
+
+    class CTransform {
+        +Vec2 topLeftCornerPos
+        +Vec2 velocity
+    }
+
+    class CShape {
+        +SDL_Rect rect
+        +SDL_Color color
+    }
+
+    class CInput {
+        +bool forward
+        +bool backward
+        +bool left
+        +bool right
+    }
+
+    class CLifespan {
+        +Uint64 birthTime
+        +Uint64 lifespan
+    }
+
+    class CEffects {
+        -vector~Effect~ effects
+        +void addEffect(Effect effect)
+        +vector~Effect~ getEffects()
+        +void removeEffect(EffectTypes type)
+        +bool hasEffect(EffectTypes type)
+        +void clearEffects()
+    }
+
+    class CBounceTracker {
+        -int m_bounces
+        +void addBounce()
+        +int getBounces()
+    }
+
+    class CSprite {
+        -SDL_Texture* m_texture
+        +SDL_Texture* getTexture()
+    }
+
+    %% ===========================
+    %% Manager Classes
+    %% ===========================
+
+    class ConfigManager {
+        -GameConfig m_gameConfig
+        -PlayerConfig m_playerConfig
+        -EnemyConfig m_enemyConfig
+        -BulletConfig m_bulletConfig
+        -ItemConfig m_itemConfig
+        -SpeedEffectConfig m_speedEffectConfig
+        -SlownessEffectConfig m_slownessEffectConfig
+        -json m_json
+        -filesystem::path m_configPath
+        +GameConfig getGameConfig()
+        +PlayerConfig getPlayerConfig()
+        +EnemyConfig getEnemyConfig()
+        +BulletConfig getBulletConfig()
+        +ItemConfig getItemConfig()
+        +void updatePlayerShape(ShapeConfig)
+        +void updatePlayerSpeed(float)
+        +void updateGameWindowSize(Vec2)
+        -void parseConfig()
+        -void loadConfig()
+    }
+
+    class VideoManager {
+        -SDL_Renderer* m_renderer
+        -SDL_Window* m_window
+        -Vec2 m_currentWindowSize
+        -ConfigManager& m_configManager
+        +SDL_Renderer* getRenderer()
+        +SDL_Window* getWindow()
+        +void clearScreen()
+        +void display()
+        +Vec2 getWindowSize()
+        -void initializeVideoSystem()
+        -void setupRenderer()
+        -SDL_Renderer* createRenderer()
+        -SDL_Window* createWindow()
+    }
+
+    class AudioManager {
+        -unordered_map~AudioTrack, Mix_Music*~ m_audioTracks
+        -unordered_map~AudioSample, Mix_Chunk*~ m_audioSamples
+        -AudioTrack m_currentAudioTrack
+        -AudioTrack m_lastAudioTrack
+        +void playTrack(AudioTrack track)
+        +void playSample(AudioSample sample)
+        +void stopTrack()
+        +void pauseTrack()
+        +void resumeTrack()
+        +void setTrackVolume(int volume)
+        +void setSampleVolume(int volume)
+        -void loadAudioTracks()
+        -void loadAudioSamples()
+    }
+
+    class FontManager {
+        -filesystem::path m_fontPath
+        -int m_fontSizeSm
+        -int m_fontSizeMd
+        -int m_fontSizeLg
+        -TTF_Font* m_fontLg
+        -TTF_Font* m_fontMd
+        -TTF_Font* m_fontSm
+        +TTF_Font* getFontLg()
+        +TTF_Font* getFontMd()
+        +TTF_Font* getFontSm()
+        +void loadFonts(Path fontPath)
+    }
+
+    class TextureManager {
+        -unordered_map~TextureName, SDL_Surface*~ m_surfaces
+        -unordered_map~TextureName, SDL_Texture*~ m_textures
+        -SDL_Renderer* m_renderer
+        +SDL_Texture* getTexture(TextureName name)
+        -void loadTexture(TextureName name)
+    }
+
+    class AudioSampleQueue {
+        -queue~AudioSample~ m_queue
+        +void enqueue(AudioSample sample)
+        +optional~AudioSample~ dequeue()
+        +bool isEmpty()
+        +void clear()
+    }
+
+    %% ===========================
+    %% Helper Namespaces
+    %% ===========================
+
+    class CollisionHelpers {
+        <<namespace>>
+        +bool detectOutOfBounds(Entity, Vec2 windowSize)
+        +optional~Vec2~ calculateCollisionBetweenEntities(Entity, Entity)
+        +Vec2 calculateOverlap(SDL_Rect, SDL_Rect)
+    }
+
+    class MovementHelpers {
+        <<namespace>>
+        +void applyMovement(Entity, float deltaTime)
+        +void applyVelocity(Entity, Vec2 velocity)
+    }
+
+    class SpawnHelpers {
+        <<namespace>>
+        +shared_ptr~Entity~ spawnEntity(EntityManager&, EntityTags)
+        +void spawnEnemyAtRandomPosition(EntityManager&)
+        +void spawnBullet(EntityManager&, Vec2 position, Vec2 velocity)
+    }
+
+    class EntityHelpers {
+        <<namespace>>
+        +void destroyEntity(Entity)
+        +Vec2 getEntityCenter(Entity)
+        +void setEntityPosition(Entity, Vec2)
+    }
+
+    class TextHelpers {
+        <<namespace>>
+        +void renderText(SDL_Renderer*, TTF_Font*, string, Vec2, SDL_Color)
+        +SDL_Texture* createTextTexture(SDL_Renderer*, TTF_Font*, string, SDL_Color)
+    }
+
+    class MathHelpers {
+        <<namespace>>
+        +float pythagoras(float x, float y)
+        +float distance(Vec2 p1, Vec2 p2)
+        +Vec2 normalize(Vec2)
+    }
+
+    %% ===========================
+    %% Utility Classes
+    %% ===========================
+
+    class Vec2 {
+        +float x
+        +float y
+        +Vec2 operator+(Vec2)
+        +Vec2 operator-(Vec2)
+        +Vec2 operator*(float)
+        +Vec2 operator/(float)
+        +float length()
+        +Vec2 normalize()
+    }
+
+    %% ===========================
+    %% Configuration Structs
+    %% ===========================
+
+    class GameConfig {
+        +Vec2 windowSize
+        +string windowTitle
+        +int frameRate
+        +bool fullscreen
+    }
+
+    class PlayerConfig {
+        +ShapeConfig shape
+        +float baseSpeed
+        +int maxHealth
+    }
+
+    class EnemyConfig {
+        +ShapeConfig shape
+        +float baseSpeed
+        +float spawnPercentage
+        +int maxEnemies
+    }
+
+    class BulletConfig {
+        +ShapeConfig shape
+        +float speed
+        +Uint64 lifespan
+    }
+
+    class ShapeConfig {
+        +float width
+        +float height
+        +SDL_Color color
+    }
+
+    %% ===========================
+    %% Relationships
+    %% ===========================
+
+    %% Engine owns managers and scenes
+    GameEngine "1" *-- "1" ConfigManager : owns
+    GameEngine "1" *-- "1" VideoManager : owns
+    GameEngine "1" *-- "1" AudioManager : owns
+    GameEngine "1" *-- "1" FontManager : owns
+    GameEngine "1" *-- "1" TextureManager : owns
+    GameEngine "1" *-- "1" AudioSampleQueue : owns
+    GameEngine "1" o-- "*" Scene : manages
+
+    %% Scene hierarchy
+    Scene <|-- MainScene : inherits
+    Scene <|-- MenuScene : inherits
+    Scene --> GameEngine : uses
+    Scene --> Action : processes
+
+    %% Scenes use EntityManager
+    MainScene "1" *-- "1" EntityManager : owns
+    
+    %% EntityManager manages Entities
+    EntityManager "1" o-- "*" Entity : manages
+    Entity --> EntityTags : tagged with
+
+    %% Entity contains Components
+    Entity "1" *-- "0..1" CTransform : has
+    Entity "1" *-- "0..1" CShape : has
+    Entity "1" *-- "0..1" CInput : has
+    Entity "1" *-- "0..1" CLifespan : has
+    Entity "1" *-- "0..1" CEffects : has
+    Entity "1" *-- "0..1" CBounceTracker : has
+    Entity "1" *-- "0..1" CSprite : has
+
+    %% Components use utility classes
+    CTransform --> Vec2 : uses
+    CSprite --> TextureManager : gets texture from
+
+    %% Managers depend on Config
+    VideoManager --> ConfigManager : uses
+    ConfigManager --> GameConfig : provides
+    ConfigManager --> PlayerConfig : provides
+    ConfigManager --> EnemyConfig : provides
+    ConfigManager --> BulletConfig : provides
+    
+    %% Config uses ShapeConfig
+    PlayerConfig --> ShapeConfig : contains
+    EnemyConfig --> ShapeConfig : contains
+    BulletConfig --> ShapeConfig : contains
+
+    %% Helpers are used by Scenes
+    MainScene ..> CollisionHelpers : uses
+    MainScene ..> MovementHelpers : uses
+    MainScene ..> SpawnHelpers : uses
+    MainScene ..> EntityHelpers : uses
+    MainScene ..> TextHelpers : uses
+    
+    %% Helpers use utility classes
+    CollisionHelpers ..> Vec2 : uses
+    MovementHelpers ..> Vec2 : uses
+    MathHelpers ..> Vec2 : uses
+    TextHelpers ..> Vec2 : uses
+
+    %% SDL dependencies
+    VideoManager --> SDL : uses
+    AudioManager --> SDL : uses
+    CShape --> SDL : uses
+    CSprite --> SDL : uses

@@ -1,6 +1,6 @@
-#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
+#include <MenuScene/MenuScene.hpp>
 #include <SDL_main.h>
-#include <YerbEngine/YerbEngine.hpp>
+#include <YerbEngine.hpp>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>

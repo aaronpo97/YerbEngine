@@ -1,7 +1,7 @@
-#include "shoot-demo/includes/HowToPlayScene/HowToPlayScene.hpp"
-#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
+#include <HowToPlayScene/HowToPlayScene.hpp>
+#include <MenuScene/MenuScene.hpp>
 #include <SDL.h>
-#include <YerbEngine/YerbEngine.hpp>
+#include <YerbEngine.hpp>
 
 HowToPlayScene::HowToPlayScene(GameEngine *gameEngine) : Scene(gameEngine) {
     registerAction(SDLK_RETURN, "SELECT");
@@ -47,87 +47,87 @@ void HowToPlayScene::renderText() const {
 
     // Instructions text
     std::string const titleText = "How to Play";
-    Vec2 const        titlePos  = {100, 100};
+    constexpr Vec2    titlePos{100, 100};
     TextHelpers::renderLineOfText(renderer, fontLg, titleText, textColor,
                                   titlePos);
 
     // Movement instructions
     std::string const controlsText = "Controls";
-    Vec2 const        controlsPos  = titlePos + Vec2{0, 80};
+    constexpr Vec2    controlsPos(titlePos + Vec2{0, 80});
     TextHelpers::renderLineOfText(renderer, fontMd, controlsText, textColor,
                                   controlsPos);
 
     std::string const wText = "W: Move Up";
-    Vec2 const        wPos  = controlsPos + Vec2{0, 80};
+    constexpr Vec2    wPos(controlsPos + Vec2{0, 80});
     TextHelpers::renderLineOfText(renderer, fontSm, wText, textColor, wPos);
 
     std::string const sText = "S: Move Down";
-    Vec2 const        sPos  = wPos + Vec2{0, 40};
+    constexpr Vec2    sPos(wPos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, sText, textColor, sPos);
 
     std::string const aText = "A: Move Left";
-    Vec2 const        aPos  = sPos + Vec2{0, 40};
+    constexpr Vec2    aPos(sPos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, aText, textColor, aPos);
 
     std::string const dText = "D: Move Right";
-    Vec2 const        dPos  = aPos + Vec2{0, 40};
+    constexpr Vec2    dPos(aPos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, dText, textColor, dPos);
 
     std::string const enterText = "Enter: Select";
-    Vec2 const        enterPos  = dPos + Vec2{0, 80};
+    constexpr Vec2    enterPos(dPos + Vec2{0, 80});
     TextHelpers::renderLineOfText(renderer, fontSm, enterText, textColor,
                                   enterPos);
 
     std::string const backText = "Back: Backspace";
-    Vec2 const        backPos  = enterPos + Vec2{0, 40};
+    constexpr Vec2    backPos(enterPos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, backText, textColor,
                                   backPos);
 
     std::string const shootText = "Mouse Click: Shoot";
-    Vec2 const        shootPos  = backPos + Vec2{0, 40};
+    constexpr Vec2    shootPos(backPos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, shootText, textColor,
                                   shootPos);
 
     // Objectives text
 
     std::string const objectivesText = "Objectives";
-    Vec2 const        objectivesPos  = controlsPos + Vec2{350, 0};
+    constexpr Vec2    objectivesPos(controlsPos + Vec2{350, 0});
     TextHelpers::renderLineOfText(renderer, fontMd, objectivesText, textColor,
                                   objectivesPos);
 
     std::string const objective1Text =
         "1. Collect the yellow squares to increase your score.";
-    Vec2 const objective1Pos = objectivesPos + Vec2{0, 80};
+    constexpr Vec2 objective1Pos(objectivesPos + Vec2{0, 80});
     TextHelpers::renderLineOfText(renderer, fontSm, objective1Text, textColor,
                                   objective1Pos);
 
     std::string const objective2Text =
         "2. Avoid the red squares as they will decrease your lives.";
-    Vec2 const objective2Pos = objective1Pos + Vec2{0, 40};
+    constexpr Vec2 objective2Pos(objective1Pos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, objective2Text, textColor,
                                   objective2Pos);
 
     std::string const objective3Text =
         "3. Collect the green squares to gain a speed boost.";
-    Vec2 const objective3Pos = objective2Pos + Vec2{0, 40};
+    constexpr Vec2 objective3Pos(objective2Pos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, objective3Text, textColor,
                                   objective3Pos);
 
     std::string const objective4Text =
         "4. Avoid purple squares as they will slow you down.";
-    Vec2 const objective4Pos = objective3Pos + Vec2{0, 40};
+    constexpr Vec2 objective4Pos(objective3Pos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, objective4Text, textColor,
                                   objective4Pos);
 
     std::string const objective5Text =
         "5. Shoot down red squares to increase your score.";
-    Vec2 const objective5Pos = objective4Pos + Vec2{0, 40};
+    constexpr Vec2 objective5Pos(objective4Pos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, objective5Text, textColor,
                                   objective5Pos);
 
     std::string const objective6Text =
         "6. Avoid shooting any squares you want to collect.";
-    Vec2 const objective6Pos = objective5Pos + Vec2{0, 40};
+    constexpr Vec2 objective6Pos(objective5Pos + Vec2{0, 40});
     TextHelpers::renderLineOfText(renderer, fontSm, objective6Text, textColor,
                                   objective6Pos);
 
@@ -135,7 +135,7 @@ void HowToPlayScene::renderText() const {
     std::string const exitText = "Press Backspace to go back to the main menu.";
     Vec2 const        windowSize =
         m_gameEngine->getConfigManager().getGameConfig().windowSize;
-    Vec2 const exitPos = {100, windowSize.y() - 50};
+    Vec2 const exitPos{100, windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, exitText, textColor,
                                   exitPos);
 }
@@ -148,13 +148,13 @@ void HowToPlayScene::sDoAction(Action &action) {
 
     if (action.getName() == "SELECT") {
         audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
 
     if (action.getName() == "GO_BACK") {
         audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
 }
