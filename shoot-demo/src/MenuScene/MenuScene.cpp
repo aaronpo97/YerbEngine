@@ -1,7 +1,7 @@
-#include <YerbEngine/YerbEngine.hpp>
 #include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include "shoot-demo/includes/HowToPlayScene/HowToPlayScene.hpp"
 #include "shoot-demo/includes/MainScene/MainScene.hpp"
+#include <YerbEngine/YerbEngine.hpp>
 
 #include <SDL.h>
 
@@ -93,7 +93,7 @@ void MenuScene::renderText() const {
     // bottom right corner
     Vec2 const controlsPos = {
         100,
-        m_gameEngine->getConfigManager().getGameConfig().windowSize.y - 50};
+        m_gameEngine->getConfigManager().getGameConfig().windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
                                   controlsPos);
 }

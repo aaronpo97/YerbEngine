@@ -1,10 +1,10 @@
 #pragma once
 
+#include <SDL.h>
 #include <YerbEngine/Configuration/Config.hpp>
 #include <YerbEngine/EntityManagement/Components.hpp>
 #include <YerbEngine/EntityManagement/Entity.hpp>
 #include <YerbEngine/Helpers/Vec2.hpp>
-#include <SDL.h>
 #include <memory>
 
 namespace MovementHelpers {

@@ -4,12 +4,12 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
 #include "shoot-demo/includes/MainScene/MainScene.hpp"
 #include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
 #include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
-#include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
+#include <YerbEngine/YerbEngine.hpp>
 
 MainScene::MainScene(GameEngine *gameEngine)
     : Scene(gameEngine), m_entities(EntityManager()),
@@ -203,8 +203,8 @@ void MainScene::sRender() {
         SDL_Rect   &rect = cShape->rect;
         Vec2 const &pos  = cTransform->topLeftCornerPos;
 
-        rect.x = static_cast<int>(pos.x);
-        rect.y = static_cast<int>(pos.y);
+        rect.x = static_cast<int>(pos.x());
+        rect.y = static_cast<int>(pos.y());
 
         // If there's no sprite, render a plain box
         if (!entity->hasComponent<CSprite>()) {

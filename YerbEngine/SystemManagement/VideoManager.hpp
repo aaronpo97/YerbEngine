@@ -1,7 +1,7 @@
 #pragma once
+#include <SDL.h>
 #include <YerbEngine/Configuration/ConfigManager.hpp>
 #include <YerbEngine/Helpers/Vec2.hpp>
-#include <SDL.h>
 
 class VideoManager {
     SDL_Renderer *m_renderer = nullptr;

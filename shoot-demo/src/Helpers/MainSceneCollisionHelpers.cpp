@@ -1,5 +1,5 @@
-#include <YerbEngine/YerbEngine.hpp>
 #include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
+#include <YerbEngine/YerbEngine.hpp>
 
 #include <bitset>
 
@@ -25,18 +25,18 @@ namespace CollisionHelpers::MainScene::Enforce {
         Vec2 &leftCornerPosition = cTransform->topLeftCornerPos;
 
         if (collides[TOP]) {
-            leftCornerPosition.y = 0;
+            leftCornerPosition.setY(0);
         }
         if (collides[BOTTOM]) {
-            leftCornerPosition.y =
-                window_size.y - static_cast<float>(cShape->rect.h);
+            leftCornerPosition.setY(window_size.y() -
+                                    static_cast<float>(cShape->rect.h));
         }
         if (collides[LEFT]) {
-            leftCornerPosition.x = 0;
+            leftCornerPosition.setX(0);
         }
         if (collides[RIGHT]) {
-            leftCornerPosition.x =
-                window_size.x - static_cast<float>(cShape->rect.w);
+            leftCornerPosition.setX(window_size.x() -
+                                    static_cast<float>(cShape->rect.w));
         }
     }
 
@@ -59,8 +59,8 @@ namespace CollisionHelpers::MainScene::Enforce {
 
         Vec2 const &overlap = CollisionHelpers::calculateOverlap(entity, wall);
 
-        bool const mustResolveCollisionVertically   = overlap.x > overlap.y;
-        bool const mustResolveCollisionHorizontally = overlap.x < overlap.y;
+        bool const mustResolveCollisionVertically   = overlap.x() > overlap.y();
+        bool const mustResolveCollisionHorizontally = overlap.x() < overlap.y();
         std::bitset<4> const positionRelativeToWall =
             CollisionHelpers::getPositionRelativeToEntity(entity, wall);
 
@@ -70,23 +70,27 @@ namespace CollisionHelpers::MainScene::Enforce {
         bool const playerRightOfWall = positionRelativeToWall[RIGHT_OF];
 
         if (mustResolveCollisionVertically && playerAboveWall) {
-            cTransform->topLeftCornerPos.y -= overlap.y;
-            cTransform->velocity.y = -cTransform->velocity.y;
+            cTransform->topLeftCornerPos.setY(cTransform->topLeftCornerPos.y() -
+                                              overlap.y());
+            cTransform->velocity.setY(-cTransform->velocity.y());
         }
 
         if (mustResolveCollisionVertically && playerBelowWall) {
-            cTransform->topLeftCornerPos.y += overlap.y;
-            cTransform->velocity.y = -cTransform->velocity.y;
+            cTransform->topLeftCornerPos.setY(cTransform->topLeftCornerPos.y() +
+                                              overlap.y());
+            cTransform->velocity.setY(-cTransform->velocity.y());
         }
 
         if (mustResolveCollisionHorizontally && playerLeftOfWall) {
-            cTransform->topLeftCornerPos.x -= overlap.x;
-            cTransform->velocity.x = -cTransform->velocity.x;
+            cTransform->topLeftCornerPos.setX(cTransform->topLeftCornerPos.x() -
+                                              overlap.x());
+            cTransform->velocity.setX(-cTransform->velocity.x());
         }
 
         if (mustResolveCollisionHorizontally && playerRightOfWall) {
-            cTransform->topLeftCornerPos.x += overlap.x;
-            cTransform->velocity.x = -cTransform->velocity.x;
+            cTransform->topLeftCornerPos.setX(cTransform->topLeftCornerPos.x() +
+                                              overlap.x());
+            cTransform->velocity.setX(-cTransform->velocity.x());
         }
 
         if (cBounceTracker) {
@@ -99,10 +103,11 @@ namespace CollisionHelpers::MainScene::Enforce {
         auto const &cTransformA = entityA->getComponent<CTransform>();
         auto const &cTransformB = entityB->getComponent<CTransform>();
 
-        Vec2 const &overlap = CollisionHelpers::calculateOverlap(entityA, entityB);
+        Vec2 const &overlap =
+            CollisionHelpers::calculateOverlap(entityA, entityB);
 
-        bool const mustResolveCollisionVertically   = overlap.x > overlap.y;
-        bool const mustResolveCollisionHorizontally = overlap.x < overlap.y;
+        bool const mustResolveCollisionVertically   = overlap.x() > overlap.y();
+        bool const mustResolveCollisionHorizontally = overlap.x() < overlap.y();
         std::bitset<4> const entityARelativePosition =
             CollisionHelpers::getPositionRelativeToEntity(entityA, entityB);
         std::bitset<4> const entityBRelativePosition =
@@ -119,43 +124,51 @@ namespace CollisionHelpers::MainScene::Enforce {
         bool const entityBRightOfEntityA = entityBRelativePosition[RIGHT_OF];
 
         if (mustResolveCollisionVertically && entityAAboveEntityB) {
-            cTransformA->topLeftCornerPos.y -= overlap.y;
-            cTransformA->velocity.y = -cTransformA->velocity.y;
+            cTransformA->topLeftCornerPos.setY(
+                cTransformA->topLeftCornerPos.y() - overlap.y());
+            cTransformA->velocity.setY(-cTransformA->velocity.y());
         }
 
         if (mustResolveCollisionVertically && entityABelowEntityB) {
-            cTransformA->topLeftCornerPos.y += overlap.y;
-            cTransformA->velocity.y = -cTransformA->velocity.y;
+            cTransformA->topLeftCornerPos.setY(
+                cTransformA->topLeftCornerPos.y() + overlap.y());
+            cTransformA->velocity.setY(-cTransformA->velocity.y());
         }
 
         if (mustResolveCollisionHorizontally && entityALeftOfEntityB) {
-            cTransformA->topLeftCornerPos.x -= overlap.x;
-            cTransformA->velocity.x = -cTransformA->velocity.x;
+            cTransformA->topLeftCornerPos.setX(
+                cTransformA->topLeftCornerPos.x() - overlap.x());
+            cTransformA->velocity.setX(-cTransformA->velocity.x());
         }
 
         if (mustResolveCollisionHorizontally && entityARightOfEntityB) {
-            cTransformA->topLeftCornerPos.x += overlap.x;
-            cTransformA->velocity.x = -cTransformA->velocity.x;
+            cTransformA->topLeftCornerPos.setX(
+                cTransformA->topLeftCornerPos.x() + overlap.x());
+            cTransformA->velocity.setX(-cTransformA->velocity.x());
         }
 
         if (mustResolveCollisionVertically && entityBAboveEntityA) {
-            cTransformB->topLeftCornerPos.y -= overlap.y;
-            cTransformB->velocity.y = -cTransformB->velocity.y;
+            cTransformB->topLeftCornerPos.setY(
+                cTransformB->topLeftCornerPos.y() - overlap.y());
+            cTransformB->velocity.setY(-cTransformB->velocity.y());
         }
 
         if (mustResolveCollisionVertically && entityBBelowEntityA) {
-            cTransformB->topLeftCornerPos.y += overlap.y;
-            cTransformB->velocity.y = -cTransformB->velocity.y;
+            cTransformB->topLeftCornerPos.setY(
+                cTransformB->topLeftCornerPos.y() + overlap.y());
+            cTransformB->velocity.setY(-cTransformB->velocity.y());
         }
 
         if (mustResolveCollisionHorizontally && entityBLeftOfEntityA) {
-            cTransformB->topLeftCornerPos.x -= overlap.x;
-            cTransformB->velocity.x = -cTransformB->velocity.x;
+            cTransformB->topLeftCornerPos.setX(
+                cTransformB->topLeftCornerPos.x() - overlap.x());
+            cTransformB->velocity.setX(-cTransformB->velocity.x());
         }
 
         if (mustResolveCollisionHorizontally && entityBRightOfEntityA) {
-            cTransformB->topLeftCornerPos.x += overlap.x;
-            cTransformB->velocity.x = -cTransformB->velocity.x;
+            cTransformB->topLeftCornerPos.setX(
+                cTransformB->topLeftCornerPos.x() + overlap.x());
+            cTransformB->velocity.setX(-cTransformB->velocity.x());
         }
     }
 
@@ -303,7 +316,8 @@ namespace CollisionHelpers::MainScene {
                 entity->getComponent<CTransform>();
             std::shared_ptr<CEffects> const &cEffects =
                 entity->getComponent<CEffects>();
-            cTransform->topLeftCornerPos = {windowSize.x / 2, windowSize.y / 2};
+            cTransform->topLeftCornerPos = {windowSize.x() / 2,
+                                            windowSize.y() / 2};
 
             constexpr float  REMOVAL_RADIUS = 150.0f;
             EntityList const entitiesToRemove =

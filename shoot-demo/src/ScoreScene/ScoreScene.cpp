@@ -1,8 +1,8 @@
-#include <YerbEngine/YerbEngine.hpp>
 #include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
 #include "shoot-demo/includes/MainScene/MainScene.hpp"
 #include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include <SDL.h>
+#include <YerbEngine/YerbEngine.hpp>
 
 ScoreScene::ScoreScene(GameEngine *gameEngine, int const score)
     : Scene(gameEngine), m_score(score) {
@@ -66,7 +66,7 @@ void ScoreScene::renderText() const {
                                   scorePos);
 
     float const bottomOfScreen =
-        m_gameEngine->getConfigManager().getGameConfig().windowSize.y;
+        m_gameEngine->getConfigManager().getGameConfig().windowSize.y();
 
     std::string const playAgainText = "Play Again";
     Vec2 const        playAgainPos  = {100, bottomOfScreen - 200};

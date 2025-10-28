@@ -30,8 +30,8 @@ namespace TextHelpers {
 
         // Set up the rectangle for the text
         SDL_Rect textRect;
-        textRect.x = static_cast<int>(position.x);
-        textRect.y = static_cast<int>(position.y);
+        textRect.x = static_cast<int>(position.x());
+        textRect.y = static_cast<int>(position.y());
         textRect.w = surface->w;
         textRect.h = surface->h;
 

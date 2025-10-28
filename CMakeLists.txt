@@ -91,4 +91,3 @@ else()
 endif()
 
 add_subdirectory(shoot-demo)
-add_subdirectory(pong-demo)

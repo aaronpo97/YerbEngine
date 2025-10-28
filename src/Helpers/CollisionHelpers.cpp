@@ -1,5 +1,5 @@
-#include <YerbEngine/Helpers/CollisionHelpers.hpp>
 #include <YerbEngine/EntityManagement/Entity.hpp>
+#include <YerbEngine/Helpers/CollisionHelpers.hpp>
 #include <YerbEngine/Helpers/EntityHelpers.hpp>
 
 #include <bitset>
@@ -28,12 +28,12 @@ namespace CollisionHelpers {
         auto const  rectHeight    = static_cast<float>(cShape->rect.h);
         auto const  rectWidth     = static_cast<float>(cShape->rect.w);
 
-        bool const collidesWithTop = topLeftCorner.y <= 0;
+        bool const collidesWithTop = topLeftCorner.y() <= 0;
         bool const collidesWithBottom =
-            topLeftCorner.y + rectHeight >= window_size.y;
-        bool const collidesWithLeft = topLeftCorner.x <= 0;
+            topLeftCorner.y() + rectHeight >= window_size.y();
+        bool const collidesWithLeft = topLeftCorner.x() <= 0;
         bool const collidesWithRight =
-            topLeftCorner.x + rectWidth >= window_size.x;
+            topLeftCorner.x() + rectWidth >= window_size.x();
 
         std::bitset<4> collidesWithBoundary;
         collidesWithBoundary[TOP]    = collidesWithTop;
@@ -78,12 +78,12 @@ namespace CollisionHelpers {
         Vec2 const &centerA = entityA->getCenterPos();
         Vec2 const &centerB = entityB->getCenterPos();
 
-        auto const delta = Vec2(std::abs(centerA.x - centerB.x),
-                                std::abs(centerA.y - centerB.y));
+        auto const delta = Vec2(std::abs(centerA.x() - centerB.x()),
+                                std::abs(centerA.y() - centerB.y()));
 
         Vec2 const overlap = {
-            halfSizeA.x + halfSizeB.x - delta.x,
-            halfSizeA.y + halfSizeB.y - delta.y,
+            halfSizeA.x() + halfSizeB.x() - delta.x(),
+            halfSizeA.y() + halfSizeB.y() - delta.y(),
         };
 
         return overlap;
@@ -93,7 +93,7 @@ namespace CollisionHelpers {
     calculateCollisionBetweenEntities(std::shared_ptr<Entity> const &entityA,
                                       std::shared_ptr<Entity> const &entityB) {
         Vec2 const overlap           = calculateOverlap(entityA, entityB);
-        bool const collisionDetected = overlap.x > 0 && overlap.y > 0;
+        bool const collisionDetected = overlap.x() > 0 && overlap.y() > 0;
         return collisionDetected;
     }
 
@@ -104,10 +104,10 @@ namespace CollisionHelpers {
         Vec2 const &centerB = entityB->getCenterPos();
 
         std::bitset<4> relativePosition;
-        relativePosition[ABOVE]    = centerA.y < centerB.y;
-        relativePosition[BELOW]    = centerA.y > centerB.y;
-        relativePosition[LEFT_OF]  = centerA.x < centerB.x;
-        relativePosition[RIGHT_OF] = centerA.x > centerB.x;
+        relativePosition[ABOVE]    = centerA.y() < centerB.y();
+        relativePosition[BELOW]    = centerA.y() > centerB.y();
+        relativePosition[LEFT_OF]  = centerA.x() < centerB.x();
+        relativePosition[RIGHT_OF] = centerA.x() > centerB.x();
 
         return relativePosition;
     }

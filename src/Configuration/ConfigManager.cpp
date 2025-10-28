@@ -265,7 +265,7 @@ void ConfigManager::updateEnemySpeed(float const speed) {
 }
 
 void ConfigManager::updateGameWindowSize(Vec2 const &size) {
-    if (size.x <= 0 || size.y <= 0) {
+    if (size.x() <= 0 || size.y() <= 0) {
         throw ConfigurationError("Window dimensions must be positive");
     }
     m_gameConfig.windowSize = size;
