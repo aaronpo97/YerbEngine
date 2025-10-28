@@ -55,7 +55,6 @@
 #include <YerbEngine/Helpers/CollisionHelpers.hpp>
 #include <YerbEngine/Helpers/EntityHelpers.hpp>
 #include <YerbEngine/Helpers/MathHelpers.hpp>
-#include <YerbEngine/Helpers/MovementHelpers.hpp>
 #include <YerbEngine/Helpers/SpawnHelpers.hpp>
 #include <YerbEngine/Helpers/TextHelpers.hpp>
 #include <YerbEngine/Helpers/Vec2.hpp>

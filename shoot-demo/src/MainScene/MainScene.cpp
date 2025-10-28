@@ -9,7 +9,7 @@
 #include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
 #include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
-#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/Helpers/MovementHelpers.hpp"
 
 MainScene::MainScene(GameEngine *gameEngine)
     : Scene(gameEngine), m_entities(EntityManager()),
