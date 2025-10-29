@@ -14,8 +14,8 @@ class Timer {
     ~Timer() {
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> duration = end - m_start;
-        std::cout << m_message << duration.count() << " ms"
-                  << std::endl;
+       
+        std::cout << std::format("{:<40}{:>9.5f} ms\n", m_message, duration.count());
     }
 
     Timer(const Timer&) = delete;

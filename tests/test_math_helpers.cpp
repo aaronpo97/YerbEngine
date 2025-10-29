@@ -5,7 +5,7 @@
 using namespace YerbEngine;
 BOOST_AUTO_TEST_SUITE(MathHelpersTests)
 BOOST_AUTO_TEST_CASE(pythagorean_triples) {
-    Timer t("Pythagorean triples, test duration: ");
+    Timer t("Pythagorean triples");
     std::ifstream testDataFile("tests/data/PythagoreanTriple.csv");
     std::string line;
     std::getline(testDataFile, line); // Skip header line
@@ -33,22 +33,22 @@ BOOST_AUTO_TEST_CASE(pythagorean_triples) {
     BOOST_CHECK_CLOSE(result, 5.0f, 0.001f);
 }
 BOOST_AUTO_TEST_CASE(pythagoras_negative_values) {
-    Timer t("Pythagoras negative values, test duration: ");
+    Timer t("Pythagoras negative values");
     float result = MathHelpers::pythagoras(-3.0f, -4.0f);
     BOOST_CHECK_CLOSE(result, 5.0f, 0.001f);
 }
 BOOST_AUTO_TEST_CASE(pythagoras_zero) {
-    Timer t("Pythagoras zero values, test duration: ");
+    Timer t("Pythagoras zero values");
     float result = MathHelpers::pythagoras(0.0f, 0.0f);
     BOOST_CHECK_CLOSE(result, 0.0f, 0.001f);
 }
 BOOST_AUTO_TEST_CASE(degrees_to_radians_conversion) {
-    Timer t("Degrees to radians conversion, test duration: ");
+    Timer t("Degrees to radians conversion");
     float radians = MathHelpers::degreesToRadians(180.0f);
     BOOST_CHECK_CLOSE(radians, MathHelpers::pi, 0.001f);
 }
 BOOST_AUTO_TEST_CASE(radians_to_degrees_conversion) {
-    Timer t("Radians to degrees conversion, test duration: ");
+    Timer t("Radians to degrees conversion");
     float degrees = MathHelpers::radiansToDegrees(MathHelpers::pi);
     BOOST_CHECK_CLOSE(degrees, 180.0f, 0.001f);
 }

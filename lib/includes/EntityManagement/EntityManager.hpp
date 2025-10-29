@@ -8,7 +8,7 @@
 
 namespace YerbEngine {
 
-    using EntityList = std::list<std::shared_ptr<Entity>>;
+    using EntityList = std::vector<std::shared_ptr<Entity>>;
     using EntityMap  = std::unordered_map<EntityTags, EntityList>;
 
     class EntityManager {
