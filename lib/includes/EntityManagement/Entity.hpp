@@ -15,7 +15,8 @@ namespace YerbEngine {
         Default
     };
 
-    inline std::ostream &operator<<(std::ostream &os, EntityTags const &tag) {
+    inline std::ostream &operator<<(std::ostream     &os,
+                                    EntityTags const &tag) {
         switch (tag) {
         case EntityTags::Player:
             os << "Player";
@@ -61,7 +62,8 @@ namespace YerbEngine {
 
         EntityComponents m_components;
 
-        Entity(size_t id, EntityTags tag);
+        Entity(size_t     id,
+               EntityTags tag);
 
       public:
         // private member access functions

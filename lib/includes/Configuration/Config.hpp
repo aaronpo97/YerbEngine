@@ -14,7 +14,9 @@ namespace YerbEngine {
         ShapeConfig(float const     height,
                     float const     width,
                     SDL_Color const color)
-            : height(height), width(width), color(color) {}
+            : height(height),
+              width(width),
+              color(color) {}
     };
 
     struct GameConfig {

@@ -14,7 +14,6 @@
 #include <EntityManagement/Entity.hpp>
 #include <EntityManagement/EntityManager.hpp>
 
-
 #include <Configuration/Config.hpp>
 #include <Configuration/ConfigManager.hpp>
 

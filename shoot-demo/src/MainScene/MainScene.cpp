@@ -12,7 +12,8 @@
 #include <ScoreScene/ScoreScene.hpp>
 
 MainScene::MainScene(GameEngine *gameEngine)
-    : Scene(gameEngine), m_entities(EntityManager()),
+    : Scene(gameEngine),
+      m_entities(EntityManager()),
       m_spawner(m_randomGenerator,
                 gameEngine->getConfigManager(),
                 gameEngine->getTextureManager(),

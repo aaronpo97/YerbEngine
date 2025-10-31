@@ -4,8 +4,10 @@
 #include <ScoreScene/ScoreScene.hpp>
 #include <YerbEngine.hpp>
 
-ScoreScene::ScoreScene(GameEngine *gameEngine, int const score)
-    : Scene(gameEngine), m_score(score) {
+ScoreScene::ScoreScene(GameEngine *gameEngine,
+                       int const   score)
+    : Scene(gameEngine),
+      m_score(score) {
 
     registerAction(SDLK_RETURN, "SELECT");
     registerAction(SDLK_w, "UP");

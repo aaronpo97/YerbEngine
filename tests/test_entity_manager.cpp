@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
 
+#include "Timer.hpp"
 #include <EntityManagement/Entity.hpp>
 #include <EntityManagement/EntityManager.hpp>
-#include "Timer.hpp"
 
 using namespace YerbEngine;
 
@@ -10,7 +10,7 @@ BOOST_AUTO_TEST_SUITE(EntityManagerTests)
 
 // Test EntityManager::addEntity
 BOOST_AUTO_TEST_CASE(test_add_entity) {
-    Timer timer("Add entity");
+    Timer         timer("Add entity");
     EntityManager manager;
 
     constexpr size_t numEntities = 1000;
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(test_add_entity) {
 
 // Test EntityManager::update adds entities to main list
 BOOST_AUTO_TEST_CASE(test_update_adds_entities) {
-    Timer timer("Update adds entities");
+    Timer         timer("Update adds entities");
     EntityManager manager;
 
     manager.addEntity(EntityTags::Player);
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_update_adds_entities) {
 
 // Test EntityManager::getEntities by tag
 BOOST_AUTO_TEST_CASE(test_get_entities_by_tag) {
-    Timer timer("Get entities by tag");
+    Timer         timer("Get entities by tag");
     EntityManager manager;
 
     manager.addEntity(EntityTags::Player);
@@ -69,12 +69,11 @@ BOOST_AUTO_TEST_CASE(test_get_entities_by_tag) {
 
 // Test EntityManager removes dead entities
 BOOST_AUTO_TEST_CASE(test_remove_dead_entities) {
-    Timer timer("Remove dead entities");
+    Timer         timer("Remove dead entities");
     EntityManager manager;
 
     for (size_t i = 0; i < 1000; ++i) {
         auto entity = manager.addEntity(EntityTags::Enemy);
-    
     }
 
     manager.update();
@@ -99,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_remove_dead_entities) {
 
 // Test EntityManager increments total entities correctly
 BOOST_AUTO_TEST_CASE(test_entity_id_increment) {
-    Timer timer("Entity ID increment");
+    Timer         timer("Entity ID increment");
     EntityManager manager;
 
     auto entity1 = manager.addEntity(EntityTags::Player);
@@ -123,7 +122,7 @@ BOOST_AUTO_TEST_SUITE(EntityTests)
 
 // Test Entity::isActive default state
 BOOST_AUTO_TEST_CASE(test_entity_is_active_by_default) {
-    Timer timer("Entity is active by default");
+    Timer         timer("Entity is active by default");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
@@ -132,7 +131,7 @@ BOOST_AUTO_TEST_CASE(test_entity_is_active_by_default) {
 
 // Test Entity::destroy
 BOOST_AUTO_TEST_CASE(test_entity_destroy) {
-    Timer timer("Entity destroy");
+    Timer         timer("Entity destroy");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
@@ -145,7 +144,7 @@ BOOST_AUTO_TEST_CASE(test_entity_destroy) {
 
 // Test Entity::tag
 BOOST_AUTO_TEST_CASE(test_entity_tag) {
-    Timer timer("Entity tag");
+    Timer         timer("Entity tag");
     EntityManager manager;
 
     auto player = manager.addEntity(EntityTags::Player);
@@ -159,7 +158,7 @@ BOOST_AUTO_TEST_CASE(test_entity_tag) {
 
 // Test Entity::id
 BOOST_AUTO_TEST_CASE(test_entity_id) {
-    Timer timer("Entity id");
+    Timer         timer("Entity id");
     EntityManager manager;
 
     auto entity1 = manager.addEntity(EntityTags::Player);
@@ -172,7 +171,7 @@ BOOST_AUTO_TEST_CASE(test_entity_id) {
 
 // Test Entity component system - setComponent and getComponent
 BOOST_AUTO_TEST_CASE(test_entity_set_and_get_component) {
-    Timer timer("Entity set and get component");
+    Timer         timer("Entity set and get component");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
@@ -181,8 +180,8 @@ BOOST_AUTO_TEST_CASE(test_entity_set_and_get_component) {
     BOOST_CHECK(entity->getComponent<CTransform>() == nullptr);
 
     // Add a transform component
-    auto transform = std::make_shared<CTransform>(Vec2{100.0f, 200.0f},
-                                                   Vec2{5.0f, 10.0f});
+    auto transform =
+        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     // Now component should exist
@@ -199,7 +198,7 @@ BOOST_AUTO_TEST_CASE(test_entity_set_and_get_component) {
 
 // Test Entity::hasComponent
 BOOST_AUTO_TEST_CASE(test_entity_has_component) {
-    Timer timer("Entity has component");
+    Timer         timer("Entity has component");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
@@ -218,12 +217,12 @@ BOOST_AUTO_TEST_CASE(test_entity_has_component) {
 
 // Test Entity::removeComponent
 BOOST_AUTO_TEST_CASE(test_entity_remove_component) {
-    Timer timer("Entity remove component");
+    Timer         timer("Entity remove component");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    auto transform = std::make_shared<CTransform>(Vec2{100.0f, 200.0f},
-                                                   Vec2{5.0f, 10.0f});
+    auto transform =
+        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     BOOST_CHECK(entity->hasComponent<CTransform>());
@@ -236,14 +235,14 @@ BOOST_AUTO_TEST_CASE(test_entity_remove_component) {
 
 // Test multiple components on same entity
 BOOST_AUTO_TEST_CASE(test_entity_multiple_components) {
-    Timer timer("Entity multiple components");
+    Timer         timer("Entity multiple components");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    auto transform = std::make_shared<CTransform>(Vec2{100.0f, 200.0f},
-                                                   Vec2{5.0f, 10.0f});
-    auto input     = std::make_shared<CInput>();
-    auto lifespan  = std::make_shared<CLifespan>(60);
+    auto transform =
+        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+    auto input    = std::make_shared<CInput>();
+    auto lifespan = std::make_shared<CLifespan>(60);
 
     entity->setComponent(transform);
     entity->setComponent(input);
@@ -263,12 +262,12 @@ BOOST_AUTO_TEST_CASE(test_entity_multiple_components) {
 
 // Test entity component modification
 BOOST_AUTO_TEST_CASE(test_entity_component_modification) {
-    Timer timer("Entity component modification");
+    Timer         timer("Entity component modification");
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    auto transform = std::make_shared<CTransform>(Vec2{100.0f, 200.0f},
-                                                   Vec2{5.0f, 10.0f});
+    auto transform =
+        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     // Modify the component through the entity
@@ -289,7 +288,7 @@ BOOST_AUTO_TEST_SUITE(EntityManagerIntegrationTests)
 
 // Test complex scenario: create, destroy, update
 BOOST_AUTO_TEST_CASE(test_complex_entity_lifecycle) {
-    Timer timer("Complex entity lifecycle");
+    Timer         timer("Complex entity lifecycle");
     EntityManager manager;
 
     // Create initial entities
@@ -332,7 +331,7 @@ BOOST_AUTO_TEST_CASE(test_complex_entity_lifecycle) {
 
 // Test entity with components throughout lifecycle
 BOOST_AUTO_TEST_CASE(test_entity_components_lifecycle) {
-    Timer timer("Entity components lifecycle");
+    Timer         timer("Entity components lifecycle");
     EntityManager manager;
 
     auto enemy = manager.addEntity(EntityTags::Enemy);

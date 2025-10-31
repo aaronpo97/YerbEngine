@@ -10,7 +10,8 @@ class ScoreScene final : public Scene {
     void         renderText() const;
 
   public:
-    ScoreScene(GameEngine *gameEngine, int score);
+    ScoreScene(GameEngine *gameEngine,
+               int         score);
 
     void update() override;
     void onEnd() override;

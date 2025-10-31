@@ -1,6 +1,6 @@
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-BinPackParameters: false
+BinPackParameters: AlwaysOnePerLine
 BreakBeforeBraces: Attach
 ColumnLimit: 80
 PointerAlignment: Right

@@ -7,7 +7,9 @@ namespace YerbEngine {
     Action::Action(std::string                name,
                    ActionState const         &state,
                    std::optional<Vec2> const &pos)
-        : m_name(std::move(name)), m_state(state), m_pos(pos) {}
+        : m_name(std::move(name)),
+          m_state(state),
+          m_pos(pos) {}
 
     std::string const &Action::getName() const { return m_name; }
 
