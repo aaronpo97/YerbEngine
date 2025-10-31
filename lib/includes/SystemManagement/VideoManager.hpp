@@ -1,5 +1,5 @@
 #pragma once
-#include <Configuration/ConfigManager.hpp>
+#include <Configuration/ConfigManagerDeprecated.hpp>
 #include <Helpers/Vec2.hpp>
 #include <SDL.h>
 
@@ -10,7 +10,7 @@ namespace YerbEngine {
         SDL_Window   *m_window   = nullptr;
 
         Vec2           m_currentWindowSize;
-        ConfigManager &m_configManager;
+        ConfigManagerDeprecated &m_configManager;
 
         /**
          * @brief Initializes the SDL video subsystem.
@@ -72,7 +72,7 @@ namespace YerbEngine {
          * @param configManager The ConfigManager object associated with the
          * GameEngine class.
          */
-        explicit VideoManager(ConfigManager &configManager);
+        explicit VideoManager(ConfigManagerDeprecated &configManager);
 
         /**
          * @brief Destructor for the VideoManager.

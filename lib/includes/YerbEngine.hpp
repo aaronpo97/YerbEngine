@@ -14,8 +14,8 @@
 #include <EntityManagement/Entity.hpp>
 #include <EntityManagement/EntityManager.hpp>
 
-#include <Configuration/Config.hpp>
-#include <Configuration/ConfigManager.hpp>
+#include <Configuration/ConfigDeprecated.hpp>
+#include <Configuration/ConfigManagerDeprecated.hpp>
 
 #include <Configuration/ConfigDictionary.hpp>
 

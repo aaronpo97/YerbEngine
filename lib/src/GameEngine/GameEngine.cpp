@@ -23,108 +23,51 @@ namespace YerbEngine {
         Path const CONFIG_DIR_PATH  = "config";
         Path const CONFIG_FILE_PATH = CONFIG_DIR_PATH / "config.json";
 
-        /*
-         * Throw an error if the assets directory is not found.
-         */
         if (!std::filesystem::exists(ASSETS_DIR_PATH)) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Assets folder not found!");
-            cleanup();
+            CleanUp();
             throw std::runtime_error("Assets folder not found!");
         }
 
-        /*
-         * Initialize the managers and resources needed by the game engine.
-         *
-         * The game engine is composed of several managers that handle different
-         * aspects of the game.
-         */
-        m_configManager    = createConfigManager(CONFIG_FILE_PATH);
-        m_audioManager     = createAudioManager();
-        m_audioSampleQueue = initializeAudioSampleQueue();
-        m_fontManager      = createFontManager();
-        m_videoManager     = createVideoManager();
-        m_texture_manager  = createTextureManager();
+        m_configManager_deprecated = std::make_unique<ConfigManagerDeprecated>(
+            CONFIG_DIR_PATH);
+        m_configStore = std::make_unique<ConfigStore>(
+            std::move(std::make_unique<JsonConfigProvider>(CONFIG_FILE_PATH))
+            );
 
-        /*
-         * Set the game engine to running state.
-         */
+        m_audioManager = std::make_unique<AudioManager>();
+
+        m_audioSampleQueue = std::make_unique<
+            AudioSampleQueue>(*m_audioManager);
+
+        m_fontManager = std::make_unique<FontManager>(
+            m_configManager_deprecated->getGameConfig().fontPath,
+            m_configManager_deprecated->getGameConfig().fontSizeSm,
+            m_configManager_deprecated->getGameConfig().fontSizeMd,
+            m_configManager_deprecated->getGameConfig().fontSizeLg);
+
+        m_videoManager = std::make_unique<VideoManager>(
+            *m_configManager_deprecated);
+
+        m_textureManager = std::make_unique<TextureManager>(
+            m_videoManager->getRenderer());
+
         m_isRunning = true;
 
-        /*
-         * Log to console that the game engine has been initialized
-         * successfully.
-         */
         SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM,
                     "Game engine initialized successfully!");
     }
 
-    GameEngine::~GameEngine() { cleanup(); }
+    GameEngine::~GameEngine() { CleanUp(); }
 
-    std::unique_ptr<ConfigManager>
-    GameEngine::createConfigManager(Path const &configPath) {
-        return std::make_unique<ConfigManager>(configPath);
-    }
 
-    std::unique_ptr<TextureManager> GameEngine::createTextureManager() const {
-        return std::make_unique<TextureManager>(m_videoManager->getRenderer());
-    }
-
-    std::unique_ptr<VideoManager> GameEngine::createVideoManager() const {
-        if (m_configManager == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-                         "ConfigManager not initialized");
-            cleanup();
-            throw std::runtime_error("ConfigManager not initialized");
-        }
-
-        return std::make_unique<VideoManager>(*m_configManager);
-    }
-
-    std::unique_ptr<AudioManager> GameEngine::createAudioManager() {
-        constexpr int    FREQUENCY = 44100;
-        constexpr Uint16 FORMAT    = MIX_DEFAULT_FORMAT;
-        constexpr int    CHANNELS  = 2;
-        constexpr int    CHUNKSIZE = 2048;
-
-        return std::make_unique<AudioManager>(FREQUENCY, FORMAT, CHANNELS,
-                                              CHUNKSIZE);
-    }
-
-    std::unique_ptr<AudioSampleQueue>
-    GameEngine::initializeAudioSampleQueue() const {
-        if (m_audioManager == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO,
-                         "AudioManager not initialized");
-            cleanup();
-            throw std::runtime_error("AudioManager not initialized");
-        }
-        return std::make_unique<AudioSampleQueue>(*m_audioManager);
-    }
-
-    std::unique_ptr<FontManager> GameEngine::createFontManager() const {
-        if (m_configManager == nullptr) {
-            SDL_LogError(SDL_LOG_CATEGORY_VIDEO,
-                         "ConfigManager not initialized");
-            cleanup();
-            throw std::runtime_error("ConfigManager not initialized");
-        }
-
-        std::string const &fontPath = m_configManager->getGameConfig().fontPath;
-        int const fontSizeSm = m_configManager->getGameConfig().fontSizeSm;
-        int const fontSizeMd = m_configManager->getGameConfig().fontSizeMd;
-        int const fontSizeLg = m_configManager->getGameConfig().fontSizeLg;
-
-        return std::make_unique<FontManager>(fontPath, fontSizeSm, fontSizeMd,
-                                             fontSizeLg);
-    }
-
-    void GameEngine::cleanup() {
+    void GameEngine::CleanUp() {
         SDL_Quit();
         SDL_LogInfo(SDL_LOG_CATEGORY_SYSTEM,
                     "Game engine cleaned up successfully!");
     }
 
-    void GameEngine::update() {
+    void GameEngine::Update() {
         std::shared_ptr<Scene> const &activeScene =
             m_scenes[m_currentSceneName];
         if (activeScene == nullptr) {
@@ -134,14 +77,14 @@ namespace YerbEngine {
         activeScene->update();
     }
 
-    bool GameEngine::isRunning() const { return m_isRunning; }
+    bool GameEngine::IsRunning() const { return m_isRunning; }
 
     void GameEngine::run() {
 #ifdef __EMSCRIPTEN__
-        emscripten_set_main_loop_arg(mainLoop, this, 0, 1);
+        emscripten_set_main_loop_arg(MainLoop, this, 0, 1);
 #else
         while (m_isRunning) {
-            mainLoop(this);
+            MainLoop(this);
         }
 #endif
     }
@@ -155,7 +98,7 @@ namespace YerbEngine {
 #endif
     }
 
-    void GameEngine::loadScene(std::string const            &sceneName,
+    void GameEngine::LoadScene(std::string const &           sceneName,
                                std::shared_ptr<Scene> const &scene) {
         m_scenes[sceneName] = scene;
 
@@ -163,14 +106,14 @@ namespace YerbEngine {
         m_currentSceneName = sceneName;
     }
 
-    ConfigManager &GameEngine::getConfigManager() const {
-        if (!m_configManager) {
+    ConfigManagerDeprecated &GameEngine::GetConfigManager() const {
+        if (!m_configManager_deprecated) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
                          "ConfigManager not initialized");
             throw std::runtime_error("ConfigManager not initialized");
         }
 
-        return *m_configManager;
+        return *m_configManager_deprecated;
     }
 
     FontManager &GameEngine::getFontManager() const {
@@ -210,15 +153,15 @@ namespace YerbEngine {
     }
 
     TextureManager &GameEngine::getTextureManager() const {
-        if (!m_texture_manager) {
+        if (!m_textureManager) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
                          "ImageManager not initialized");
             throw std::runtime_error("ImageManager not initialized");
         }
-        return *m_texture_manager;
+        return *m_textureManager;
     }
 
-    void GameEngine::sUserInput() {
+    void GameEngine::S_UserInput() {
         SDL_Event                    event;
         std::shared_ptr<Scene> const activeScene = m_scenes[m_currentSceneName];
 
@@ -243,7 +186,7 @@ namespace YerbEngine {
 
             if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
                 if (!activeScene->getActionMap().contains(
-                        event.key.keysym.sym)) {
+                    event.key.keysym.sym)) {
                     continue;
                 }
 
@@ -260,7 +203,7 @@ namespace YerbEngine {
             if (event.type == SDL_MOUSEBUTTONDOWN ||
                 event.type == SDL_MOUSEBUTTONUP) {
                 if (!activeScene->getActionMap().contains(
-                        event.button.button)) {
+                    event.button.button)) {
                     continue;
                 }
 
@@ -269,8 +212,9 @@ namespace YerbEngine {
                  * start on mouse down, and end on mouse up.
                  */
                 ActionState const actionState =
-                    event.type == SDL_MOUSEBUTTONDOWN ? ActionState::START
-                                                      : ActionState::END;
+                    event.type == SDL_MOUSEBUTTONDOWN
+                        ? ActionState::START
+                        : ActionState::END;
 
                 std::string const &actionName =
                     activeScene->getActionMap().at(event.button.button);
@@ -302,7 +246,7 @@ namespace YerbEngine {
         }
     }
 
-    void GameEngine::mainLoop(void *arg) {
+    void GameEngine::MainLoop(void *arg) {
         auto *gameEngine = static_cast<GameEngine *>(arg);
 #ifdef __EMSCRIPTEN__
         const bool isWebCanvasEnabled = VideoManager::isWebCanvasEnabled();
@@ -311,8 +255,8 @@ namespace YerbEngine {
             return;
         }
 #endif
-        gameEngine->sUserInput();
-        gameEngine->update();
+        gameEngine->S_UserInput();
+        gameEngine->Update();
     }
 
 } // namespace YerbEngine

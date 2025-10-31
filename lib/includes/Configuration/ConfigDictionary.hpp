@@ -8,12 +8,9 @@ using ConfigValue = std::variant<int, float, std::string, bool, SDL_Color>;
 
 namespace YerbEngine {
     class ConfigDictionary {
+        std::unordered_map<std::string, ConfigValue> m_configuration;
 
-        std::unordered_map<std::string, ConfigValue>
-
-            m_configuration;
-
-      public:
+    public:
         ConfigDictionary()                                    = default;
         ~ConfigDictionary()                                   = default;
         ConfigDictionary(ConfigDictionary const &)            = delete;
@@ -46,6 +43,10 @@ namespace YerbEngine {
             auto const it = m_configuration.find(key);
             return it != m_configuration.end() &&
                    std::holds_alternative<T>(it->second);
+        }
+
+        void clear() {
+            m_configuration.clear();
         }
     };
 } // namespace YerbEngine

@@ -1,4 +1,4 @@
-#include <Configuration/ConfigManager.hpp>
+#include <Configuration/ConfigManagerDeprecated.hpp>
 #include <SDL.h>
 #include <SystemManagement/VideoManager.hpp>
 #include <stdexcept>
@@ -11,7 +11,7 @@ namespace YerbEngine {
 
     using Path = std::filesystem::path;
 
-    VideoManager::VideoManager(ConfigManager &configManager)
+    VideoManager::VideoManager(ConfigManagerDeprecated &configManager)
         : m_configManager(configManager) {
         initializeVideoSystem();
         m_window   = createWindow();

@@ -52,10 +52,10 @@ namespace YerbEngine {
         std::unordered_map<AudioTrack, Mix_Music *>  m_audioTracks;
         std::unordered_map<AudioSample, Mix_Chunk *> m_audioSamples;
 
-        int    m_frequency = 0;
-        Uint16 m_format    = 0;
-        int    m_channels  = 0;
-        int    m_chunksize = 0;
+        int    m_frequency{};
+        Uint16 m_format   {};
+        int    m_channels {};
+        int    m_chunksize {};
 
         AudioTrack  m_currentAudioTrack = AudioTrack::NONE;
         AudioTrack  m_lastAudioTrack    = AudioTrack::NONE;
@@ -114,10 +114,12 @@ namespace YerbEngine {
          * @param chunksize Audio buffer size in sample FRAMES (total samples
          * divided by channel count).
          */
-        explicit AudioManager(int    frequency = 44100,
-                              Uint16 format    = MIX_DEFAULT_FORMAT,
-                              int    channels  = 2,
-                              int    chunksize = 2048);
+        AudioManager() : AudioManager(44100, MIX_DEFAULT_FORMAT, 2, 2048) {}
+
+        AudioManager(int    frequency,
+                              Uint16 format  ,
+                              int    channels,
+                              int    chunksize);
 
         static constexpr size_t MAX_SAMPLES_PER_FRAME = 4;
         static constexpr int    DEFAULT_SAMPLE_VOLUME =

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-#include <Configuration/Config.hpp>
+#include <Configuration/ConfigDeprecated.hpp>
 #include <Helpers/Vec2.hpp>
 namespace YerbEngine {
     class CTransform {

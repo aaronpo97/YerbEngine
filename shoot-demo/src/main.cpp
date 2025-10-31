@@ -17,7 +17,7 @@ int main(int    argc,
     // Register demo scenes
     std::shared_ptr<Scene> const menuScene =
         std::make_shared<MenuScene>(engine.get());
-    engine->loadScene("Menu", menuScene);
+    engine->LoadScene("Menu", menuScene);
 
     engine->run();
 
