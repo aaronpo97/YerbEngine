@@ -1,13 +1,13 @@
 #include <MainScene/MainSceneSpawner.hpp>
 #include <YerbEngine.hpp>
 
-MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
-                                                                     ConfigAdapter  &config,
-                                   TextureManager &textureManager,
-                                   EntityManager  &entityManager,
-                                   SDL_Renderer   *renderer)
+MainSceneSpawner::MainSceneSpawner(std::mt19937      &randomGenerator,
+                                   DemoConfigAdapter &config,
+                                   TextureManager    &textureManager,
+                                   EntityManager     &entityManager,
+                                   SDL_Renderer      *renderer)
     : m_randomGenerator(randomGenerator),
-            m_config(config),
+      m_config(config),
       m_textureManager(textureManager),
       m_entityManager(entityManager),
       m_renderer(renderer) {
@@ -27,8 +27,9 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
     Vec2 const    &playerPosition = centerPosition;
     constexpr Vec2 playerVelocity{0, 0};
 
-    auto const cShape =
-        std::make_shared<CShape>(m_renderer, playerConfig.shape);
+    auto const cShape = std::make_shared<CShape>(
+        m_renderer, static_cast<float>(playerConfig.shape.height),
+        static_cast<float>(playerConfig.shape.width), playerConfig.shape.color);
     auto const cTransform =
         std::make_shared<CTransform>(playerPosition, playerVelocity);
     auto const cInput   = std::make_shared<CInput>();
@@ -59,7 +60,9 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
     auto const cTransform = std::make_shared<CTransform>(position, velocity);
-    auto const cShape = std::make_shared<CShape>(m_renderer, enemyConfig.shape);
+    auto const cShape     = std::make_shared<CShape>(
+        m_renderer, static_cast<float>(enemyConfig.shape.height),
+        static_cast<float>(enemyConfig.shape.width), enemyConfig.shape.color);
     auto const cLifespan = std::make_shared<CLifespan>(enemyConfig.lifespan);
 
     auto const cSprite = std::make_shared<CSprite>(
@@ -111,8 +114,10 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
     auto const cTransform = std::make_shared<CTransform>(position, velocity);
-    auto const cShape =
-        std::make_shared<CShape>(m_renderer, speedEffectConfig.shape);
+    auto const cShape     = std::make_shared<CShape>(
+        m_renderer, static_cast<float>(speedEffectConfig.shape.height),
+        static_cast<float>(speedEffectConfig.shape.width),
+        speedEffectConfig.shape.color);
     auto const cLifespan =
         std::make_shared<CLifespan>(speedEffectConfig.lifespan);
 
@@ -162,8 +167,10 @@ void MainSceneSpawner::spawnSlownessEntity(
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
     auto const cTransform = std::make_shared<CTransform>(position, velocity);
-    auto const cShape =
-        std::make_shared<CShape>(m_renderer, slownessEffectConfig.shape);
+    auto const cShape     = std::make_shared<CShape>(
+        m_renderer, static_cast<float>(slownessEffectConfig.shape.height),
+        static_cast<float>(slownessEffectConfig.shape.width),
+        slownessEffectConfig.shape.color);
     auto const cLifespan =
         std::make_shared<CLifespan>(slownessEffectConfig.lifespan);
 
@@ -227,8 +234,8 @@ void MainSceneSpawner::spawnWalls() {
     float const outerGapSize = outerWidth * 0.18f;
 
     for (int i = 0; i < WALL_COUNT; i++) {
-        auto const shapeComponent =
-            std::make_shared<CShape>(m_renderer, wallConfig);
+        auto const shapeComponent = std::make_shared<CShape>(
+            m_renderer, wallConfig.height, wallConfig.width, wallConfig.color);
         auto const transformComponent = std::make_shared<CTransform>();
 
         Vec2 &topLeftCornerPos = transformComponent->topLeftCornerPos;
@@ -332,8 +339,8 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
         std::make_shared<CTransform>(bulletPos, bulletVelocity);
     auto const cLifespan      = std::make_shared<CLifespan>(lifespan);
     auto const cBounceTracker = std::make_shared<CBounceTracker>();
-    auto const cShape         = std::make_shared<CShape>(
-        m_renderer, ShapeConfig(shape.height, shape.width, shape.color));
+    auto const cShape = std::make_shared<CShape>(m_renderer, shape.height,
+                                                 shape.width, shape.color);
 
     bullet->setComponent<CShape>(cShape);
     bullet->setComponent<CTransform>(cTransform);
@@ -362,7 +369,8 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
     auto const velocity   = Vec2(0, 0);
     auto const cTransform = std::make_shared<CTransform>(position, velocity);
-    auto const cShape     = std::make_shared<CShape>(m_renderer, shape);
+    auto const cShape     = std::make_shared<CShape>(m_renderer, shape.height,
+                                                     shape.width, shape.color);
     auto const cLifespan  = std::make_shared<CLifespan>(lifespan);
     auto const cSprite    = std::make_shared<CSprite>(
         m_textureManager.getTexture(TextureName::COIN));

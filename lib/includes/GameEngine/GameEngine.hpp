@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Configuration/ConfigStore.hpp"
 #include "Configuration/ConfigAdapter.hpp"
+#include "Configuration/ConfigStore.hpp"
 
 #include <AssetManagement/AudioSampleQueue.hpp>
 #include <AssetManagement/FontManager.hpp>
@@ -19,21 +19,21 @@ namespace YerbEngine {
     class Scene;
 
     class GameEngine {
-    protected:
+      protected:
         std::map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::string                                   m_currentSceneName;
         bool                                          m_isRunning = false;
 
-        std::unique_ptr<FontManager>                  m_fontManager;
-        std::unique_ptr<AudioManager>                 m_audioManager;
-        std::unique_ptr<TextureManager>               m_textureManager;
-        std::unique_ptr<AudioSampleQueue>             m_audioSampleQueue;
-        std::unique_ptr<VideoManager>                 m_videoManager;
-    std::unique_ptr<ConfigStore>                  m_configStore;   // default engine config
-    std::unique_ptr<ConfigAdapter>                m_configAdapter; // default engine adapter
-    std::map<std::string, std::unique_ptr<ConfigStore>>   m_namedStores;
-    std::map<std::string, std::unique_ptr<ConfigAdapter>> m_namedAdapters;
-
+        std::unique_ptr<FontManager>      m_fontManager;
+        std::unique_ptr<AudioManager>     m_audioManager;
+        std::unique_ptr<TextureManager>   m_textureManager;
+        std::unique_ptr<AudioSampleQueue> m_audioSampleQueue;
+        std::unique_ptr<VideoManager>     m_videoManager;
+        std::unique_ptr<ConfigStore> m_configStore; // default engine config
+        std::unique_ptr<ConfigAdapter>
+            m_configAdapter; // default engine adapter
+        std::map<std::string, std::unique_ptr<ConfigStore>>   m_namedStores;
+        std::map<std::string, std::unique_ptr<ConfigAdapter>> m_namedAdapters;
 
         /**
          * Calls the active scene's update method.
@@ -72,7 +72,7 @@ namespace YerbEngine {
          */
         void S_UserInput();
 
-    public:
+      public:
         /**
          * Constructs the GameEngine object and initializes all necessary
          * managers and resources.
@@ -101,17 +101,18 @@ namespace YerbEngine {
          * @param sceneName The name of the scene to load
          * @param scene A shared pointer to the scene object to load
          */
-        void LoadScene(std::string const &           sceneName,
+        void LoadScene(std::string const            &sceneName,
                        std::shared_ptr<Scene> const &scene);
 
-    // Configuration accessors (preferred):
-        ConfigStore &GetConfigStore() const { return *m_configStore; }
+        // Configuration accessors (preferred):
+        ConfigStore   &GetConfigStore() const { return *m_configStore; }
         ConfigAdapter &GetConfig() const { return *m_configAdapter; }
 
-    // Additional named config sets (e.g., demo/gameplay configs)
-    void AddConfig(std::string const &name,
-               std::unique_ptr<ConfigStore> store);
-    ConfigAdapter &GetConfig(std::string const &name) const;
+        // Additional named config sets (e.g., demo/gameplay configs)
+        void           AddConfig(std::string const           &name,
+                                 std::unique_ptr<ConfigStore> store);
+        ConfigAdapter &GetConfig(std::string const &name) const;
+        ConfigStore   &GetConfigStore(std::string const &name) const;
 
         /**
          * Retrieves the FontManager instance associated with the game engine.

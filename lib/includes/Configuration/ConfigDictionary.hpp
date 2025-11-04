@@ -10,7 +10,7 @@ namespace YerbEngine {
     class ConfigDictionary {
         std::unordered_map<std::string, ConfigValue> m_configuration;
 
-    public:
+      public:
         ConfigDictionary()                                    = default;
         ~ConfigDictionary()                                   = default;
         ConfigDictionary(ConfigDictionary const &)            = delete;
@@ -45,8 +45,6 @@ namespace YerbEngine {
                    std::holds_alternative<T>(it->second);
         }
 
-        void clear() {
-            m_configuration.clear();
-        }
+        void clear() { m_configuration.clear(); }
     };
 } // namespace YerbEngine

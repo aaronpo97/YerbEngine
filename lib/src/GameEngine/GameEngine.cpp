@@ -19,10 +19,11 @@ namespace YerbEngine {
          * The configuration file is a JSON file that contains the game settings
          * such as window size, font path, and more.
          */
-        Path const ASSETS_DIR_PATH  = "assets";
-        Path const CONFIG_DIR_PATH  = "config";
-    Path const ENGINE_CONFIG_FILE_PATH = CONFIG_DIR_PATH / "engine.json";
-    Path const DEMO_CONFIG_FILE_PATH   = CONFIG_DIR_PATH / "config.json"; // legacy demo config
+        Path const ASSETS_DIR_PATH         = "assets";
+        Path const CONFIG_DIR_PATH         = "config";
+        Path const ENGINE_CONFIG_FILE_PATH = CONFIG_DIR_PATH / "engine.json";
+        Path const DEMO_CONFIG_FILE_PATH =
+            CONFIG_DIR_PATH / "config.json"; // legacy demo config
 
         if (!std::filesystem::exists(ASSETS_DIR_PATH)) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Assets folder not found!");
@@ -30,37 +31,33 @@ namespace YerbEngine {
             throw std::runtime_error("Assets folder not found!");
         }
 
-        m_configStore = std::make_unique<ConfigStore>(
-            std::move(std::make_unique<JsonConfigProvider>(ENGINE_CONFIG_FILE_PATH))
-            );
+        m_configStore   = std::make_unique<ConfigStore>(std::move(
+            std::make_unique<JsonConfigProvider>(ENGINE_CONFIG_FILE_PATH)));
         m_configAdapter = std::make_unique<ConfigAdapter>(*m_configStore);
 
         // Optionally load demo/game config as a separate named store if present
         if (std::filesystem::exists(DEMO_CONFIG_FILE_PATH)) {
-            auto demoStore = std::make_unique<ConfigStore>(
-                std::move(std::make_unique<JsonConfigProvider>(DEMO_CONFIG_FILE_PATH)));
+            auto demoStore = std::make_unique<ConfigStore>(std::move(
+                std::make_unique<JsonConfigProvider>(DEMO_CONFIG_FILE_PATH)));
             AddConfig("demo", std::move(demoStore));
         }
 
         m_audioManager = std::make_unique<AudioManager>();
 
-        m_audioSampleQueue = std::make_unique<
-            AudioSampleQueue>(*m_audioManager);
+        m_audioSampleQueue =
+            std::make_unique<AudioSampleQueue>(*m_audioManager);
 
         {
             auto const gameCfg = m_configAdapter->getGameConfig();
-            m_fontManager = std::make_unique<FontManager>(
-                gameCfg.fontPath,
-                gameCfg.fontSizeSm,
-                gameCfg.fontSizeMd,
+            m_fontManager      = std::make_unique<FontManager>(
+                gameCfg.fontPath, gameCfg.fontSizeSm, gameCfg.fontSizeMd,
                 gameCfg.fontSizeLg);
         }
 
-        m_videoManager = std::make_unique<VideoManager>(
-            *m_configAdapter);
+        m_videoManager = std::make_unique<VideoManager>(*m_configAdapter);
 
-        m_textureManager = std::make_unique<TextureManager>(
-            m_videoManager->getRenderer());
+        m_textureManager =
+            std::make_unique<TextureManager>(m_videoManager->getRenderer());
 
         m_isRunning = true;
 
@@ -69,7 +66,6 @@ namespace YerbEngine {
     }
 
     GameEngine::~GameEngine() { CleanUp(); }
-
 
     void GameEngine::CleanUp() {
         SDL_Quit();
@@ -108,7 +104,7 @@ namespace YerbEngine {
 #endif
     }
 
-    void GameEngine::LoadScene(std::string const &           sceneName,
+    void GameEngine::LoadScene(std::string const            &sceneName,
                                std::shared_ptr<Scene> const &scene) {
         m_scenes[sceneName] = scene;
 
@@ -116,25 +112,33 @@ namespace YerbEngine {
         m_currentSceneName = sceneName;
     }
 
-    void GameEngine::AddConfig(std::string const &name,
+    void GameEngine::AddConfig(std::string const           &name,
                                std::unique_ptr<ConfigStore> store) {
         m_namedAdapters.erase(name);
         m_namedStores[name] = std::move(store);
-        m_namedAdapters[name] = std::make_unique<ConfigAdapter>(
-            *m_namedStores[name]);
+        m_namedAdapters[name] =
+            std::make_unique<ConfigAdapter>(*m_namedStores[name]);
     }
 
     ConfigAdapter &GameEngine::GetConfig(std::string const &name) const {
         auto it = m_namedAdapters.find(name);
         if (it == m_namedAdapters.end()) {
-            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                         "Config set '%s' not found", name.c_str());
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Config set '%s' not found",
+                         name.c_str());
             throw std::runtime_error("Config set not found: " + name);
         }
         return *it->second;
     }
 
-    
+    ConfigStore &GameEngine::GetConfigStore(std::string const &name) const {
+        auto it = m_namedStores.find(name);
+        if (it == m_namedStores.end()) {
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Config store '%s' not found",
+                         name.c_str());
+            throw std::runtime_error("Config store not found: " + name);
+        }
+        return *it->second;
+    }
 
     FontManager &GameEngine::getFontManager() const {
         if (!m_fontManager) {
@@ -206,7 +210,7 @@ namespace YerbEngine {
 
             if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
                 if (!activeScene->getActionMap().contains(
-                    event.key.keysym.sym)) {
+                        event.key.keysym.sym)) {
                     continue;
                 }
 
@@ -223,7 +227,7 @@ namespace YerbEngine {
             if (event.type == SDL_MOUSEBUTTONDOWN ||
                 event.type == SDL_MOUSEBUTTONUP) {
                 if (!activeScene->getActionMap().contains(
-                    event.button.button)) {
+                        event.button.button)) {
                     continue;
                 }
 
@@ -232,9 +236,8 @@ namespace YerbEngine {
                  * start on mouse down, and end on mouse up.
                  */
                 ActionState const actionState =
-                    event.type == SDL_MOUSEBUTTONDOWN
-                        ? ActionState::START
-                        : ActionState::END;
+                    event.type == SDL_MOUSEBUTTONDOWN ? ActionState::START
+                                                      : ActionState::END;
 
                 std::string const &actionName =
                     activeScene->getActionMap().at(event.button.button);

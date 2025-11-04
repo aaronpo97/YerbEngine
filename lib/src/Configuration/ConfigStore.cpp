@@ -3,8 +3,7 @@
 
 namespace YerbEngine {
     ConfigStore::ConfigStore(std::unique_ptr<IConfigProvider> provider)
-        : m_provider(std::move(provider))
-    {
+        : m_provider(std::move(provider)) {
         if (!m_provider) {
             throw std::runtime_error(
                 "ConfigStore requires a valid IConfigProvider");
@@ -12,24 +11,20 @@ namespace YerbEngine {
     }
 
     std::unique_ptr<ConfigStore>
-    ConfigStore::fromJsonFile(std::filesystem::path const &jsonPath)
-    {
+    ConfigStore::fromJsonFile(std::filesystem::path const &jsonPath) {
         auto provider = std::make_unique<JsonConfigProvider>(jsonPath);
         return std::make_unique<ConfigStore>(std::move(provider));
     }
 
-    ConfigValue ConfigStore::get(std::string const &path) const
-    {
+    ConfigValue ConfigStore::get(std::string const &path) const {
         return m_provider->getKey(path);
     }
 
-    bool ConfigStore::has(std::string const &path) const
-    {
+    bool ConfigStore::has(std::string const &path) const {
         return m_provider->hasKey(path);
     }
 
-    void ConfigStore::reload()
-    {
+    void ConfigStore::reload() {
         // Clear cached dictionaries if you add caching later
         m_dictionary.clear();
 

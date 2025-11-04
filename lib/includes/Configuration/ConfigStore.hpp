@@ -9,7 +9,7 @@ namespace YerbEngine {
         std::unique_ptr<IConfigProvider> m_provider;
         ConfigDictionary                 m_dictionary;
 
-    public:
+      public:
         explicit ConfigStore(std::unique_ptr<IConfigProvider> provider);
 
         static std::unique_ptr<ConfigStore>

@@ -134,8 +134,7 @@ void HowToPlayScene::renderText() const {
 
     // How to exit text
     std::string const exitText = "Press Backspace to go back to the main menu.";
-    Vec2 const        windowSize =
-        m_gameEngine->getVideoManager().getWindowSize();
+    Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
     Vec2 const exitPos{100, windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, exitText, textColor,
                                   exitPos);
