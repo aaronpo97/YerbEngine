@@ -14,8 +14,8 @@
 MainScene::MainScene(GameEngine *gameEngine)
     : Scene(gameEngine),
       m_entities(EntityManager()),
-      m_spawner(m_randomGenerator,
-                gameEngine->GetConfigManager(),
+    m_spawner(m_randomGenerator,
+        gameEngine->GetConfig("demo"),
                 gameEngine->getTextureManager(),
                 m_entities,
                 gameEngine->getVideoManager().getRenderer()) {
@@ -232,8 +232,7 @@ void MainScene::sRender() {
 
 void MainScene::sCollision() {
     using namespace ShootDemo::CollisionHelpers::MainScene;
-    ConfigManagerDeprecated const &configManager = m_gameEngine->GetConfigManager();
-    Vec2 const          &windowSize = configManager.getGameConfig().windowSize;
+    Vec2 const          &windowSize = m_gameEngine->getVideoManager().getWindowSize();
 
     AudioSampleQueue &audioSampleManager = m_gameEngine->getAudioSampleQueue();
     GameState const   gameState          = {
@@ -259,13 +258,12 @@ void MainScene::sCollision() {
 }
 
 void MainScene::sMovement() {
-    ConfigManagerDeprecated const &configManager = m_gameEngine->GetConfigManager();
-    PlayerConfig const  &playerConfig  = configManager.getPlayerConfig();
-    EnemyConfig const   &enemyConfig   = configManager.getEnemyConfig();
+    PlayerConfig const  &playerConfig  = m_gameEngine->GetConfig("demo").getPlayerConfig();
+    EnemyConfig const   &enemyConfig   = m_gameEngine->GetConfig("demo").getEnemyConfig();
     SlownessEffectConfig const &slownessEffectConfig =
-        configManager.getSlownessEffectConfig();
+        m_gameEngine->GetConfig("demo").getSlownessEffectConfig();
     SpeedEffectConfig const &speedBoostEffectConfig =
-        configManager.getSpeedEffectConfig();
+        m_gameEngine->GetConfig("demo").getSpeedEffectConfig();
 
     for (std::shared_ptr<Entity> const &entity : m_entities.getEntities()) {
         MovementHelpers::moveSpeedBoosts(entity, speedBoostEffectConfig,
@@ -280,9 +278,8 @@ void MainScene::sMovement() {
 }
 
 void MainScene::sSpawner() {
-    ConfigManagerDeprecated const &configManager = m_gameEngine->GetConfigManager();
     Uint64 const         ticks         = SDL_GetTicks64();
-    Uint64 const SPAWN_INTERVAL = configManager.getGameConfig().spawnInterval;
+    Uint64 const SPAWN_INTERVAL = m_gameEngine->GetConfig("demo").getGameConfig().spawnInterval;
 
     if (ticks - m_lastNonPlayerEntitySpawnTime < SPAWN_INTERVAL) {
         return;
@@ -292,12 +289,12 @@ void MainScene::sSpawner() {
 
     std::mt19937 &randomGenerator = m_randomGenerator;
 
-    EnemyConfig const       &enemyCfg = configManager.getEnemyConfig();
+    EnemyConfig const       &enemyCfg = m_gameEngine->GetConfig("demo").getEnemyConfig();
     SpeedEffectConfig const &speedEffectCfg =
-        configManager.getSpeedEffectConfig();
+        m_gameEngine->GetConfig("demo").getSpeedEffectConfig();
     SlownessEffectConfig const &slowEffectCfg =
-        configManager.getSlownessEffectConfig();
-    ItemConfig const &itemCfg = configManager.getItemConfig();
+        m_gameEngine->GetConfig("demo").getSlownessEffectConfig();
+    ItemConfig const &itemCfg = m_gameEngine->GetConfig("demo").getItemConfig();
 
     auto const &cEffects = m_player->getComponent<CEffects>();
     bool const  hasSpeedBasedEffect =

@@ -1,4 +1,4 @@
-#include <Configuration/ConfigManagerDeprecated.hpp>
+#include <Configuration/ConfigAdapter.hpp>
 #include <SDL.h>
 #include <SystemManagement/VideoManager.hpp>
 #include <stdexcept>
@@ -11,8 +11,8 @@ namespace YerbEngine {
 
     using Path = std::filesystem::path;
 
-    VideoManager::VideoManager(ConfigManagerDeprecated &configManager)
-        : m_configManager(configManager) {
+    VideoManager::VideoManager(ConfigAdapter &config)
+        : m_config(config) {
         initializeVideoSystem();
         m_window   = createWindow();
         m_renderer = createRenderer();
@@ -41,7 +41,7 @@ namespace YerbEngine {
         windowFlags |= macFlags;
 #endif
 
-        const GameConfig  &gameConfig  = m_configManager.getGameConfig();
+    const GameConfig  &gameConfig  = m_config.getGameConfig();
         std::string const &windowTitle = gameConfig.windowTitle;
         Vec2 const        &windowSize  = gameConfig.windowSize;
 
@@ -79,9 +79,7 @@ namespace YerbEngine {
         m_currentWindowSize = Vec2{static_cast<float>(currentWindowWidth),
                                    static_cast<float>(currentWindowHeight)};
 
-        m_configManager.updateGameWindowSize(
-            Vec2{static_cast<float>(currentWindowWidth),
-                 static_cast<float>(currentWindowHeight)});
+        // Source of truth for window size is internal; scenes query via getWindowSize().
     }
 
     SDL_Renderer *VideoManager::createRenderer() const {

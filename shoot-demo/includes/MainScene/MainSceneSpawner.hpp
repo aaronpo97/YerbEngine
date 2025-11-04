@@ -5,14 +5,14 @@ using namespace YerbEngine;
 
 class MainSceneSpawner {
     std::mt19937   &m_randomGenerator;
-    ConfigManagerDeprecated  &m_configManager;
+  ConfigAdapter  &m_config;
     TextureManager &m_textureManager;
     EntityManager  &m_entityManager;
     SDL_Renderer   *m_renderer;
 
   public:
-    MainSceneSpawner(std::mt19937   &randomGenerator,
-                     ConfigManagerDeprecated  &configManager,
+  MainSceneSpawner(std::mt19937   &randomGenerator,
+           ConfigAdapter  &config,
                      TextureManager &textureManager,
                      EntityManager  &entityManager,
                      SDL_Renderer   *renderer);

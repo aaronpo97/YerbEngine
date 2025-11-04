@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Configuration/ConfigStore.hpp"
+#include "Configuration/ConfigAdapter.hpp"
 
 #include <AssetManagement/AudioSampleQueue.hpp>
 #include <AssetManagement/FontManager.hpp>
 #include <AssetManagement/TextureManager.hpp>
-#include <Configuration/ConfigManagerDeprecated.hpp>
 #include <SystemManagement/AudioManager.hpp>
 #include <SystemManagement/VideoManager.hpp>
 
@@ -24,13 +24,15 @@ namespace YerbEngine {
         std::string                                   m_currentSceneName;
         bool                                          m_isRunning = false;
 
-        std::unique_ptr<ConfigManagerDeprecated>                m_configManager_deprecated;
         std::unique_ptr<FontManager>                  m_fontManager;
         std::unique_ptr<AudioManager>                 m_audioManager;
         std::unique_ptr<TextureManager>               m_textureManager;
         std::unique_ptr<AudioSampleQueue>             m_audioSampleQueue;
         std::unique_ptr<VideoManager>                 m_videoManager;
-        std::unique_ptr<ConfigStore>                  m_configStore;
+    std::unique_ptr<ConfigStore>                  m_configStore;   // default engine config
+    std::unique_ptr<ConfigAdapter>                m_configAdapter; // default engine adapter
+    std::map<std::string, std::unique_ptr<ConfigStore>>   m_namedStores;
+    std::map<std::string, std::unique_ptr<ConfigAdapter>> m_namedAdapters;
 
 
         /**
@@ -102,13 +104,14 @@ namespace YerbEngine {
         void LoadScene(std::string const &           sceneName,
                        std::shared_ptr<Scene> const &scene);
 
-        /**
-         * Retrieves the ConfigManager instance associated with the game engine.
-         *
-         * @throws std::runtime_error if ConfigManager is not initialized.
-         * @returns A reference to the initialized ConfigManager object.
-         */
-        ConfigManagerDeprecated &GetConfigManager() const;
+    // Configuration accessors (preferred):
+        ConfigStore &GetConfigStore() const { return *m_configStore; }
+        ConfigAdapter &GetConfig() const { return *m_configAdapter; }
+
+    // Additional named config sets (e.g., demo/gameplay configs)
+    void AddConfig(std::string const &name,
+               std::unique_ptr<ConfigStore> store);
+    ConfigAdapter &GetConfig(std::string const &name) const;
 
         /**
          * Retrieves the FontManager instance associated with the game engine.

@@ -60,8 +60,8 @@ void MenuScene::renderText() const {
         return;
     }
 
-    std::string const &titleText =
-        m_gameEngine->GetConfigManager().getGameConfig().windowTitle;
+    std::string const titleText =
+        m_gameEngine->GetConfig().getGameConfig().windowTitle;
     Vec2 const titlePos{100, 100};
     TextHelpers::renderLineOfText(renderer, fontLg, titleText, textColor,
                                   titlePos);
@@ -93,7 +93,7 @@ void MenuScene::renderText() const {
     // bottom right corner
     Vec2 const controlsPos{
         100,
-        m_gameEngine->GetConfigManager().getGameConfig().windowSize.y() - 50};
+        m_gameEngine->getVideoManager().getWindowSize().y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
                                   controlsPos);
 }

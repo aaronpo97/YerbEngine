@@ -21,6 +21,9 @@ file(GLOB_RECURSE CORE_SRC_FILES
     "${ENGINE_SRC_DIR}/*.cpp"
 )
 
+# Exclude deprecated configuration implementation from core build
+list(FILTER CORE_SRC_FILES EXCLUDE REGEX ".*/Configuration/ConfigManagerDeprecated.cpp$")
+
 add_library(yerb_engine_core STATIC ${CORE_SRC_FILES})
 
 target_include_directories(yerb_engine_core PUBLIC 

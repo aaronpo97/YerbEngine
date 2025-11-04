@@ -2,12 +2,12 @@
 #include <YerbEngine.hpp>
 
 MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
-                                   ConfigManagerDeprecated  &configManager,
+                                                                     ConfigAdapter  &config,
                                    TextureManager &textureManager,
                                    EntityManager  &entityManager,
                                    SDL_Renderer   *renderer)
     : m_randomGenerator(randomGenerator),
-      m_configManager(configManager),
+            m_config(config),
       m_textureManager(textureManager),
       m_entityManager(entityManager),
       m_renderer(renderer) {
@@ -15,8 +15,8 @@ MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
 }
 
 std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
-    PlayerConfig const &playerConfig = m_configManager.getPlayerConfig();
-    GameConfig const   &gameConfig   = m_configManager.getGameConfig();
+    PlayerConfig const &playerConfig = m_config.getPlayerConfig();
+    GameConfig const   &gameConfig   = m_config.getGameConfig();
 
     Vec2 const &windowSize   = gameConfig.windowSize;
     auto const  playerHeight = static_cast<float>(playerConfig.shape.height);
@@ -50,8 +50,8 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
 void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
     constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-    GameConfig const  &gameConfig  = m_configManager.getGameConfig();
-    EnemyConfig const &enemyConfig = m_configManager.getEnemyConfig();
+    GameConfig const  &gameConfig  = m_config.getGameConfig();
+    EnemyConfig const &enemyConfig = m_config.getEnemyConfig();
     Vec2 const        &windowSize  = gameConfig.windowSize;
 
     Vec2 const velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
@@ -101,9 +101,9 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
     std::shared_ptr<Entity> const &player) {
     constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-    GameConfig const        &gameConfig = m_configManager.getGameConfig();
+    GameConfig const        &gameConfig = m_config.getGameConfig();
     SpeedEffectConfig const &speedEffectConfig =
-        m_configManager.getSpeedEffectConfig();
+        m_config.getSpeedEffectConfig();
     Vec2 const &windowSize = gameConfig.windowSize;
 
     Vec2 const velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
@@ -150,12 +150,12 @@ void MainSceneSpawner::spawnSlownessEntity(
     std::shared_ptr<Entity> const &player) {
     constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-    GameConfig const &gameConfig = m_configManager.getGameConfig();
+    GameConfig const &gameConfig = m_config.getGameConfig();
 
     auto const windowSize = gameConfig.windowSize;
 
     SlownessEffectConfig const &slownessEffectConfig =
-        m_configManager.getSlownessEffectConfig();
+        m_config.getSlownessEffectConfig();
 
     auto const velocity = SpawnHelpers::createValidVelocity(m_randomGenerator);
     auto const position =
@@ -202,7 +202,7 @@ void MainSceneSpawner::spawnSlownessEntity(
 }
 
 void MainSceneSpawner::spawnWalls() {
-    GameConfig const &gameConfig = m_configManager.getGameConfig();
+    GameConfig const &gameConfig = m_config.getGameConfig();
 
     constexpr SDL_Color wallColor  = {.r = 176, .g = 196, .b = 222, .a = 255};
     float const         wallHeight = gameConfig.windowSize.y() * 0.6f;
@@ -294,7 +294,7 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
 
     EntityList const walls = m_entityManager.getEntities(EntityTags::Wall);
 
-    auto const &[lifespan, speed, shape] = m_configManager.getBulletConfig();
+    auto const &[lifespan, speed, shape] = m_config.getBulletConfig();
 
     if (!player) {
         SDL_Log("player missing, not creating bullet");
@@ -353,9 +353,9 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
 void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
     constexpr int MAX_SPAWN_ATTEMPTS = 10;
 
-    GameConfig const &gameConfig = m_configManager.getGameConfig();
+    GameConfig const &gameConfig = m_config.getGameConfig();
     auto const &[spawnPercentage, lifespan, speed, shape] =
-        m_configManager.getItemConfig();
+        m_config.getItemConfig();
     Vec2 const &windowSize = gameConfig.windowSize;
 
     auto const position =
