@@ -1,34 +1,34 @@
 
-#include "../../includes/Helpers/EntityHelpers.hpp"
+#include <YerbEngine/Helpers/EntityHelpers.hpp>
 #include <algorithm>
 #include <vector>
 
 namespace EntityHelpers {
-  EntityVector getEntitiesInRadius(const std::shared_ptr<Entity> &entity,
-                                   const EntityVector            &candidates,
-                                   const float                   &radius) {
+    EntityList getEntitiesInRadius(std::shared_ptr<Entity> const &entity,
+                                   EntityList const              &candidates,
+                                   float const                   &radius) {
 
-    EntityVector result;
-    const Vec2  &center        = entity->getCenterPos();
-    const float  radiusSquared = radius * radius;
+        EntityList  result;
+        Vec2 const &center        = entity->getCenterPos();
+        float const radiusSquared = radius * radius;
 
-    for (const auto &candidate : candidates) {
-      if (candidate == entity)
-        continue;
+        for (auto const &candidate : candidates) {
+            if (candidate == entity)
+                continue;
 
-      const Vec2 &candidateCenter = candidate->getCenterPos();
+            Vec2 const &candidateCenter = candidate->getCenterPos();
 
-      const float deltaX = center.x - candidateCenter.x;
-      const float deltaY = center.y - candidateCenter.y;
-      const float distanceSquared =
-              MathHelpers::pythagorasSquared(deltaX, deltaY);
+            float const deltaX = center.x - candidateCenter.x;
+            float const deltaY = center.y - candidateCenter.y;
+            float const distanceSquared =
+                MathHelpers::pythagorasSquared(deltaX, deltaY);
 
-      if (distanceSquared >= radiusSquared) {
-        continue;
-      }
-      result.push_back(candidate);
+            if (distanceSquared >= radiusSquared) {
+                continue;
+            }
+            result.push_back(candidate);
+        }
+
+        return result;
     }
-
-    return result;
-  }
 } // namespace EntityHelpers

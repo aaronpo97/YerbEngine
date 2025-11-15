@@ -1,17 +1,13 @@
 # YerbEngine
 
-YerbEngine is a work-in-progress game engine featuring an _Entity-Component-System_ (ECS) architecture, built with `SDL2` and modern `C++`.
+YerbEngine is a work-in-progress game engine featuring an _Entity-Component-System_ (ECS) architecture, built with `SDL2` and `C++`.
 
 ## Features
 
-- **Cross-platform** – Supports building on macOS, Linux (Fedora), and the Web via Emscripten/WebAssembly.
+- **Cross-platform** – Supports builds on MacOS, Linux (tested on Fedora), and the Web via Emscripten/WebAssembly.
 - **Modular ECS design** – Independent systems for input, rendering, and more, enabling scalability.
 - **JSON configuration** – Loads game settings using [nlohmann/json](https://github.com/nlohmann/json).
 - **Modern C++** – Written in C++23, with code quality enforced by `clang-tidy`.
-
-## Installation
-
-Currently, only source builds are available.
 
 ### Building from Source
 
@@ -38,8 +34,6 @@ emrun --no_browser --port 3333 .
 ```
 
 #### macOS/Linux
-
-To build natively:
 
 ```bash
 mkdir dist

@@ -9,3 +9,4 @@ makefile
 cmake-build-debug
 cmake-build-release
 build
+/.github
