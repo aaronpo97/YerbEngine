@@ -1,0 +1,12 @@
+{
+  "engine": {
+    "window": {
+      "title": "YerbEngine",
+      "size": { "width": 1600, "height": 900 }
+    },
+    "fonts": {
+      "path": "./assets/fonts/MotionControl-Bold.otf",
+      "sizes": { "sm": 38, "md": 48, "lg": 68 }
+    }
+  }
+}

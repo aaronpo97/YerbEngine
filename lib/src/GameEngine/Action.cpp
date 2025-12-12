@@ -1,0 +1,20 @@
+#include <GameEngine/Action.hpp>
+#include <Helpers/Vec2.hpp>
+#include <utility>
+
+namespace YerbEngine {
+
+    Action::Action(std::string                name,
+                   ActionState const         &state,
+                   std::optional<Vec2> const &pos)
+        : m_name(std::move(name)),
+          m_state(state),
+          m_pos(pos) {}
+
+    std::string const &Action::getName() const { return m_name; }
+
+    ActionState const &Action::getState() const { return m_state; }
+
+    std::optional<Vec2> const &Action::getPos() const { return m_pos; }
+
+} // namespace YerbEngine
