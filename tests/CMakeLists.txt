@@ -12,17 +12,35 @@ target_include_directories(yerb_engine_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/lib/includes
 )
 
-# Copy assets and config for tests
+target_compile_definitions(yerb_engine_tests PRIVATE
+    PROJECT_ASSETS_DIR="${CMAKE_SOURCE_DIR}/shoot-demo/assets"
+)
+
+set(TEST_ASSETS_SRC "${CMAKE_SOURCE_DIR}/shoot-demo/assets")
+set(TEST_CONFIG_SRC "${CMAKE_SOURCE_DIR}/config")
+set(TEST_DATA_SRC   "${CMAKE_CURRENT_SOURCE_DIR}/data")
+
+# Copy assets if available for tests
+if(EXISTS "${TEST_ASSETS_SRC}")
+    add_custom_command(TARGET yerb_engine_tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${TEST_ASSETS_SRC}" "${CMAKE_CURRENT_BINARY_DIR}/assets"
+    )
+else()
+    message(WARNING "Test assets directory not found at ${TEST_ASSETS_SRC} - skipping copy.")
+endif()
+
 add_custom_command(TARGET yerb_engine_tests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/assets" "${CMAKE_CURRENT_BINARY_DIR}/assets"
-    
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/config" "${CMAKE_CURRENT_BINARY_DIR}/config"
-    
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_CURRENT_SOURCE_DIR}/data" "${CMAKE_CURRENT_BINARY_DIR}/tests/data"
+    "${TEST_CONFIG_SRC}" "${CMAKE_CURRENT_BINARY_DIR}/config"
 )
+
+if(EXISTS "${TEST_DATA_SRC}")
+    add_custom_command(TARGET yerb_engine_tests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${TEST_DATA_SRC}" "${CMAKE_CURRENT_BINARY_DIR}/tests/data"
+    )
+endif()
 
 # Register with CTest
 add_test(NAME yerb_engine_tests COMMAND yerb_engine_tests)

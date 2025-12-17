@@ -5,14 +5,14 @@ file(GLOB_RECURSE DEMO_SRC_FILES "${DEMO_DIR}/src/*.cpp")
 
 add_library(demo_includes INTERFACE)
 target_include_directories(demo_includes INTERFACE 
-    "${CMAKE_SOURCE_DIR}/YerbEngine/includes"
+    "${ENGINE_INCLUDE_DIR}"
     "${DEMO_DIR}/includes"
 )
 
 add_executable(shoot-demo ${DEMO_SRC_FILES})
 
 target_include_directories(shoot-demo PRIVATE 
-    "${CMAKE_SOURCE_DIR}/YerbEngine/includes"
+    "${ENGINE_INCLUDE_DIR}"
     "${DEMO_DIR}/includes"
 )
 
@@ -40,14 +40,14 @@ if(EMSCRIPTEN)
         "-sUSE_SDL_TTF=2" "-sUSE_FREETYPE=1"
         "-sUSE_SDL_MIXER=2"
         "-sALLOW_MEMORY_GROWTH=1"
-        "--preload-file=${CMAKE_SOURCE_DIR}/assets@assets"
+        "--preload-file=${DEMO_DIR}/assets@assets"
         "--preload-file=${CMAKE_SOURCE_DIR}/config@config"
     )
 else()
     add_dependencies(shoot-demo copy_assets_runtime copy_config_runtime)
 
     add_custom_command(TARGET shoot-demo POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${CMAKE_BINARY_DIR}/assets"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${DEMO_DIR}/assets" "${CMAKE_BINARY_DIR}/assets"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${CMAKE_BINARY_DIR}/config"
     )
 endif()

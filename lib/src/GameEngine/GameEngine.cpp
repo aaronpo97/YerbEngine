@@ -8,7 +8,40 @@
 
 namespace YerbEngine {
 
-    GameEngine::GameEngine() {
+    namespace {
+        Path resolveDirectory(Path const &preferred,
+                              Path const &fallback,
+                              char const *label) {
+            std::string const preferredStr = preferred.string();
+            if (!preferredStr.empty() &&
+                std::filesystem::exists(preferred)) {
+                return preferred;
+            }
+
+            std::string const fallbackStr = fallback.string();
+            bool const         hasFallback =
+                preferred != fallback && !fallbackStr.empty() &&
+                std::filesystem::exists(fallback);
+
+            if (hasFallback) {
+                SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM,
+                            "%s directory not found at '%s'. Falling back to '%s'.",
+                            label, preferredStr.c_str(), fallbackStr.c_str());
+                return fallback;
+            }
+
+            std::string const attempted =
+                preferred == fallback ? preferredStr
+                                      : preferredStr + "' and '" + fallbackStr;
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
+                         "%s directory not found (checked '%s').", label,
+                         attempted.c_str());
+            throw std::runtime_error(std::string(label) +
+                                     " directory not found: " + attempted);
+        }
+    } // namespace
+
+    GameEngine::GameEngine(Path assetsDirPath, Path configDirPath) {
         /*
          * Set up the paths for the assets and configuration files.
          *
@@ -19,28 +52,27 @@ namespace YerbEngine {
          * The configuration file is a JSON file that contains the game settings
          * such as window size, font path, and more.
          */
-        Path const ASSETS_DIR_PATH         = "assets";
-        Path const CONFIG_DIR_PATH         = "config";
-        Path const ENGINE_CONFIG_FILE_PATH = CONFIG_DIR_PATH / "engine.json";
-        Path const DEMO_CONFIG_FILE_PATH =
-            CONFIG_DIR_PATH / "config.json"; // legacy demo config
+        Path const defaultAssetsDir{"assets"};
+        Path const defaultConfigDir{"config"};
 
-        if (!std::filesystem::exists(ASSETS_DIR_PATH)) {
-            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Assets folder not found!");
+        Path const resolvedAssetsDir =
+            resolveDirectory(assetsDirPath, defaultAssetsDir, "Assets");
+        Path const resolvedConfigDir =
+            resolveDirectory(configDirPath, defaultConfigDir, "Config");
+
+        Path const ENGINE_CONFIG_FILE_PATH = resolvedConfigDir / "engine.json";
+
+        if (!std::filesystem::exists(resolvedAssetsDir)) {
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Assets folder not found: %s",
+                         resolvedAssetsDir.string().c_str());
             CleanUp();
-            throw std::runtime_error("Assets folder not found!");
+            throw std::runtime_error("Assets folder not found: " +
+                                     resolvedAssetsDir.string());
         }
 
         m_configStore   = std::make_unique<ConfigStore>(std::move(
             std::make_unique<JsonConfigProvider>(ENGINE_CONFIG_FILE_PATH)));
         m_configAdapter = std::make_unique<ConfigAdapter>(*m_configStore);
-
-        // Optionally load demo/game config as a separate named store if present
-        if (std::filesystem::exists(DEMO_CONFIG_FILE_PATH)) {
-            auto demoStore = std::make_unique<ConfigStore>(std::move(
-                std::make_unique<JsonConfigProvider>(DEMO_CONFIG_FILE_PATH)));
-            AddConfig("demo", std::move(demoStore));
-        }
 
         m_audioManager = std::make_unique<AudioManager>();
 

@@ -1,27 +1,22 @@
 #pragma once
 #include <SDL.h>
 #include <filesystem>
+#include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace YerbEngine {
-    enum class TextureName { DEFAULT, PLAYER, WALL, COIN, ENEMY };
-    std::unordered_map<TextureName, std::filesystem::path> const imagePaths = {
-        {TextureName::PLAYER, "assets/images/player.png"},
-        {TextureName::WALL, "assets/images/wall.png"},
-        {TextureName::COIN, "assets/images/coin.png"},
-        {TextureName::ENEMY, "assets/images/enemy.png"}};
-
     class TextureManager {
-        std::unordered_map<TextureName, SDL_Surface *> m_surfaces = {};
-        std::unordered_map<TextureName, SDL_Texture *> m_textures = {};
-        SDL_Renderer                                  *m_renderer;
-
-        void loadTexture(TextureName name);
+        SDL_Renderer *m_renderer;
+        std::unordered_map<std::string, SDL_Texture *> m_textures{};
 
       public:
         explicit TextureManager(SDL_Renderer *renderer);
         ~TextureManager();
 
-        SDL_Texture *getTexture(TextureName name);
+        void registerTexture(std::string_view name,
+                             std::filesystem::path const &path);
+        bool hasTexture(std::string_view name) const;
+        SDL_Texture *getTexture(std::string_view name) const;
     };
 } // namespace YerbEngine

@@ -86,7 +86,7 @@ else()
     if(NOT TARGET copy_assets_runtime)
         add_custom_target(copy_assets_runtime ALL
             COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/assets"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${OUT_DIR}/assets"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/shoot-demo/assets" "${OUT_DIR}/assets"
         )
     endif()
 
