@@ -2,10 +2,12 @@
 
 namespace YerbEngine {
 
-    Entity::Entity(size_t const     id,
-                   EntityTags const tag)
+    Entity::Entity(size_t const                     id,
+                   EntityTags const                 tag,
+                   std::shared_ptr<ComponentRegistry> registry)
         : m_id(id),
-          m_tag(tag) {}
+          m_tag(tag),
+          m_registry(std::move(registry)) {}
 
     bool Entity::isActive() const { return m_active; }
 

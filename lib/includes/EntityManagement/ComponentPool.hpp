@@ -17,16 +17,6 @@ namespace YerbEngine {
 
       public:
         ComponentPool() = default;
-        explicit ComponentPool(size_t sparseSize, size_t denseCapacity = 0) {
-            if (sparseSize > 0) {
-                m_sparse.resize(sparseSize, npos);
-            }
-            if (denseCapacity > 0) {
-                m_dense.reserve(denseCapacity);
-                m_denseIds.reserve(denseCapacity);
-            }
-        }
-
         bool contains(size_t id) const {
             return id < m_sparse.size() && m_sparse[id] != npos;
         }
