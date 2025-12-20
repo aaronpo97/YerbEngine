@@ -76,8 +76,8 @@ namespace YerbEngine {
 
         m_audioManager = std::make_unique<AudioManager>();
 
-        m_audioSampleQueue =
-            std::make_unique<AudioSampleQueue>(*m_audioManager);
+        m_audioSampleBuffer =
+            std::make_unique<AudioSampleBuffer>(*m_audioManager);
 
         {
             auto const gameCfg = m_configAdapter->getGameConfig();
@@ -190,13 +190,13 @@ namespace YerbEngine {
         return *m_audioManager;
     }
 
-    AudioSampleQueue &GameEngine::getAudioSampleQueue() const {
-        if (!m_audioSampleQueue) {
+    AudioSampleBuffer &GameEngine::getAudioSampleBuffer() const {
+        if (!m_audioSampleBuffer) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
                          "AudioSampleManager not initialized");
             throw std::runtime_error("AudioSampleManager not initialized");
         }
-        return *m_audioSampleQueue;
+        return *m_audioSampleBuffer;
     }
 
     VideoManager &GameEngine::getVideoManager() const {

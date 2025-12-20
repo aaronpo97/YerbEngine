@@ -141,19 +141,19 @@ void HowToPlayScene::renderText() const {
 }
 
 void HowToPlayScene::sDoAction(Action &action) {
-    AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
     if (action.getState() == ActionState::END) {
         return;
     }
 
     if (action.getName() == "SELECT") {
-        audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
                                      PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
 
     if (action.getName() == "GO_BACK") {
-        audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
                                      PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
@@ -161,10 +161,10 @@ void HowToPlayScene::sDoAction(Action &action) {
 
 void HowToPlayScene::sAudio() {
     AudioManager     &audioManager     = m_gameEngine->getAudioManager();
-    AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
     if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
         audioManager.playTrack(AudioTrack::MAIN_MENU, -1);
     }
 
-    audioSampleQueue.update();
+    audioSampleBuffer.update();
 }

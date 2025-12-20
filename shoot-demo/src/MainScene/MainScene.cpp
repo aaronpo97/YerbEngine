@@ -73,7 +73,7 @@ void MainScene::sDoAction(Action &action) {
     }
 
     ActionState const &actionState      = action.getState();
-    AudioSampleQueue  &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer  &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
     auto const &cInput = m_player->getComponent<CInput>();
 
@@ -122,20 +122,20 @@ void MainScene::sDoAction(Action &action) {
         }
         Vec2 const mousePosition = *position;
 
-        audioSampleQueue.queueSample(AudioSample::SHOOT,
+        audioSampleBuffer.queueSample(AudioSample::SHOOT,
                                      PriorityLevel::STANDARD);
         m_spawner.spawnBullets(m_player, mousePosition);
         m_lastBulletSpawnTime = currentTime;
 
         if (action.getName() == "PAUSE") {
-            audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+            audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
                                          PriorityLevel::CRITICAL);
             m_paused = !m_paused;
         }
     }
 
     if (action.getName() == "GO_BACK") {
-        audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
                                      PriorityLevel::CRITICAL);
         m_endTriggered = true;
     }
@@ -239,7 +239,7 @@ void MainScene::sCollision() {
     using namespace ShootDemo::CollisionHelpers::MainScene;
     Vec2 const &windowSize = m_gameEngine->getVideoManager().getWindowSize();
 
-    AudioSampleQueue &audioSampleManager = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer &audioSampleManager = m_gameEngine->getAudioSampleBuffer();
     GameState const   gameState          = {
                    .entityManager   = m_entities,
                    .randomGenerator = m_randomGenerator,
@@ -469,13 +469,13 @@ void MainScene::onEnd() {
 
 void MainScene::sAudio() {
     AudioManager     &audioManager     = m_gameEngine->getAudioManager();
-    AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
     if (audioManager.getCurrentAudioTrack() != AudioTrack::PLAY) {
         audioManager.playTrack(AudioTrack::PLAY, -1);
     }
 
-    audioSampleQueue.update();
+    audioSampleBuffer.update();
 }
 
 void MainScene::onSceneWindowResize() {
