@@ -439,9 +439,9 @@ package "ECS" {
     }
 
     class CSprite {
-      - m_texture: SDL_Texture*
-      + CSprite(texture: SDL_Texture*)
-      + getTexture() : SDL_Texture*
+      - m_textureId: string_view
+      + CSprite(textureId: string_view)
+      + getTextureId() : string_view
     }
   }
 }
