@@ -53,9 +53,19 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
     Vec2 const    &playerPosition = centerPosition;
     constexpr Vec2 playerVelocity{0, 0};
 
+    // auto const cShape = std::make_shared<Components::CShape>(
+    //     m_renderer, static_cast<float>(playerConfig.shape.height),
+    //     static_cast<float>(playerConfig.shape.width), playerConfig.shape.color);
+
+    SDL_Rect playerRect{
+        .x = 0,
+        .y = 0,
+        .w = static_cast<int>(playerWidth),
+        .h = static_cast<int>(playerHeight),
+    };
     auto const cShape = std::make_shared<Components::CShape>(
-        m_renderer, static_cast<float>(playerConfig.shape.height),
-        static_cast<float>(playerConfig.shape.width), playerConfig.shape.color);
+        playerRect,
+        playerConfig.shape.color);
     auto const cTransform =
         std::make_shared<Components::CTransform>(playerPosition, playerVelocity);
     auto const cInput   = std::make_shared<Components::CInput>();
@@ -86,9 +96,17 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
     auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
+    SDL_Rect enemyRect{
+        .x = 0,
+        .y = 0,
+        .w = static_cast<int>(enemyConfig.shape.width),
+        .h = static_cast<int>(enemyConfig.shape.height),
+    };
+
+    SDL_Color enemyColor = enemyConfig.shape.color;
+
     auto const cShape     = std::make_shared<Components::CShape>(
-        m_renderer, static_cast<float>(enemyConfig.shape.height),
-        static_cast<float>(enemyConfig.shape.width), enemyConfig.shape.color);
+        enemyRect, enemyColor);
     auto const cLifespan = std::make_shared<Components::CLifespan>(enemyConfig.lifespan);
 
     auto const cSprite = std::make_shared<Components::CSprite>(
@@ -140,10 +158,21 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
     auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
+    // auto const cShape     = std::make_shared<Components::CShape>(
+    //     m_renderer, static_cast<float>(speedEffectConfig.shape.height),
+    //     static_cast<float>(speedEffectConfig.shape.width),
+    //     speedEffectConfig.shape.color);
+
+    SDL_Rect speedBoostRect{
+        .x = 0,
+        .y = 0,
+        .w = static_cast<int>(speedEffectConfig.shape.width),
+        .h = static_cast<int>(speedEffectConfig.shape.height),
+    };
     auto const cShape     = std::make_shared<Components::CShape>(
-        m_renderer, static_cast<float>(speedEffectConfig.shape.height),
-        static_cast<float>(speedEffectConfig.shape.width),
+        speedBoostRect,
         speedEffectConfig.shape.color);
+
     auto const cLifespan =
         std::make_shared<Components::CLifespan>(speedEffectConfig.lifespan);
 
@@ -196,10 +225,21 @@ void MainSceneSpawner::spawnSlownessEntity(
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
     auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
+    // auto const cShape     = std::make_shared<Components::CShape>(
+    //     m_renderer, static_cast<float>(slownessEffectConfig.shape.height),
+    //     static_cast<float>(slownessEffectConfig.shape.width),
+    //     slownessEffectConfig.shape.color);
+
+    auto const slownessRect = SDL_Rect{
+        .x = 0,
+        .y = 0,
+        .w = static_cast<int>(slownessEffectConfig.shape.width),
+        .h = static_cast<int>(slownessEffectConfig.shape.height),
+    };
     auto const cShape     = std::make_shared<Components::CShape>(
-        m_renderer, static_cast<float>(slownessEffectConfig.shape.height),
-        static_cast<float>(slownessEffectConfig.shape.width),
+        slownessRect,
         slownessEffectConfig.shape.color);
+
     auto const cLifespan =
         std::make_shared<Components::CLifespan>(slownessEffectConfig.lifespan);
 
@@ -263,8 +303,13 @@ void MainSceneSpawner::spawnWalls() {
     float const outerGapSize = outerWidth * 0.18f;
 
     for (int i = 0; i < WALL_COUNT; i++) {
+        // auto const shapeComponent = std::make_shared<Components::CShape>(
+        //     m_renderer, wallConfig.height, wallConfig.width, wallConfig.color);
+
+       SDL_Rect shapeRect{};
         auto const shapeComponent = std::make_shared<Components::CShape>(
-            m_renderer, wallConfig.height, wallConfig.width, wallConfig.color);
+            shapeRect,
+            wallConfig.color);
         auto const transformComponent = std::make_shared<Components::CTransform>();
 
         Vec2 &topLeftCornerPos = transformComponent->topLeftCornerPos;
@@ -368,8 +413,19 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
         std::make_shared<Components::CTransform>(bulletPos, bulletVelocity);
     auto const cLifespan      = std::make_shared<Components::CLifespan>(lifespan);
     auto const cBounceTracker = std::make_shared<Components::CBounceTracker>();
-    auto const cShape = std::make_shared<Components::CShape>(m_renderer, shape.height,
-                                                 shape.width, shape.color);
+    // auto const cShape = std::make_shared<Components::CShape>(m_renderer, shape.height,
+    //                                              shape.width, shape.color);
+
+    SDL_Rect bulletRect{
+        .x = 0,
+        .y = 0,
+        .w = static_cast<int>(shape.width),
+        .h = static_cast<int>(shape.height),
+    };
+
+    auto const cShape = std::make_shared<Components::CShape>(
+        bulletRect,
+        shape.color);
 
     bullet->setComponent<Components::CShape>(cShape);
     bullet->setComponent<Components::CTransform>(cTransform);
@@ -398,8 +454,19 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
     auto const velocity   = Vec2(0, 0);
     auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
-    auto const cShape     = std::make_shared<Components::CShape>(m_renderer, shape.height,
-                                                     shape.width, shape.color);
+    // auto const cShape     = std::make_shared<Components::CShape>(m_renderer, shape.height,
+    //                                                  shape.width, shape.color);
+
+    SDL_Rect itemRect{
+        .x = 0,
+        .y = 0,
+        .w = static_cast<int>(shape.width),
+        .h = static_cast<int>(shape.height),
+    };
+
+    auto const cShape     = std::make_shared<Components::CShape>(
+        itemRect,
+        shape.color);
     auto const cLifespan  = std::make_shared<Components::CLifespan>(lifespan);
     auto const cSprite    = std::make_shared<Components::CSprite>(
         COIN_TEXTURE_ID);
