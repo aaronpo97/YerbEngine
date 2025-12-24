@@ -4,7 +4,9 @@
 #include "./Components.hpp"
 
 #include <memory>
+#include <typeindex>
 #include <type_traits>
+#include <unordered_map>
 
 namespace YerbEngine {
 
@@ -14,56 +16,40 @@ namespace YerbEngine {
     } // namespace detail
 
     class ComponentRegistry {
-        ComponentPool<std::shared_ptr<CTransform>>     m_transforms;
-        ComponentPool<std::shared_ptr<CShape>>         m_shapes;
-        ComponentPool<std::shared_ptr<CInput>>         m_inputs;
-        ComponentPool<std::shared_ptr<CLifespan>>      m_lifespans;
-        ComponentPool<std::shared_ptr<CEffects>>       m_effects;
-        ComponentPool<std::shared_ptr<CBounceTracker>> m_bounceTrackers;
-        ComponentPool<std::shared_ptr<CSprite>>        m_sprites;
+
+        struct IPool {
+            virtual ~IPool() = default;
+            virtual void remove(size_t id) = 0;
+        };
 
         template <typename T>
-        auto &pool() {
-            if constexpr (std::is_same_v<T, CTransform>) {
-                return m_transforms;
-            } else if constexpr (std::is_same_v<T, CShape>) {
-                return m_shapes;
-            } else if constexpr (std::is_same_v<T, CInput>) {
-                return m_inputs;
-            } else if constexpr (std::is_same_v<T, CLifespan>) {
-                return m_lifespans;
-            } else if constexpr (std::is_same_v<T, CEffects>) {
-                return m_effects;
-            } else if constexpr (std::is_same_v<T, CBounceTracker>) {
-                return m_bounceTrackers;
-            } else if constexpr (std::is_same_v<T, CSprite>) {
-                return m_sprites;
-            } else {
-                static_assert(detail::always_false<T>::value,
-                              "Unsupported component type");
+        struct Pool final : IPool {
+            ComponentPool<std::shared_ptr<T>> data;
+            void remove(size_t id) override { data.remove(id); }
+        };
+
+        std::unordered_map<std::type_index, std::unique_ptr<IPool>> m_pools;
+
+        template <typename T>
+        Pool<T> &pool() {
+            auto id = std::type_index(typeid(T));
+            auto it = m_pools.find(id);
+            if (it == m_pools.end()) {
+                auto storage = std::make_unique<Pool<T>>();
+                auto *ptr = storage.get();
+                m_pools.emplace(id, std::move(storage));
+                return *ptr;
             }
+            return *static_cast<Pool<T> *>(it->second.get());
         }
 
         template <typename T>
-        auto const &pool() const {
-            if constexpr (std::is_same_v<T, CTransform>) {
-                return m_transforms;
-            } else if constexpr (std::is_same_v<T, CShape>) {
-                return m_shapes;
-            } else if constexpr (std::is_same_v<T, CInput>) {
-                return m_inputs;
-            } else if constexpr (std::is_same_v<T, CLifespan>) {
-                return m_lifespans;
-            } else if constexpr (std::is_same_v<T, CEffects>) {
-                return m_effects;
-            } else if constexpr (std::is_same_v<T, CBounceTracker>) {
-                return m_bounceTrackers;
-            } else if constexpr (std::is_same_v<T, CSprite>) {
-                return m_sprites;
-            } else {
-                static_assert(detail::always_false<T>::value,
-                              "Unsupported component type");
+        Pool<T> const *poolIfExists() const {
+            auto it = m_pools.find(std::type_index(typeid(T)));
+            if (it == m_pools.end()) {
+                return nullptr;
             }
+            return static_cast<Pool<T> const *>(it->second.get());
         }
 
       public:
@@ -73,59 +59,67 @@ namespace YerbEngine {
         template <typename T>
         std::shared_ptr<T> emplace(size_t id,
                                    std::shared_ptr<T> component) {
-            return pool<T>().emplace(id, std::move(component));
+            return pool<T>().data.emplace(id, std::move(component));
         }
 
         template <typename T>
         std::shared_ptr<T> get(size_t id) {
-            auto *ptr = pool<T>().get(id);
+            auto *ptr = pool<T>().data.get(id);
             return ptr ? *ptr : nullptr;
         }
 
         template <typename T>
         std::shared_ptr<T> get(size_t id) const {
-            auto const *ptr = pool<T>().get(id);
+            auto const *poolPtr = poolIfExists<T>();
+            if (!poolPtr) {
+                return nullptr;
+            }
+            auto const *ptr = poolPtr->data.get(id);
             return ptr ? *ptr : nullptr;
         }
 
         template <typename T>
         bool contains(size_t id) const {
-            return pool<T>().contains(id);
+            auto const *poolPtr = poolIfExists<T>();
+            return poolPtr ? poolPtr->data.contains(id) : false;
         }
 
         template <typename T>
         void remove(size_t id) {
-            pool<T>().remove(id);
+            auto *poolPtr = const_cast<Pool<T> *>(poolIfExists<T>());
+            if (poolPtr) {
+                poolPtr->data.remove(id);
+            }
         }
 
         template <typename T>
         std::vector<std::shared_ptr<T>> &dense() {
-            return pool<T>().dense();
+            return pool<T>().data.dense();
         }
 
         template <typename T>
         std::vector<std::shared_ptr<T>> const &dense() const {
-            return pool<T>().dense();
+            static const std::vector<std::shared_ptr<T>> empty;
+            auto const *poolPtr = poolIfExists<T>();
+            return poolPtr ? poolPtr->data.dense() : empty;
         }
 
         template <typename T>
         std::vector<size_t> &denseIds() {
-            return pool<T>().denseIds();
+            return pool<T>().data.denseIds();
         }
 
         template <typename T>
         std::vector<size_t> const &denseIds() const {
-            return pool<T>().denseIds();
+            static const std::vector<size_t> empty;
+            auto const *poolPtr = poolIfExists<T>();
+            return poolPtr ? poolPtr->data.denseIds() : empty;
         }
 
         void removeAllForEntity(size_t id) {
-            m_transforms.remove(id);
-            m_shapes.remove(id);
-            m_inputs.remove(id);
-            m_lifespans.remove(id);
-            m_effects.remove(id);
-            m_bounceTrackers.remove(id);
-            m_sprites.remove(id);
+            for (auto &entry : m_pools) {
+                entry.second->remove(id);
+            }
         }
     };
 

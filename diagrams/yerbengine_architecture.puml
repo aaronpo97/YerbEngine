@@ -1,5 +1,4 @@
 @startuml
-left to right direction
 skinparam classAttributeIconSize 0
 skinparam componentStyle rectangle
 title YerbEngine - Detailed Class Diagram
@@ -116,8 +115,30 @@ package "Managers" {
       CRITICAL
     }
 
+    class QueuedSample <<internal>> {
+      + sample: AudioSample
+      + priority: PriorityLevel
+      + timestamp: Uint64
+    }
+
     class AudioSampleBuffer {
+      - {static} SAMPLE_BUFFER_CAPACITY: size_t
+      - {static} TRIM_LIMIT: size_t
+      - {static} STALE_SAMPLE_MS: Uint64
+      - {static} MIN_REPLAY_INTERVAL: Uint64
+      - m_sampleBuffer: array<QueuedSample, SAMPLE_BUFFER_CAPACITY>
+      - m_head: size_t
+      - m_tail: size_t
+      - m_size: size_t
+      - m_lastPlayTimes: unordered_map<AudioSample, Uint64>
       - m_audioManager: AudioManager&
+      - m_cooldowns: unordered_map<AudioSample, Uint64>
+      - isBufferFull() : bool
+      - pushSample(queuedSample: QueuedSample) : void
+      - removeExpiredSamples(currentTime: Uint64) : void
+      - removeAtOffset(offset: size_t) : void
+      - evictLowerPrioritySample(incoming: PriorityLevel) : bool
+      - trimLowPrioritySamples() : void
       + AudioSampleBuffer(audioManager: AudioManager&)
       + queueSample(sample: AudioSample, priority: PriorityLevel) : void
       + update() : void
@@ -147,23 +168,51 @@ package "Managers" {
     class AudioManager {
       - m_audioTracks: unordered_map<AudioTrack, Mix_Music*>
       - m_audioSamples: unordered_map<AudioSample, Mix_Chunk*>
+      - m_frequency: int
+      - m_format: Uint16
+      - m_channels: int
+      - m_chunksize: int
       - m_currentAudioTrack: AudioTrack
       - m_lastAudioTrack: AudioTrack
       - m_lastAudioSample: AudioSample
+      - m_audioTrackPaused: bool
       - m_tracksMuted: bool
       - m_samplesMuted: bool
+      - m_savedTrackVolume: int
+      - m_savedSampleVolumes: map<AudioSample, int>
+      - loadTrack(track: AudioTrack, filepath: Path) : void
+      - loadSample(sample: AudioSample, filepath: Path) : void
+      - cleanup() : void
       + AudioManager()
       + AudioManager(frequency: int, format: Uint16, channels: int, chunksize: int)
+      + ~AudioManager()
+      + {static} MAX_SAMPLES_PER_FRAME: size_t
+      + {static} DEFAULT_SAMPLE_VOLUME: int
+      + {static} DEFAULT_TRACK_VOLUME: int
       + loadAllAudio() : void
       + playTrack(track: AudioTrack, loops: int) : void
       + playSample(sample: AudioSample, loops: int) : void
       + stopTrack() : void
+      + pauseTrack() : void
+      + resumeTrack() : void
+      + {static} setTrackVolume(volume: int) : void
+      + setSampleVolume(sampleTag: AudioSample, volume: int) : void
+      + getSampleVolume(sampleTag: AudioSample) : int
+      + {static} getTrackVolume() : int
       + muteTracks() : void
+      + unmuteTracks() : void
       + muteSamples() : void
+      + unmuteSamples() : void
+      + muteAll() : void
+      + unmuteAll() : void
       + toggleMuteAll() : void
+      + toggleMuteTracks() : void
+      + toggleMuteSamples() : void
       + getCurrentAudioTrack() : AudioTrack
       + getLastAudioTrack() : AudioTrack
       + getLastAudioSample() : AudioSample
+      + {static} isTrackPlaying() : bool
+      + {static} isTrackPaused() : bool
     }
 
     class VideoManager {
@@ -171,6 +220,10 @@ package "Managers" {
       - m_window: SDL_Window*
       - m_currentWindowSize: Vec2
       - m_config: ConfigAdapter&
+      - {static} initializeVideoSystem() : void
+      - setupRenderer() : void
+      - createRenderer() : SDL_Renderer*
+      - createWindow() : SDL_Window*
       + VideoManager(config: ConfigAdapter&)
       + ~VideoManager()
       + getWindowSize() : Vec2
@@ -178,6 +231,7 @@ package "Managers" {
       + getRenderer() : SDL_Renderer*
       + getWindow() : SDL_Window*
       + cleanup() : void
+      + {static} isWebCanvasEnabled() : bool
     }
   }
 }
@@ -186,10 +240,10 @@ package "Managers" {
 package "Configuration" {
   class ConfigDictionary {
     - m_configuration: unordered_map<string, ConfigValue>
-    + set(key: string, value: ConfigValue) : void
-    + get(key: string) : optional<ConfigValue>
+    + set<T>(key: string, value: T) : void
+    + get<T>(key: string) : optional<T>
     + contains(key: string) : bool
-    + hasType(key: string) : bool
+    + hasType<T>(key: string) : bool
     + clear() : void
   }
 
@@ -218,6 +272,13 @@ package "Configuration" {
 
   class ConfigAdapter {
     - m_store: ConfigStore&
+    + {static} k(root: string, child: string) : string
+    + {static} colorOr(def: SDL_Color, store: ConfigStore&, base: string) : SDL_Color
+    + {static} floatOr(def: float, store: ConfigStore&, key: string) : float
+    + {static} intOr(def: int, store: ConfigStore&, key: string) : int
+    + {static} u64Or(def: Uint64, store: ConfigStore&, key: string) : Uint64
+    + {static} strOr(def: string, store: ConfigStore&, key: string) : string
+    + {static} vec2Or(def: Vec2, store: ConfigStore&, base: string) : Vec2
     + ConfigAdapter(store: ConfigStore&)
     + getGameConfig() : GameConfig
   }
@@ -255,14 +316,51 @@ package "ECS" {
     Default
   }
 
+  class ComponentPool<T> {
+    - m_sparse: vector<size_t>
+    - m_denseIds: vector<size_t>
+    - m_dense: vector<T>
+    + contains(id: size_t) : bool
+    + size() : size_t
+    + empty() : bool
+    + clear() : void
+    + resizeSparse(size: size_t) : void
+    + reserveDense(capacity: size_t) : void
+    + emplace(id: size_t, args...) : T&
+    + remove(id: size_t) : void
+    + get(id: size_t) : T*
+    + dense() : vector<T>&
+    + denseIds() : vector<size_t>&
+  }
+
+  class ComponentRegistry {
+    - m_transforms: ComponentPool<shared_ptr<CTransform>>
+    - m_shapes: ComponentPool<shared_ptr<CShape>>
+    - m_inputs: ComponentPool<shared_ptr<CInput>>
+    - m_lifespans: ComponentPool<shared_ptr<CLifespan>>
+    - m_effects: ComponentPool<shared_ptr<CEffects>>
+    - m_bounceTrackers: ComponentPool<shared_ptr<CBounceTracker>>
+    - m_sprites: ComponentPool<shared_ptr<CSprite>>
+    + emplace<T>(id: size_t, component: shared_ptr<T>) : shared_ptr<T>
+    + get<T>(id: size_t) : shared_ptr<T>
+    + contains<T>(id: size_t) : bool
+    + remove<T>(id: size_t) : void
+    + dense<T>() : vector<shared_ptr<T>>&
+    + denseIds<T>() : vector<size_t>&
+    + removeAllForEntity(id: size_t) : void
+  }
+
   class EntityManager {
     - m_entities: vector<shared_ptr<Entity>>
     - m_toAdd: vector<shared_ptr<Entity>>
     - m_entityMap: unordered_map<EntityTags, vector<shared_ptr<Entity>>>
     - m_totalEntities: size_t
+    - m_components: shared_ptr<ComponentRegistry>
     + addEntity(tag: EntityTags) : shared_ptr<Entity>
     + getEntities() : vector<shared_ptr<Entity>>&
     + getEntities(tag: EntityTags) : vector<shared_ptr<Entity>>&
+    + components() : ComponentRegistry&
+    + components() : ComponentRegistry const&
     + update() : void
   }
 
@@ -270,7 +368,7 @@ package "ECS" {
     - m_active: bool
     - m_id: size_t
     - m_tag: EntityTags
-    - m_components: tuple<shared_ptr<CTransform>, shared_ptr<CShape>, shared_ptr<CInput>, shared_ptr<CLifespan>, shared_ptr<CEffects>, shared_ptr<CBounceTracker>, shared_ptr<CSprite>>
+    - m_registry: weak_ptr<ComponentRegistry>
     + isActive() : bool
     + tag() : EntityTags
     + id() : size_t
@@ -282,64 +380,69 @@ package "ECS" {
     + hasComponent<T>() : bool
   }
 
-  class CTransform {
-    + topLeftCornerPos: Vec2
-    + velocity: Vec2
-    + CTransform(position: Vec2, velocity: Vec2)
-  }
+  package "Components" {
+    class CTransform {
+      + topLeftCornerPos: Vec2
+      + velocity: Vec2
+      + CTransform(position: Vec2, velocity: Vec2)
+      + CTransform()
+    }
 
-  class CShape {
-    - renderer: SDL_Renderer*
-    + rect: SDL_Rect
-    + color: SDL_Color
-    + CShape(renderer: SDL_Renderer*, height: float, width: float, color: SDL_Color)
-  }
+    class CShape {
+      - renderer: SDL_Renderer*
+      + rect: SDL_Rect
+      + color: SDL_Color
+      + CShape(renderer: SDL_Renderer*, height: float, width: float, color: SDL_Color)
+    }
 
-  class CInput {
-    + forward: bool
-    + backward: bool
-    + left: bool
-    + right: bool
-    + CInput()
-  }
+    class CInput {
+      + forward: bool
+      + backward: bool
+      + left: bool
+      + right: bool
+      + CInput()
+    }
 
-  class CLifespan {
-    + birthTime: Uint64
-    + lifespan: Uint64
-    + CLifespan()
-    + CLifespan(lifespan: Uint64)
-  }
+    class CLifespan {
+      + birthTime: Uint64
+      + lifespan: Uint64
+      + CLifespan()
+      + CLifespan(lifespan: Uint64)
+    }
 
-  enum EffectTypes {
-    Speed
-    Slowness
-  }
+    enum EffectTypes {
+      Speed
+      Slowness
+    }
 
-  class Effect {
-    + startTime: Uint64
-    + duration: Uint64
-    + type: EffectTypes
-  }
+    class Effect {
+      + startTime: Uint64
+      + duration: Uint64
+      + type: EffectTypes
+    }
 
-  class CEffects {
-    - effects: vector<Effect>
-    + addEffect(effect: Effect) : void
-    + getEffects() : vector<Effect> const&
-    + removeEffect(type: EffectTypes) : void
-    + hasEffect(type: EffectTypes) : bool
-    + clearEffects() : void
-  }
+    class CEffects {
+      - effects: vector<Effect>
+      + CEffects()
+      + addEffect(effect: Effect) : void
+      + getEffects() : vector<Effect> const&
+      + removeEffect(type: EffectTypes) : void
+      + hasEffect(type: EffectTypes) : bool
+      + clearEffects() : void
+    }
 
-  class CBounceTracker {
-    - m_bounces: int
-    + addBounce() : void
-    + getBounces() : int
-  }
+    class CBounceTracker {
+      - m_bounces: int
+      + CBounceTracker()
+      + addBounce() : void
+      + getBounces() : int
+    }
 
-  class CSprite {
-    - m_texture: SDL_Texture*
-    + CSprite(texture: SDL_Texture*)
-    + getTexture() : SDL_Texture*
+    class CSprite {
+      - m_texture: SDL_Texture*
+      + CSprite(texture: SDL_Texture*)
+      + getTexture() : SDL_Texture*
+    }
   }
 }
 
@@ -356,6 +459,7 @@ GameEngine --> Scene : manages
 Scene --> GameEngine : uses
 Scene --> Action : uses
 
+AudioSampleBuffer *-- QueuedSample : buffer
 AudioSampleBuffer --> AudioManager : uses
 
 ConfigAdapter --> ConfigStore : wraps
@@ -366,14 +470,10 @@ JsonConfigProvider ..|> IConfigProvider
 JsonConfigProvider --> ConfigDictionary : fills
 
 EntityManager --> Entity : creates/manages
+EntityManager --> ComponentRegistry : owns
 Entity --> EntityTags : tags
-Entity *-- CTransform : contains
-Entity *-- CShape : contains
-Entity *-- CInput : contains
-Entity *-- CLifespan : contains
-Entity *-- CEffects : contains
-Entity *-- CBounceTracker : contains
-Entity *-- CSprite : contains
+Entity --> ComponentRegistry : uses
+ComponentRegistry *-- ComponentPool : stores
 CEffects --> Effect : stores
 Effect --> EffectTypes : type
 
@@ -383,7 +483,7 @@ note left of GameEngine
 end note
 
 note right of EntityManager
-  Tag-based lookups and shared_ptr component storage
+  Tag-based lookups with a shared ComponentRegistry
 end note
 
 @enduml

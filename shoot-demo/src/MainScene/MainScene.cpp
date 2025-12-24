@@ -75,7 +75,7 @@ void MainScene::sDoAction(Action &action) {
     ActionState const &actionState      = action.getState();
     AudioSampleBuffer  &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
-    auto const &cInput = m_player->getComponent<CInput>();
+    auto const &cInput = m_player->getComponent<Components::CInput>();
 
     if (cInput == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -170,9 +170,9 @@ void MainScene::renderText() const {
     TextHelpers::renderLineOfText(renderer, fontMd, timeText, plainTextColor,
                                   timePos);
 
-    auto const cEffects = m_player->getComponent<CEffects>();
+    auto const cEffects = m_player->getComponent<Components::CEffects>();
 
-    if (cEffects->hasEffect(Speed)) {
+    if (cEffects->hasEffect(Components::EffectTypes::Speed)) {
         SDL_Color constexpr speedBoostColor = {0, 255, 0, 255};
         std::string const speedBoostText    = "Speed Boost Active!";
         Vec2 constexpr speedBoostPos{10, 120};
@@ -180,7 +180,7 @@ void MainScene::renderText() const {
                                       speedBoostColor, speedBoostPos);
     }
 
-    if (cEffects->hasEffect(Slowness)) {
+    if (cEffects->hasEffect(Components::EffectTypes::Slowness)) {
         constexpr SDL_Color slownessColor = {255, 0, 0, 255};
         std::string const   slownessText  = "Slowness Active!";
         Vec2 constexpr slownessPos{10, 120};
@@ -199,8 +199,8 @@ void MainScene::sRender() {
     }
 
     for (auto const &entity : m_entities.getEntities()) {
-        auto const &cShape     = entity->getComponent<CShape>();
-        auto const &cTransform = entity->getComponent<CTransform>();
+        auto const &cShape     = entity->getComponent<Components::CShape>();
+        auto const &cTransform = entity->getComponent<Components::CTransform>();
 
         if (cShape == nullptr) {
             continue;
@@ -213,14 +213,14 @@ void MainScene::sRender() {
         rect.y = static_cast<int>(pos.y());
 
         // If there's no sprite, render a plain box
-        if (!entity->hasComponent<CSprite>()) {
+        if (!entity->hasComponent<Components::CSprite>()) {
             SDL_SetRenderDrawColor(renderer, cShape->color.r, cShape->color.g,
                                    cShape->color.b, cShape->color.a);
             SDL_RenderFillRect(renderer, &rect);
             continue; // continue on, render the next entity
         }
 
-        auto const  &cSprite = entity->getComponent<CSprite>();
+        auto const  &cSprite = entity->getComponent<Components::CSprite>();
         SDL_Texture *texture = cSprite->getTexture();
         // ensure that the texture is not a nullptr
         if (!texture) {
@@ -302,9 +302,10 @@ void MainScene::sSpawner() {
         m_spawner.m_config.getSlownessEffectConfig();
     ItemConfig const &itemCfg = m_spawner.m_config.getItemConfig();
 
-    auto const &cEffects = m_player->getComponent<CEffects>();
+    auto const &cEffects = m_player->getComponent<Components::CEffects>();
     bool const  hasSpeedBasedEffect =
-        cEffects->hasEffect(Speed) || cEffects->hasEffect(Slowness);
+        cEffects->hasEffect(Components::EffectTypes::Speed) ||
+        cEffects->hasEffect(Components::EffectTypes::Slowness);
 
     std::uniform_int_distribution<unsigned int> distribution(0, 100);
 
@@ -338,8 +339,8 @@ void MainScene::sSpawner() {
 }
 
 void MainScene::sEffects() const {
-    auto const               &cEffects = m_player->getComponent<CEffects>();
-    std::vector<Effect> const effects  = cEffects->getEffects();
+    auto const               &cEffects = m_player->getComponent<Components::CEffects>();
+    std::vector<Components::Effect> const effects  = cEffects->getEffects();
     if (effects.empty()) {
         return;
     }
@@ -384,9 +385,9 @@ void MainScene::sLifespan() {
             continue;
         }
 
-        auto const &cLifespan = entity->getComponent<CLifespan>();
+        auto const &cLifespan = entity->getComponent<Components::CLifespan>();
 
-        auto const &cShape = entity->getComponent<CShape>();
+        auto const &cShape = entity->getComponent<Components::CShape>();
         if (cLifespan == nullptr) {
             SDL_LogError(
                 SDL_LOG_CATEGORY_ERROR,

@@ -13,10 +13,10 @@ namespace YerbEngine {
         std::bitset<4> detectOutOfBounds(std::shared_ptr<Entity> const &entity,
                                          Vec2 const &window_size) {
 
-            std::shared_ptr<CTransform> const &cTransform =
-                entity->getComponent<CTransform>();
-            std::shared_ptr<CShape> const &cShape =
-                entity->getComponent<CShape>();
+            std::shared_ptr<Components::CTransform> const &cTransform =
+                entity->getComponent<Components::CTransform>();
+            std::shared_ptr<Components::CShape> const &cShape =
+                entity->getComponent<Components::CShape>();
 
             if (!cTransform || !cShape) {
                 SDL_LogError(
@@ -51,8 +51,8 @@ namespace YerbEngine {
         Vec2 calculateOverlap(std::shared_ptr<Entity> const &entityA,
                               std::shared_ptr<Entity> const &entityB) {
 
-            auto const &cShapeA = entityA->getComponent<CShape>();
-            auto const &cShapeB = entityB->getComponent<CShape>();
+            auto const &cShapeA = entityA->getComponent<Components::CShape>();
+            auto const &cShapeB = entityB->getComponent<Components::CShape>();
 
             if (!cShapeA) {
                 SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
