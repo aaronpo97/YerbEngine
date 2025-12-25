@@ -25,7 +25,7 @@ namespace YerbEngine {
         }
     }
 
-    void TextureManager::registerTexture(std::string_view name,
+    void TextureManager::registerTexture(std::string_view             name,
                                          std::filesystem::path const &path) {
         if (name.empty()) {
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,

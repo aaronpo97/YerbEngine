@@ -10,7 +10,7 @@ namespace YerbEngine {
 
       public:
         virtual ~IConfigProvider() = default;
-        
+
         virtual ConfigValue getKey(std::string const &name) const = 0;
         virtual bool        hasKey(std::string const &name) const = 0;
     };
@@ -20,8 +20,6 @@ namespace YerbEngine {
 
         void loadJsonIntoDict(nlohmann::json const &json,
                               std::string const    &prefix);
-
-        
 
       public:
         explicit JsonConfigProvider(std::filesystem::path configPath);

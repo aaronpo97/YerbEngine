@@ -24,13 +24,14 @@ namespace YerbEngine {
         std::string                                   m_currentSceneName;
         bool                                          m_isRunning = false;
 
-        std::unique_ptr<FontManager>      m_fontManager;
-        std::unique_ptr<AudioManager>     m_audioManager;
-        std::unique_ptr<TextureManager>   m_textureManager;
+        std::unique_ptr<FontManager>       m_fontManager;
+        std::unique_ptr<AudioManager>      m_audioManager;
+        std::unique_ptr<TextureManager>    m_textureManager;
         std::unique_ptr<AudioSampleBuffer> m_audioSampleBuffer;
-        std::unique_ptr<VideoManager>     m_videoManager;
+        std::unique_ptr<VideoManager>      m_videoManager;
         std::unique_ptr<ConfigStore> m_configStore; // default engine config
-        std::unique_ptr<ConfigAdapter> m_configAdapter; // default engine adapter
+        std::unique_ptr<ConfigAdapter>
+            m_configAdapter; // default engine adapter
         std::map<std::string, std::unique_ptr<ConfigStore>>   m_namedStores;
         std::map<std::string, std::unique_ptr<ConfigAdapter>> m_namedAdapters;
 

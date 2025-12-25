@@ -180,8 +180,8 @@ BOOST_AUTO_TEST_CASE(test_entity_set_and_get_component) {
     BOOST_CHECK(entity->getComponent<Components::CTransform>() == nullptr);
 
     // Add a transform component
-    auto transform =
-        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+    auto transform = std::make_shared<Components::CTransform>(
+        Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     // Now component should exist
@@ -221,8 +221,8 @@ BOOST_AUTO_TEST_CASE(test_entity_remove_component) {
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    auto transform =
-        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+    auto transform = std::make_shared<Components::CTransform>(
+        Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     BOOST_CHECK(entity->hasComponent<Components::CTransform>());
@@ -239,8 +239,8 @@ BOOST_AUTO_TEST_CASE(test_entity_multiple_components) {
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    auto transform =
-        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+    auto transform = std::make_shared<Components::CTransform>(
+        Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     auto input    = std::make_shared<Components::CInput>();
     auto lifespan = std::make_shared<Components::CLifespan>(60);
 
@@ -266,8 +266,8 @@ BOOST_AUTO_TEST_CASE(test_entity_component_modification) {
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    auto transform =
-        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+    auto transform = std::make_shared<Components::CTransform>(
+        Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     // Modify the component through the entity
@@ -335,8 +335,8 @@ BOOST_AUTO_TEST_CASE(test_entity_components_lifecycle) {
     EntityManager manager;
 
     auto enemy = manager.addEntity(EntityTags::Enemy);
-    enemy->setComponent(
-        std::make_shared<Components::CTransform>(Vec2{50.0f, 50.0f}, Vec2{1.0f, 1.0f}));
+    enemy->setComponent(std::make_shared<Components::CTransform>(
+        Vec2{50.0f, 50.0f}, Vec2{1.0f, 1.0f}));
     enemy->setComponent(std::make_shared<Components::CLifespan>(120));
 
     manager.update();

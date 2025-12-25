@@ -16,16 +16,16 @@ namespace {
 } // namespace
 
 struct TextureManagerTestFixture {
-    SDL_Surface                         *surface{nullptr};
-    SDL_Renderer                        *renderer{nullptr};
-    std::unique_ptr<TextureManager>      manager;
+    SDL_Surface                    *surface{nullptr};
+    SDL_Renderer                   *renderer{nullptr};
+    std::unique_ptr<TextureManager> manager;
 
     TextureManagerTestFixture() {
         SDL_SetHint(SDL_HINT_VIDEODRIVER, "dummy");
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
         BOOST_REQUIRE_EQUAL(SDL_Init(SDL_INIT_VIDEO), 0);
-        surface = SDL_CreateRGBSurfaceWithFormat(
-            0, 32, 32, 32, SDL_PIXELFORMAT_RGBA32);
+        surface = SDL_CreateRGBSurfaceWithFormat(0, 32, 32, 32,
+                                                 SDL_PIXELFORMAT_RGBA32);
         BOOST_REQUIRE(surface != nullptr);
 
         renderer = SDL_CreateSoftwareRenderer(surface);

@@ -42,7 +42,8 @@ namespace YerbEngine {
         }
 
         template <typename... Args>
-        T &emplace(size_t id, Args &&...args) {
+        T &emplace(size_t id,
+                   Args &&...args) {
             if (id >= m_sparse.size()) {
                 m_sparse.resize(id + 1, npos);
             }
@@ -65,9 +66,9 @@ namespace YerbEngine {
             size_t const last = m_dense.size() - 1;
 
             if (idx != last) {
-                m_dense[idx]   = std::move(m_dense[last]);
-                size_t movedId = m_denseIds[last];
-                m_denseIds[idx] = movedId;
+                m_dense[idx]      = std::move(m_dense[last]);
+                size_t movedId    = m_denseIds[last];
+                m_denseIds[idx]   = movedId;
                 m_sparse[movedId] = idx;
             }
 
@@ -76,14 +77,16 @@ namespace YerbEngine {
             m_sparse[id] = npos;
         }
 
-        T       *get(size_t id) { return contains(id) ? &m_dense[m_sparse[id]] : nullptr; }
+        T *get(size_t id) {
+            return contains(id) ? &m_dense[m_sparse[id]] : nullptr;
+        }
         T const *get(size_t id) const {
             return contains(id) ? &m_dense[m_sparse[id]] : nullptr;
         }
 
-        std::vector<T>      &dense() { return m_dense; }
-        std::vector<T> const &dense() const { return m_dense; }
-        std::vector<size_t>      &denseIds() { return m_denseIds; }
+        std::vector<T>            &dense() { return m_dense; }
+        std::vector<T> const      &dense() const { return m_dense; }
+        std::vector<size_t>       &denseIds() { return m_denseIds; }
         std::vector<size_t> const &denseIds() const { return m_denseIds; }
     };
 

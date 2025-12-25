@@ -148,19 +148,19 @@ void HowToPlayScene::sDoAction(Action &action) {
 
     if (action.getName() == "SELECT") {
         audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
-                                     PriorityLevel::BACKGROUND);
+                                      PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
 
     if (action.getName() == "GO_BACK") {
         audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
-                                     PriorityLevel::BACKGROUND);
+                                      PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
 }
 
 void HowToPlayScene::sAudio() {
-    AudioManager     &audioManager     = m_gameEngine->getAudioManager();
+    AudioManager      &audioManager      = m_gameEngine->getAudioManager();
     AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
     if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
         audioManager.playTrack(AudioTrack::MAIN_MENU, -1);

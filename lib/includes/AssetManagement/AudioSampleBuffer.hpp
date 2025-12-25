@@ -30,21 +30,21 @@ namespace YerbEngine {
         static constexpr Uint64 STALE_SAMPLE_MS        = 500;
 
         std::array<QueuedSample, SAMPLE_BUFFER_CAPACITY> m_sampleBuffer{};
-        size_t                                            m_head = 0;
-        size_t                                            m_tail = 0;
-        size_t                                            m_size = 0;
-        std::unordered_map<AudioSample, Uint64> m_lastPlayTimes;
-        AudioManager                           &m_audioManager;
+        size_t                                           m_head = 0;
+        size_t                                           m_tail = 0;
+        size_t                                           m_size = 0;
+        std::unordered_map<AudioSample, Uint64>          m_lastPlayTimes;
+        AudioManager                                    &m_audioManager;
 
         static constexpr Uint64                 MIN_REPLAY_INTERVAL = 50;
         std::unordered_map<AudioSample, Uint64> m_cooldowns;
 
         [[nodiscard]] bool isBufferFull() const;
-        void                        pushSample(QueuedSample const &queuedSample);
-        void                        removeExpiredSamples(Uint64 currentTime);
-        void                        removeAtOffset(size_t offset);
-        [[nodiscard]] bool          evictLowerPrioritySample(PriorityLevel incoming);
-        void                        trimLowPrioritySamples();
+        void               pushSample(QueuedSample const &queuedSample);
+        void               removeExpiredSamples(Uint64 currentTime);
+        void               removeAtOffset(size_t offset);
+        [[nodiscard]] bool evictLowerPrioritySample(PriorityLevel incoming);
+        void               trimLowPrioritySamples();
 
       public:
         explicit AudioSampleBuffer(AudioManager &audioManager);

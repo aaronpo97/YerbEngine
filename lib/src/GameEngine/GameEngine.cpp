@@ -13,20 +13,20 @@ namespace YerbEngine {
                               Path const &fallback,
                               char const *label) {
             std::string const preferredStr = preferred.string();
-            if (!preferredStr.empty() &&
-                std::filesystem::exists(preferred)) {
+            if (!preferredStr.empty() && std::filesystem::exists(preferred)) {
                 return preferred;
             }
 
             std::string const fallbackStr = fallback.string();
-            bool const         hasFallback =
-                preferred != fallback && !fallbackStr.empty() &&
-                std::filesystem::exists(fallback);
+            bool const        hasFallback = preferred != fallback &&
+                                     !fallbackStr.empty() &&
+                                     std::filesystem::exists(fallback);
 
             if (hasFallback) {
-                SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM,
-                            "%s directory not found at '%s'. Falling back to '%s'.",
-                            label, preferredStr.c_str(), fallbackStr.c_str());
+                SDL_LogWarn(
+                    SDL_LOG_CATEGORY_SYSTEM,
+                    "%s directory not found at '%s'. Falling back to '%s'.",
+                    label, preferredStr.c_str(), fallbackStr.c_str());
                 return fallback;
             }
 
@@ -41,7 +41,8 @@ namespace YerbEngine {
         }
     } // namespace
 
-    GameEngine::GameEngine(Path assetsDirPath, Path configDirPath) {
+    GameEngine::GameEngine(Path assetsDirPath,
+                           Path configDirPath) {
         /*
          * Set up the paths for the assets and configuration files.
          *

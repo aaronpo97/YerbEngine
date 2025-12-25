@@ -4,8 +4,8 @@
 #include "./Components.hpp"
 
 #include <memory>
-#include <typeindex>
 #include <type_traits>
+#include <typeindex>
 #include <unordered_map>
 
 namespace YerbEngine {
@@ -18,7 +18,7 @@ namespace YerbEngine {
     class ComponentRegistry {
 
         struct IPool {
-            virtual ~IPool() = default;
+            virtual ~IPool()               = default;
             virtual void remove(size_t id) = 0;
         };
 
@@ -35,8 +35,8 @@ namespace YerbEngine {
             auto id = std::type_index(typeid(T));
             auto it = m_pools.find(id);
             if (it == m_pools.end()) {
-                auto storage = std::make_unique<Pool<T>>();
-                auto *ptr = storage.get();
+                auto  storage = std::make_unique<Pool<T>>();
+                auto *ptr     = storage.get();
                 m_pools.emplace(id, std::move(storage));
                 return *ptr;
             }
@@ -57,7 +57,7 @@ namespace YerbEngine {
         ~ComponentRegistry() = default;
 
         template <typename T>
-        std::shared_ptr<T> emplace(size_t id,
+        std::shared_ptr<T> emplace(size_t             id,
                                    std::shared_ptr<T> component) {
             return pool<T>().data.emplace(id, std::move(component));
         }
@@ -99,7 +99,7 @@ namespace YerbEngine {
 
         template <typename T>
         std::vector<std::shared_ptr<T>> const &dense() const {
-            static const std::vector<std::shared_ptr<T>> empty;
+            static std::vector<std::shared_ptr<T>> const empty;
             auto const *poolPtr = poolIfExists<T>();
             return poolPtr ? poolPtr->data.dense() : empty;
         }
@@ -111,8 +111,8 @@ namespace YerbEngine {
 
         template <typename T>
         std::vector<size_t> const &denseIds() const {
-            static const std::vector<size_t> empty;
-            auto const *poolPtr = poolIfExists<T>();
+            static std::vector<size_t> const empty;
+            auto const                      *poolPtr = poolIfExists<T>();
             return poolPtr ? poolPtr->data.denseIds() : empty;
         }
 

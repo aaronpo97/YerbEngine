@@ -56,15 +56,14 @@ namespace YerbEngine {
         removeExpiredSamples(currentTime);
 
         while (m_size > 0 && soundsPlayedThisFrame < MAX_SOUNDS_PER_FRAME) {
-            bool        foundBest  = false;
-            size_t      bestOffset = 0;
+            bool         foundBest  = false;
+            size_t       bestOffset = 0;
             QueuedSample bestSample{};
 
             size_t index = m_head;
             for (size_t offset = 0; offset < m_size; ++offset) {
                 QueuedSample const &candidate = m_sampleBuffer[index];
-                if (!foundBest ||
-                    candidate.priority > bestSample.priority ||
+                if (!foundBest || candidate.priority > bestSample.priority ||
                     (candidate.priority == bestSample.priority &&
                      candidate.timestamp < bestSample.timestamp)) {
                     bestOffset = offset;
@@ -93,7 +92,7 @@ namespace YerbEngine {
 
     void AudioSampleBuffer::pushSample(QueuedSample const &queuedSample) {
         m_sampleBuffer[m_tail] = queuedSample;
-        m_tail = (m_tail + 1) % SAMPLE_BUFFER_CAPACITY;
+        m_tail                 = (m_tail + 1) % SAMPLE_BUFFER_CAPACITY;
         if (m_size < SAMPLE_BUFFER_CAPACITY) {
             m_size += 1;
         } else {
@@ -150,8 +149,8 @@ namespace YerbEngine {
         m_size         = newSize;
     }
 
-    bool AudioSampleBuffer::evictLowerPrioritySample(
-        PriorityLevel const incoming) {
+    bool
+    AudioSampleBuffer::evictLowerPrioritySample(PriorityLevel const incoming) {
         bool   removed = false;
         size_t index   = m_head;
 
