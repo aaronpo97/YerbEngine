@@ -99,16 +99,16 @@ namespace MovementHelpers {
 
         velocity = Vec2{0, 0};
 
-        if (entityCInput->forward) {
+        if (entityCInput->directions[Components::CInput::Forward]) {
             velocity.setY(-1);
         }
-        if (entityCInput->backward) {
+        if (entityCInput->directions[Components::CInput::Backward]) {
             velocity.setY(1);
         }
-        if (entityCInput->left) {
+        if (entityCInput->directions[Components::CInput::Left]) {
             velocity.setX(-1);
         }
-        if (entityCInput->right) {
+        if (entityCInput->directions[Components::CInput::Right]) {
             velocity.setX(1);
         }
 
