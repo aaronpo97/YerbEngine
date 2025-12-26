@@ -1,7 +1,6 @@
 #pragma once
 #include <Configuration/ConfigStore.hpp>
 #include <Configuration/ConfigTypes.hpp>
-#include <Configuration/ConfigTypes.hpp>
 
 #include <Helpers/Vec2.hpp>
 #include <SDL.h>
@@ -93,10 +92,9 @@ namespace YerbEngine {
             cfg.fontSizeMd = intOr(48, m_store, "engine.fonts.sizes.md");
             cfg.fontSizeLg = intOr(68, m_store, "engine.fonts.sizes.lg");
 
-            
             // Gameplay-driven, stays under demo config
             cfg.spawnInterval = u64Or(500, m_store, "gameConfig.spawnInterval");
-            
+
             return cfg;
         }
     };

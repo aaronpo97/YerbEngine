@@ -2,10 +2,12 @@
 
 namespace YerbEngine {
 
-    Entity::Entity(size_t const     id,
-                   EntityTags const tag)
+    Entity::Entity(size_t const                       id,
+                   EntityTags const                   tag,
+                   std::shared_ptr<ComponentRegistry> registry)
         : m_id(id),
-          m_tag(tag) {}
+          m_tag(tag),
+          m_registry(std::move(registry)) {}
 
     bool Entity::isActive() const { return m_active; }
 
@@ -16,9 +18,10 @@ namespace YerbEngine {
     void Entity::destroy() { m_active = false; }
 
     Vec2 Entity::getCenterPos() const {
-        std::shared_ptr<CTransform> const &cTransform =
-            getComponent<CTransform>();
-        std::shared_ptr<CShape> const &cShape = getComponent<CShape>();
+        std::shared_ptr<Components::CTransform> const &cTransform =
+            getComponent<Components::CTransform>();
+        std::shared_ptr<Components::CShape> const &cShape =
+            getComponent<Components::CShape>();
 
         if (cTransform == nullptr || cShape == nullptr) {
             SDL_LogError(

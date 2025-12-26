@@ -19,7 +19,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         int const                       score;
         std::function<void(int)> const &setScore;
         std::function<void()> const     decrementLives;
-        AudioSampleQueue               &audioSampleManager;
+        AudioSampleBuffer              &audioSampleManager;
         Vec2 const                      windowSize;
     };
 

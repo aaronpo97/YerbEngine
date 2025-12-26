@@ -9,7 +9,7 @@
     "fontSizeLg" : 68
   },
   "playerConfig": {
-    "baseSpeed": 9.0,
+    "baseSpeed": 6.0,
     "speedBoostMultiplier": 2.0,
     "slownessMultiplier": 0.5,
     "shape": { "height": 50, "width": 50, "color": { "r": 65, "g": 105, "b": 225, "a": 255 } }
@@ -17,25 +17,25 @@
   "itemConfig": {
     "spawnPercentage": 20,
     "lifespan": 10000,
-    "speed": 2.0,
+    "speed": 1.0,
     "shape": { "height": 40, "width": 40, "color": { "r": 218, "g": 165, "b": 32, "a": 255 } }
   },
   "enemyConfig": {
     "spawnPercentage": 60,
     "lifespan": 30000,
-    "speed": 3.5,
+    "speed": 1.5,
     "shape": { "height": 30, "width": 30, "color": { "r": 220, "g": 20, "b": 60, "a": 255 } }
   },
   "speedEffectConfig": {
     "spawnPercentage": 15,
     "lifespan": 9000,
-    "speed": 2.0,
-    "shape": { "height": 25, "width": 25, "color": { "r": 50, "g": 205, "b": 50, "a": 255 } }
+    "speed": 1.0,
+    "shape": { "height": 30, "width": 20, "color": { "r": 50, "g": 205, "b": 50, "a": 255 } }
   },
   "slownessEffectConfig": {
     "spawnPercentage": 30,
     "lifespan": 10000,
-    "speed": 2.0,
+    "speed": 1.0,
     "shape": { "height": 25, "width": 25, "color": { "r": 147, "g": 112, "b": 219, "a": 255 } }
   },
   "bulletConfig": {

@@ -19,16 +19,17 @@ int main(int    argc,
     std::filesystem::path const assetsDir = "assets";
     std::filesystem::path const configDir = "config";
 
-    const auto engine = std::make_unique<GameEngine>(assetsDir, configDir);
+    auto const engine = std::make_unique<GameEngine>(assetsDir, configDir);
 
     std::filesystem::path const demoConfigPath = configDir / "config.json";
     if (std::filesystem::exists(demoConfigPath)) {
         auto demoConfig = YerbEngine::ConfigStore::fromJsonFile(demoConfigPath);
         engine->AddConfig("demo", std::move(demoConfig));
     } else {
-        SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM,
-                    "Demo config file missing at %s; using engine defaults only",
-                    demoConfigPath.string().c_str());
+        SDL_LogWarn(
+            SDL_LOG_CATEGORY_SYSTEM,
+            "Demo config file missing at %s; using engine defaults only",
+            demoConfigPath.string().c_str());
     }
 
     // Register demo scenes
