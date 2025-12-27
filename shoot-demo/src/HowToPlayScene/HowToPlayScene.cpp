@@ -1,3 +1,4 @@
+#include <Configuration/AudioIds.hpp>
 #include <HowToPlayScene/HowToPlayScene.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <SDL.h>
@@ -147,13 +148,13 @@ void HowToPlayScene::sDoAction(Action &action) {
     }
 
     if (action.getName() == "SELECT") {
-        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
                                       PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
 
     if (action.getName() == "GO_BACK") {
-        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
                                       PriorityLevel::BACKGROUND);
         m_endTriggered = true;
     }
@@ -162,8 +163,9 @@ void HowToPlayScene::sDoAction(Action &action) {
 void HowToPlayScene::sAudio() {
     AudioManager      &audioManager      = m_gameEngine->getAudioManager();
     AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-    if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
-        audioManager.playTrack(AudioTrack::MAIN_MENU, -1);
+    if (audioManager.getCurrentAudioTrack() !=
+        std::string(DemoAudio::TRACK_MAIN_MENU)) {
+        audioManager.playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
     }
 
     audioSampleBuffer.update();

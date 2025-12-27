@@ -2,14 +2,11 @@
 
 namespace YerbEngine {
 
-    AudioManager::AudioManager(int const    frequency,
-                               Uint16 const format,
-                               int const    channels,
-                               int const    chunksize)
-        : m_frequency(frequency),
-          m_format(format),
-          m_channels(channels),
-          m_chunksize(chunksize) {
+    AudioManager::AudioManager(AudioInitOptions options)
+        : m_frequency(options.frequency),
+          m_format(options.format),
+          m_channels(options.channels),
+          m_chunksize(options.chunksize) {
         if (SDL_Init(SDL_INIT_AUDIO) != 0) {
             throw std::runtime_error("SDL_Init failed");
         }
@@ -20,80 +17,87 @@ namespace YerbEngine {
             throw std::runtime_error("Mix_OpenAudio failed");
         }
 
-        loadAllAudio();
+        loadTracks(options.tracks);
+        loadSamples(options.samples);
         setTrackVolume(DEFAULT_TRACK_VOLUME);
     }
 
     AudioManager::~AudioManager() { cleanup(); }
 
-    void AudioManager::loadAllAudio() {
-        loadTrack(AudioTrack::MAIN_MENU, AudioPath::MAIN_MENU);
-        loadTrack(AudioTrack::PLAY, AudioPath::PLAY);
-
-        loadSample(AudioSample::ITEM_ACQUIRED, AudioPath::ITEM_ACQUIRED);
-        loadSample(AudioSample::ENEMY_COLLISION, AudioPath::ENEMY_COLLISION);
-        loadSample(AudioSample::SPEED_BOOST, AudioPath::SPEED_BOOST);
-        loadSample(AudioSample::SLOWNESS_DEBUFF, AudioPath::SLOWNESS_DEBUFF);
-        loadSample(AudioSample::MENU_MOVE, AudioPath::MENU_MOVE);
-        loadSample(AudioSample::MENU_SELECT, AudioPath::MENU_SELECT);
-        loadSample(AudioSample::SHOOT, AudioPath::SHOOT);
-        loadSample(AudioSample::BULLET_HIT_01, AudioPath::BULLET_HIT_01);
-        loadSample(AudioSample::BULLET_HIT_02, AudioPath::BULLET_HIT_02);
+    void AudioManager::loadTracks(
+        std::vector<AudioTrackDefinition> const &tracks) {
+        for (auto const &track : tracks) {
+            loadTrack(track.id, track.filepath);
+        }
     }
 
-    void AudioManager::loadTrack(AudioTrack const track,
-                                 Path const      &filepath) {
-        m_audioTracks[track] = Mix_LoadMUS(filepath.c_str());
-        if (!m_audioTracks[track]) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "Mix_LoadMUS error: %s",
+    void AudioManager::loadSamples(
+        std::vector<AudioSampleDefinition> const &samples) {
+        for (auto const &sample : samples) {
+            loadSample(sample.id, sample.filepath, sample.defaultVolume);
+        }
+    }
+
+    void AudioManager::loadTrack(AudioTrackId const track,
+                                 Path const        &filepath) {
+        AudioTrackId const key(track);
+        m_audioTracks[key] = Mix_LoadMUS(filepath.c_str());
+        if (!m_audioTracks[key]) {
+            SDL_LogError(SDL_LOG_CATEGORY_AUDIO,
+                         "Mix_LoadMUS error for '%s': %s", key.c_str(),
                          Mix_GetError());
             cleanup();
             throw std::runtime_error("Mix_LoadMUS error");
         }
     }
 
-    void AudioManager::loadSample(AudioSample const sample,
-                                  Path const       &filepath) {
-        m_audioSamples[sample] = Mix_LoadWAV(filepath.c_str());
-        if (!m_audioSamples[sample]) {
-            SDL_LogError(SDL_LOG_CATEGORY_AUDIO, "Mix_LoadWAV error: %s",
+    void AudioManager::loadSample(AudioSampleId const sample,
+                                  Path const         &filepath,
+                                  int const           defaultVolume) {
+        AudioSampleId const key(sample);
+        m_audioSamples[key] = Mix_LoadWAV(filepath.c_str());
+        if (!m_audioSamples[key]) {
+            SDL_LogError(SDL_LOG_CATEGORY_AUDIO,
+                         "Mix_LoadWAV error for '%s': %s", key.c_str(),
                          Mix_GetError());
             cleanup();
             throw std::runtime_error("Mix_LoadWAV error");
         }
 
-        setSampleVolume(sample, sample == AudioSample::BULLET_HIT_01
-                                    ? DEFAULT_SAMPLE_VOLUME / 2
-                                    : DEFAULT_SAMPLE_VOLUME);
+        setSampleVolume(key, defaultVolume);
     }
 
-    void AudioManager::playTrack(AudioTrack const track,
-                                 int const        loops) {
-        if (track == m_currentAudioTrack) {
+    void AudioManager::playTrack(std::string_view const track,
+                                 int const              loops) {
+        AudioTrackId const key(track);
+        if (key == m_currentAudioTrack) {
             SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO,
-                        "Track %d is already playing, ignoring request.",
-                        static_cast<int>(track));
+                        "Track '%s' is already playing, ignoring request.",
+                        key.c_str());
             return;
         }
 
         m_lastAudioTrack = m_currentAudioTrack;
-        if (m_audioTracks[track]) {
-            m_currentAudioTrack = track;
-            Mix_PlayMusic(m_audioTracks[track], loops);
+        auto const it = m_audioTracks.find(key);
+        if (it != m_audioTracks.end() && it->second != nullptr) {
+            m_currentAudioTrack = key;
+            Mix_PlayMusic(it->second, loops);
         }
     }
 
-    void AudioManager::playSample(AudioSample const sample,
-                                  int const         loops) {
-        if (m_audioSamples[sample]) {
-            Mix_PlayChannel(-1, m_audioSamples[sample], loops);
-            m_lastAudioSample = sample;
+    void AudioManager::playSample(std::string_view const sample,
+                                  int const              loops) {
+        AudioSampleId const key(sample);
+        auto const          it = m_audioSamples.find(key);
+        if (it != m_audioSamples.end() && it->second != nullptr) {
+            Mix_PlayChannel(-1, it->second, loops);
+            m_lastAudioSample = key;
         }
     }
 
     void AudioManager::stopTrack() {
         m_lastAudioTrack    = m_currentAudioTrack;
-        m_currentAudioTrack = AudioTrack::NONE;
+        m_currentAudioTrack = {};
         Mix_HaltMusic();
     }
 
@@ -119,8 +123,8 @@ namespace YerbEngine {
         Mix_VolumeMusic(volume);
     }
 
-    void AudioManager::setSampleVolume(AudioSample const sampleTag,
-                                       int               volume) {
+    void AudioManager::setSampleVolume(std::string_view const sampleTag,
+                                       int                    volume) {
         if (volume > MIX_MAX_VOLUME) {
             volume = MIX_MAX_VOLUME;
         }
@@ -129,13 +133,21 @@ namespace YerbEngine {
             volume = 0;
         }
 
-        Mix_VolumeChunk(m_audioSamples[sampleTag], volume);
+        AudioSampleId const key(sampleTag);
+        if (auto const it = m_audioSamples.find(key);
+            it != m_audioSamples.end() && it->second != nullptr) {
+            Mix_VolumeChunk(it->second, volume);
+        }
     }
 
-    int AudioManager::getSampleVolume(AudioSample const sampleTag) {
-        auto const sample = m_audioSamples[sampleTag];
+    int AudioManager::getSampleVolume(std::string_view const sampleTag) {
+        AudioSampleId const key(sampleTag);
+        auto const          it = m_audioSamples.find(key);
+        if (it == m_audioSamples.end() || it->second == nullptr) {
+            return 0;
+        }
         // Use -1 to query for the current sample volume.
-        return Mix_VolumeChunk(sample, -1);
+        return Mix_VolumeChunk(it->second, -1);
     }
 
     int AudioManager::getTrackVolume() {
@@ -148,13 +160,13 @@ namespace YerbEngine {
     bool AudioManager::isTrackPaused() { return Mix_PausedMusic() == 1; }
 
     void AudioManager::cleanup() {
-        m_currentAudioTrack = AudioTrack::NONE;
-        m_lastAudioSample   = AudioSample::NONE;
+        m_currentAudioTrack = {};
+        m_lastAudioSample   = {};
 
         for (auto &[sampleTag, sample] : m_audioSamples) {
             if (sample != nullptr) {
-                SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO, "Freeing audio sample %d",
-                            sampleTag);
+                SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO,
+                            "Freeing audio sample '%s'", sampleTag.c_str());
                 Mix_FreeChunk(sample);
                 sample = nullptr;
             }
@@ -162,8 +174,8 @@ namespace YerbEngine {
 
         for (auto &[trackTag, track] : m_audioTracks) {
             if (track != nullptr) {
-                SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO, "Freeing audio track %d",
-                            trackTag);
+                SDL_LogInfo(SDL_LOG_CATEGORY_AUDIO,
+                            "Freeing audio track '%s'", trackTag.c_str());
                 Mix_FreeMusic(track);
                 track = nullptr;
             }
@@ -177,15 +189,15 @@ namespace YerbEngine {
                     "AudioManager cleaned up successfully!");
     }
 
-    AudioTrack AudioManager::getCurrentAudioTrack() const {
+    AudioTrackId AudioManager::getCurrentAudioTrack() const {
         return m_currentAudioTrack;
     }
 
-    AudioTrack AudioManager::getLastAudioTrack() const {
+    AudioTrackId AudioManager::getLastAudioTrack() const {
         return m_lastAudioTrack;
     }
 
-    AudioSample AudioManager::getLastAudioSample() const {
+    AudioSampleId AudioManager::getLastAudioSample() const {
         return m_lastAudioSample;
     }
 

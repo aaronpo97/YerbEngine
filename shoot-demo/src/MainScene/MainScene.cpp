@@ -1,3 +1,4 @@
+#include <Configuration/AudioIds.hpp>
 #include <filesystem>
 
 #ifdef __EMSCRIPTEN__
@@ -117,20 +118,20 @@ void MainScene::sDoAction(Action &action) {
         }
         Vec2 const mousePosition = *position;
 
-        audioSampleBuffer.queueSample(AudioSample::SHOOT,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_SHOOT,
                                       PriorityLevel::STANDARD);
         m_spawner.spawnBullets(m_player, mousePosition);
         m_lastBulletSpawnTime = currentTime;
 
         if (action.getName() == "PAUSE") {
-            audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
+            audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
                                           PriorityLevel::CRITICAL);
             m_paused = !m_paused;
         }
     }
 
     if (action.getName() == "GO_BACK") {
-        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
                                       PriorityLevel::CRITICAL);
         m_endTriggered = true;
     }
@@ -464,8 +465,9 @@ void MainScene::sAudio() {
     AudioManager      &audioManager      = m_gameEngine->getAudioManager();
     AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
-    if (audioManager.getCurrentAudioTrack() != AudioTrack::PLAY) {
-        audioManager.playTrack(AudioTrack::PLAY, -1);
+    if (audioManager.getCurrentAudioTrack() !=
+        std::string(DemoAudio::TRACK_PLAY)) {
+        audioManager.playTrack(DemoAudio::TRACK_PLAY, -1);
     }
 
     audioSampleBuffer.update();

@@ -1,4 +1,5 @@
 #include <Configuration/ConfigStore.hpp>
+#include <Configuration/AudioConfig.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <SDL_main.h>
 #include <YerbEngine.hpp>
@@ -19,7 +20,11 @@ int main(int    argc,
     std::filesystem::path const assetsDir = "assets";
     std::filesystem::path const configDir = "config";
 
-    auto const engine = std::make_unique<GameEngine>(assetsDir, configDir);
+    YerbEngine::AudioInitOptions audioOptions =
+        DemoAudio::buildAudioInitOptions(assetsDir);
+
+    auto const engine =
+        std::make_unique<GameEngine>(assetsDir, configDir, audioOptions);
 
     std::filesystem::path const demoConfigPath = configDir / "config.json";
     if (std::filesystem::exists(demoConfigPath)) {
@@ -36,6 +41,8 @@ int main(int    argc,
     std::shared_ptr<Scene> const menuScene =
         std::make_shared<MenuScene>(engine.get());
     engine->LoadScene("Menu", menuScene);
+
+    engine->getAudioSampleBuffer().setCooldowns(DemoAudio::sampleCooldowns());
 
     engine->run();
 

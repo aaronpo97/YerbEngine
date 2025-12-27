@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Enable testing
 enable_testing()
 
+# Keep runtime outputs in the top-level build directory for single-config generators.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}")
+
 include(FetchContent)
 FetchContent_Declare(
         json
@@ -20,9 +25,6 @@ set(ENGINE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/lib/includes")
 file(GLOB_RECURSE CORE_SRC_FILES 
     "${ENGINE_SRC_DIR}/*.cpp"
 )
-
-# Exclude deprecated configuration implementation from core build
-list(FILTER CORE_SRC_FILES EXCLUDE REGEX ".*/Configuration/ConfigManagerDeprecated.cpp$")
 
 add_library(yerb_engine_core STATIC ${CORE_SRC_FILES})
 
