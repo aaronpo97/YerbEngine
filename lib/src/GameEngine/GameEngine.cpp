@@ -257,7 +257,7 @@ namespace YerbEngine {
                 std::string const &actionName =
                     activeScene->getActionMap().at(event.key.keysym.sym);
                 Action action(actionName, actionState, std::nullopt);
-                activeScene->sDoAction(action);
+                activeScene->enqueueAction(std::move(action));
             }
 
             if (event.type == SDL_MOUSEBUTTONDOWN ||
@@ -286,7 +286,7 @@ namespace YerbEngine {
                                   static_cast<float>(mouseY)};
 
                 Action action(actionName, actionState, gamePosition);
-                activeScene->sDoAction(action);
+                activeScene->enqueueAction(std::move(action));
             }
 
             // Mouse motion handling
@@ -300,7 +300,7 @@ namespace YerbEngine {
                 std::string const &actionName =
                     activeScene->getActionMap().at(SDL_MOUSEMOTION);
                 Action action(actionName, ActionState::START, gamePosition);
-                activeScene->sDoAction(action);
+                activeScene->enqueueAction(std::move(action));
             }
         }
     }

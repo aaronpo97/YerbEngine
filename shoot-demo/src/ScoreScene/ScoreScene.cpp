@@ -16,6 +16,8 @@ ScoreScene::ScoreScene(GameEngine *gameEngine,
 }
 
 void ScoreScene::update() {
+    processQueuedActions();
+
     sRender();
     sAudio();
 

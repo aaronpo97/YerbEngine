@@ -45,6 +45,8 @@ MainScene::MainScene(GameEngine *gameEngine)
 }
 
 void MainScene::update() {
+    processQueuedActions();
+
     Uint64 const currentTime = SDL_GetTicks64();
     m_deltaTime = static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f;
 

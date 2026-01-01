@@ -1,8 +1,10 @@
 #pragma once
 #include <GameEngine/Action.hpp>
 #include <GameEngine/GameEngine.hpp>
+#include <GameScenes/ActionQueue.hpp>
 #include <map>
 #include <string>
+#include <utility>
 
 namespace YerbEngine {
 
@@ -18,6 +20,7 @@ namespace YerbEngine {
         bool        m_paused         = false;
         Uint64      m_SceneStartTime = 0;
         ActionMap   m_actionMap;
+        ActionQueue m_actions;
 
       public:
         explicit Scene(GameEngine *gameEngine) : m_gameEngine(gameEngine) {}
@@ -31,6 +34,10 @@ namespace YerbEngine {
 
         virtual void onSceneWindowResize() = 0;
 
+        void enqueueAction(Action action) {
+            m_actions.push(std::move(action));
+        }
+
         void registerAction(int const          inputKey,
                             std::string const &actionName) {
             m_actionMap[inputKey] = actionName;
@@ -41,6 +48,18 @@ namespace YerbEngine {
             m_SceneStartTime = startTime;
         }
         Uint64 const &getStartTime() const { return m_SceneStartTime; }
+
+      protected:
+        void processQueuedActions() {
+            if (m_actions.empty()) {
+                return;
+            }
+
+            auto actions = m_actions.drain();
+            for (auto &action : actions) {
+                sDoAction(action);
+            }
+        }
     };
 
 } // namespace YerbEngine

@@ -11,6 +11,8 @@ HowToPlayScene::HowToPlayScene(GameEngine *gameEngine) : Scene(gameEngine) {
 }
 
 void HowToPlayScene::update() {
+    processQueuedActions();
+
     sRender();
     sAudio();
 

@@ -14,6 +14,8 @@ MenuScene::MenuScene(GameEngine *gameEngine) : Scene(gameEngine) {
 }
 
 void MenuScene::update() {
+    processQueuedActions();
+
     sRender();
     sAudio();
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <Configuration/DemoConfigAdapter.hpp>
 #include <YerbEngine.hpp>
+
 using namespace YerbEngine;
 #include <random>
 
