@@ -1,7 +1,6 @@
 #pragma once
 
-#include <YerbEngine/GameEngine/GameEngine.hpp>
-#include <YerbEngine/GameScenes/Scene.hpp>
+#include <YerbEngine/YerbEngine.hpp>
 
 class ScoreScene final : public Scene {
   private:

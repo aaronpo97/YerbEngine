@@ -8,10 +8,10 @@ class Action {
   private:
     std::string         m_name;  // Action name, e.g., "SHOOT", "JUMP"
     ActionState         m_state; // State of the action
-    std::optional<Vec2> m_pos;
+    std::optional<Vec2> m_pos; // The position associated with the action, if any
 
   public:
-    Action(std::string                name,
+    Action(std::string const&              name,
            ActionState const         &state,
            std::optional<Vec2> const &pos);
 

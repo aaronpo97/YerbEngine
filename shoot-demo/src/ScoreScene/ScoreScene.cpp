@@ -1,7 +1,7 @@
-#include "demo/includes/ScoreScene/ScoreScene.hpp"
-#include "demo/includes/MainScene/MainScene.hpp"
-#include "demo/includes/MenuScene/MenuScene.hpp"
-#include <YerbEngine/Helpers/TextHelpers.hpp>
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
+#include "shoot-demo/includes/MainScene/MainScene.hpp"
+#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include <SDL.h>
 
 ScoreScene::ScoreScene(GameEngine *gameEngine, int const score)

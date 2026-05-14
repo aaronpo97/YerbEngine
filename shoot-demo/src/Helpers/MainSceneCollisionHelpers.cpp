@@ -1,7 +1,5 @@
-#include "demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
-#include <YerbEngine/EntityManagement/Entity.hpp>
-#include <YerbEngine/Helpers/CollisionHelpers.hpp>
-#include <YerbEngine/Helpers/EntityHelpers.hpp>
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/Helpers/MainSceneCollisionHelpers.hpp"
 
 #include <bitset>
 

@@ -1,7 +1,5 @@
 #pragma once
-#include <YerbEngine/AssetManagement/TextureManager.hpp>
-#include <YerbEngine/Configuration/ConfigManager.hpp>
-#include <YerbEngine/EntityManagement/EntityManager.hpp>
+#include <YerbEngine/YerbEngine.hpp>
 #include <random>
 
 class MainSceneSpawner {

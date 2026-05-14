@@ -1,7 +1,7 @@
-#include "demo/includes/MenuScene/MenuScene.hpp"
-#include "demo/includes/HowToPlayScene/HowToPlayScene.hpp"
-#include "demo/includes/MainScene/MainScene.hpp"
-#include <YerbEngine/Helpers/TextHelpers.hpp>
+#include <YerbEngine/YerbEngine.hpp>
+#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
+#include "shoot-demo/includes/HowToPlayScene/HowToPlayScene.hpp"
+#include "shoot-demo/includes/MainScene/MainScene.hpp"
 
 #include <SDL.h>
 

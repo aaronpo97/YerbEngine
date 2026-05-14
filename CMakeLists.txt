@@ -11,7 +11,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 file(GLOB_RECURSE CORE_SRC_FILES 
     "${SRC_DIR}/*.cpp"
@@ -30,21 +29,6 @@ if(APPLE)
     target_compile_options(yerb_engine_core PRIVATE -Wno-deprecated -Wno-deprecated-declarations)
 endif()
 
-
-# Demo Executable
-set(DEMO_DIR "${CMAKE_SOURCE_DIR}/demo")
-file(GLOB_RECURSE DEMO_SRC_FILES "${DEMO_DIR}/src/*.cpp")
-
-add_executable(yerb_engine ${DEMO_SRC_FILES})
-
-set_target_properties(yerb_engine PROPERTIES
-        OUTPUT_NAME "YerbEngine"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-# Link demo to core library
-target_link_libraries(yerb_engine PRIVATE yerb_engine_core)
-
 if(EMSCRIPTEN)
     message(STATUS "Configuring for Emscripten")
 
@@ -52,30 +36,11 @@ if(EMSCRIPTEN)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
-    set_target_properties(yerb_engine PROPERTIES
-        OUTPUT_NAME "YerbEngine"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    )
-
-    set_target_properties(yerb_engine PROPERTIES CMAKE_EXECUTABLE_SUFFIX ".js")
-
     target_compile_options(yerb_engine_core PUBLIC
         "-sUSE_SDL=2"
         "-sUSE_SDL_IMAGE=2"
         "-sUSE_SDL_TTF=2"
         "-sUSE_SDL_MIXER=2"
-    )
-
-    target_link_options(yerb_engine PRIVATE
-        -O3
-        -fwasm-exceptions
-        "-sUSE_SDL=2"
-        "-sUSE_SDL_IMAGE=2" "-sUSE_LIBPNG=1" "-sUSE_LIBJPEG=1" "-sSDL2_IMAGE_FORMATS=['png','jpg']"
-        "-sUSE_SDL_TTF=2" "-sUSE_FREETYPE=1"
-        "-sUSE_SDL_MIXER=2"
-        "-sALLOW_MEMORY_GROWTH=1"
-        "--preload-file=${CMAKE_SOURCE_DIR}/assets@assets"
-        "--preload-file=${CMAKE_SOURCE_DIR}/config@config"
     )
 
     # Add SDL include dirs from Emscripten
@@ -94,40 +59,36 @@ if(EMSCRIPTEN)
     endif()
 
 else()
-        message(STATUS "Configuring for native")
+    message(STATUS "Configuring for native")
 
-        find_package(SDL2       REQUIRED)
-        find_package(SDL2_image REQUIRED)
-        find_package(SDL2_ttf   REQUIRED)
-        find_package(SDL2_mixer REQUIRED)
+    find_package(SDL2       REQUIRED)
+    find_package(SDL2_image REQUIRED)
+    find_package(SDL2_ttf   REQUIRED)
+    find_package(SDL2_mixer REQUIRED)
 
-        target_link_libraries(yerb_engine_core PUBLIC
-                SDL2::SDL2
-                SDL2_image::SDL2_image
-                SDL2_ttf::SDL2_ttf
-                SDL2_mixer::SDL2_mixer
+    target_link_libraries(yerb_engine_core PUBLIC
+        SDL2::SDL2
+        SDL2_image::SDL2_image
+        SDL2_ttf::SDL2_ttf
+        SDL2_mixer::SDL2_mixer
+    )
+
+    set(OUT_DIR "${CMAKE_BINARY_DIR}")
+
+    if(NOT TARGET copy_assets_runtime)
+        add_custom_target(copy_assets_runtime ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/assets"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${OUT_DIR}/assets"
         )
+    endif()
 
-        set(OUT_DIR "${CMAKE_BINARY_DIR}")
-
-        if(NOT TARGET copy_assets_runtime)
-                add_custom_target(copy_assets_runtime ALL
-                        COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/assets"
-                        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${OUT_DIR}/assets"
-                )
-        endif()
-
-        if(NOT TARGET copy_config_runtime)
-                add_custom_target(copy_config_runtime ALL
-                        COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/config"
-                        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${OUT_DIR}/config"
-                )
-        endif()
-
-        add_dependencies(yerb_engine copy_assets_runtime copy_config_runtime)
-
-        add_custom_command(TARGET yerb_engine POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "${OUT_DIR}/assets"
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${OUT_DIR}/config"
+    if(NOT TARGET copy_config_runtime)
+        add_custom_target(copy_config_runtime ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/config"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${OUT_DIR}/config"
         )
+    endif()
 endif()
+
+add_subdirectory(shoot-demo)
+add_subdirectory(pong-demo)
