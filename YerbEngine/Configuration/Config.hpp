@@ -1,7 +1,7 @@
 #pragma once
 
-#include <YerbEngine/Helpers/Vec2.hpp>
 #include <SDL.h>
+#include <YerbEngine/Helpers/Vec2.hpp>
 #include <filesystem>
 
 class ShapeConfig {

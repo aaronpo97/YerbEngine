@@ -1,5 +1,5 @@
-#include <YerbEngine/YerbEngine.hpp>
 #include "shoot-demo/includes/MainScene/MainSceneSpawner.hpp"
+#include <YerbEngine/YerbEngine.hpp>
 
 MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
                                    ConfigManager  &configManager,
@@ -203,22 +203,22 @@ void MainSceneSpawner::spawnWalls() {
     GameConfig const &gameConfig = m_configManager.getGameConfig();
 
     constexpr SDL_Color wallColor  = {.r = 176, .g = 196, .b = 222, .a = 255};
-    float const         wallHeight = gameConfig.windowSize.y * 0.6f;
-    float const         wallWidth  = gameConfig.windowSize.x * 0.025f;
+    float const         wallHeight = gameConfig.windowSize.y() * 0.6f;
+    float const         wallWidth  = gameConfig.windowSize.x() * 0.025f;
 
     auto const wallConfig = ShapeConfig(wallHeight, wallWidth, wallColor);
 
     constexpr size_t WALL_COUNT = 8;
 
-    float const innerWidth  = gameConfig.windowSize.x * 0.6f;
-    float const innerHeight = gameConfig.windowSize.y * 0.6f;
-    float const innerStartX = (gameConfig.windowSize.x - innerWidth) / 2;
-    float const innerStartY = (gameConfig.windowSize.y - innerHeight) / 2;
+    float const innerWidth  = gameConfig.windowSize.x() * 0.6f;
+    float const innerHeight = gameConfig.windowSize.y() * 0.6f;
+    float const innerStartX = (gameConfig.windowSize.x() - innerWidth) / 2;
+    float const innerStartY = (gameConfig.windowSize.y() - innerHeight) / 2;
 
-    float const outerWidth  = gameConfig.windowSize.x;
-    float const outerHeight = gameConfig.windowSize.y;
-    float const outerStartX = (gameConfig.windowSize.x - outerWidth) / 2;
-    float const outerStartY = (gameConfig.windowSize.y - outerHeight) / 2;
+    float const outerWidth  = gameConfig.windowSize.x();
+    float const outerHeight = gameConfig.windowSize.y();
+    float const outerStartX = (gameConfig.windowSize.x() - outerWidth) / 2;
+    float const outerStartY = (gameConfig.windowSize.y() - outerHeight) / 2;
 
     // Gap sizes proportional to respective rectangles
     float const innerGapSize = innerWidth * 0.15f;
@@ -243,36 +243,36 @@ void MainSceneSpawner::spawnWalls() {
             shapeComponent->rect.w =
                 static_cast<int>(outerWidth - (2 * outerGapSize));
 
-            topLeftCornerPos.x = outerStartX + outerGapSize;
-            topLeftCornerPos.y =
-                (i == 4) ? outerStartY : outerStartY + outerHeight - wallWidth;
+            topLeftCornerPos.setX(outerStartX + outerGapSize);
+            topLeftCornerPos.setY(
+                (i == 4) ? outerStartY : outerStartY + outerHeight - wallWidth);
         }
         if (isOuterVertical) {
             shapeComponent->rect.h =
                 static_cast<int>(outerHeight - (2 * outerGapSize));
             shapeComponent->rect.w = static_cast<int>(wallWidth);
 
-            topLeftCornerPos.x =
-                (i == 5) ? outerStartX : outerStartX + outerWidth - wallWidth;
-            topLeftCornerPos.y = outerStartY + outerGapSize;
+            topLeftCornerPos.setX(
+                (i == 5) ? outerStartX : outerStartX + outerWidth - wallWidth);
+            topLeftCornerPos.setY(outerStartY + outerGapSize);
         }
         if (isInnerHorizontal) {
             shapeComponent->rect.h = static_cast<int>(wallWidth);
             shapeComponent->rect.w =
                 static_cast<int>(innerWidth - (2 * innerGapSize));
 
-            topLeftCornerPos.x = innerStartX + innerGapSize;
-            topLeftCornerPos.y =
-                (i == 0) ? innerStartY : innerStartY + innerHeight - wallWidth;
+            topLeftCornerPos.setX(innerStartX + innerGapSize);
+            topLeftCornerPos.setY(
+                (i == 0) ? innerStartY : innerStartY + innerHeight - wallWidth);
         }
         if (isInnerVertical) {
             shapeComponent->rect.h =
                 static_cast<int>(innerHeight - (2 * innerGapSize));
             shapeComponent->rect.w = static_cast<int>(wallWidth);
 
-            topLeftCornerPos.x =
-                (i == 1) ? innerStartX : innerStartX + innerWidth - wallWidth;
-            topLeftCornerPos.y = innerStartY + innerGapSize;
+            topLeftCornerPos.setX(
+                (i == 1) ? innerStartX : innerStartX + innerWidth - wallWidth);
+            topLeftCornerPos.setY(innerStartY + innerGapSize);
         }
 
         auto const cSprite = std::make_shared<CSprite>(
@@ -303,8 +303,8 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
         static_cast<float>(player->getComponent<CShape>()->rect.w) / 2;
 
     Vec2 direction;
-    direction.x = mousePosition.x - playerCenter.x;
-    direction.y = mousePosition.y - playerCenter.y;
+    direction.setX(mousePosition.x() - playerCenter.x());
+    direction.setY(mousePosition.y() - playerCenter.y());
     direction.normalize();
 
     float const                   bulletSpeed    = speed;
@@ -321,8 +321,10 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
     Vec2 bulletPos;
     // Set bullet position slightly offset from player center in the direction
     // of travel
-    bulletPos.x = playerCenter.x + direction.x * spawnOffset - bulletHalfWidth;
-    bulletPos.y = playerCenter.y + direction.y * spawnOffset - bulletHalfHeight;
+    bulletPos.setX(playerCenter.x() + direction.x() * spawnOffset -
+                   bulletHalfWidth);
+    bulletPos.setY(playerCenter.y() + direction.y() * spawnOffset -
+                   bulletHalfHeight);
 
     auto const cTransform =
         std::make_shared<CTransform>(bulletPos, bulletVelocity);

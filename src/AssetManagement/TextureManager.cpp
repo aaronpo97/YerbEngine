@@ -1,6 +1,6 @@
-#include <YerbEngine/AssetManagement/TextureManager.hpp>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <YerbEngine/AssetManagement/TextureManager.hpp>
 #include <algorithm>
 #include <filesystem>
 #include <iostream>

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <YerbEngine/YerbEngine.hpp>
 #include "MainSceneSpawner.hpp"
 #include <SDL.h>
+#include <YerbEngine/YerbEngine.hpp>
 #include <random>
 
 class MainScene final : public Scene {

@@ -100,16 +100,16 @@ namespace MovementHelpers {
         velocity = {0, 0};
 
         if (entityCInput->forward) {
-            velocity.y = -1;
+            velocity.setY(-1);
         }
         if (entityCInput->backward) {
-            velocity.y = 1;
+            velocity.setY(1);
         }
         if (entityCInput->left) {
-            velocity.x = -1;
+            velocity.setX(-1);
         }
         if (entityCInput->right) {
-            velocity.x = 1;
+            velocity.setX(1);
         }
 
         velocity.normalize();
@@ -233,20 +233,24 @@ namespace MovementHelpers {
         bool const ENTITY_ID_ODD = entity->id() & 1;
 
         if (ENTITY_ID_ODD) {
-            position.x +=
-                std::cos(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
-                                  BASE_MOVEMENT_MULTIPLIER);
-            position.y +=
-                std::sin(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
-                                  BASE_MOVEMENT_MULTIPLIER);
+            position.setX(position.x() +
+                          std::cos(time) *
+                              (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
+                               BASE_MOVEMENT_MULTIPLIER));
+            position.setY(position.y() +
+                          std::sin(time) *
+                              (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
+                               BASE_MOVEMENT_MULTIPLIER));
 
         } else {
-            position.x +=
-                std::sin(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
-                                  BASE_MOVEMENT_MULTIPLIER);
-            position.y +=
-                std::cos(time) * (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
-                                  BASE_MOVEMENT_MULTIPLIER);
+            position.setX(position.x() +
+                          std::sin(time) *
+                              (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
+                               BASE_MOVEMENT_MULTIPLIER));
+            position.setY(position.y() +
+                          std::cos(time) *
+                              (ITEM_MOVEMENT_MULTIPLIER * deltaTime *
+                               BASE_MOVEMENT_MULTIPLIER));
         }
     }
 } // namespace MovementHelpers

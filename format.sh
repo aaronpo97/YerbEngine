@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "WARNING: This script will format all .cpp, .h, .c, .hpp files in the include and src directory."
+echo "WARNING: This script will format all .cpp, .h, .c, .hpp files in the YerbEngine, src, and demo directories."
 echo "This script will overwrite the files with the formatted version."
 
 read -p "Do you want to continue? (y/n) " -n 1 -r
@@ -21,7 +21,12 @@ fi
 
 echo "Formatting files..."
 
-find includes src -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i
+find YerbEngine src -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" | xargs clang-format -i
+
+if [ -d "shoot-demo" ]; then
+    find shoot-demo -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" | xargs clang-format -i
+fi
+
 
 echo "Done."
 

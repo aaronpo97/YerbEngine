@@ -1,7 +1,7 @@
-#include <YerbEngine/YerbEngine.hpp>
 #include "shoot-demo/includes/HowToPlayScene/HowToPlayScene.hpp"
 #include "shoot-demo/includes/MenuScene/MenuScene.hpp"
 #include <SDL.h>
+#include <YerbEngine/YerbEngine.hpp>
 
 HowToPlayScene::HowToPlayScene(GameEngine *gameEngine) : Scene(gameEngine) {
     registerAction(SDLK_RETURN, "SELECT");
@@ -135,7 +135,7 @@ void HowToPlayScene::renderText() const {
     std::string const exitText = "Press Backspace to go back to the main menu.";
     Vec2 const        windowSize =
         m_gameEngine->getConfigManager().getGameConfig().windowSize;
-    Vec2 const exitPos = {100, windowSize.y - 50};
+    Vec2 const exitPos = {100, windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, exitText, textColor,
                                   exitPos);
 }

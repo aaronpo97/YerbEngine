@@ -1,6 +1,6 @@
-#include <YerbEngine/SystemManagement/VideoManager.hpp>
-#include <YerbEngine/Configuration/ConfigManager.hpp>
 #include <SDL.h>
+#include <YerbEngine/Configuration/ConfigManager.hpp>
+#include <YerbEngine/SystemManagement/VideoManager.hpp>
 #include <stdexcept>
 
 #ifdef __EMSCRIPTEN__
@@ -43,10 +43,10 @@ SDL_Window *VideoManager::createWindow() {
     std::string const &windowTitle = gameConfig.windowTitle;
     Vec2 const        &windowSize  = gameConfig.windowSize;
 
-    SDL_Window *window =
-        SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_CENTERED,
-                         SDL_WINDOWPOS_CENTERED, static_cast<int>(windowSize.x),
-                         static_cast<int>(windowSize.y), windowFlags);
+    SDL_Window *window = SDL_CreateWindow(
+        windowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        static_cast<int>(windowSize.x()), static_cast<int>(windowSize.y()),
+        windowFlags);
 
     if (window == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Window could not be created: %s",
