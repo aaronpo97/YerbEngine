@@ -1,8 +1,8 @@
-#include "shoot-demo/includes/ScoreScene/ScoreScene.hpp"
-#include "shoot-demo/includes/MainScene/MainScene.hpp"
-#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
+#include <MainScene/MainScene.hpp>
+#include <MenuScene/MenuScene.hpp>
 #include <SDL.h>
-#include <YerbEngine/YerbEngine.hpp>
+#include <ScoreScene/ScoreScene.hpp>
+#include <YerbEngine.hpp>
 
 ScoreScene::ScoreScene(GameEngine *gameEngine, int const score)
     : Scene(gameEngine), m_score(score) {
@@ -56,12 +56,12 @@ void ScoreScene::renderText() const {
     }
 
     std::string const gameOverText = "Game Over!";
-    Vec2 const        gameOverPos  = {100, 300};
+    Vec2 const        gameOverPos{100, 300};
     TextHelpers::renderLineOfText(renderer, fontLg, gameOverText, gameOverColor,
                                   gameOverPos);
 
     std::string const scoreText = "Score: " + std::to_string(m_score);
-    Vec2 const        scorePos  = {100, 350};
+    Vec2 const        scorePos{100, 350};
     TextHelpers::renderLineOfText(renderer, fontMd, scoreText, textColor,
                                   scorePos);
 
@@ -69,14 +69,14 @@ void ScoreScene::renderText() const {
         m_gameEngine->getConfigManager().getGameConfig().windowSize.y();
 
     std::string const playAgainText = "Play Again";
-    Vec2 const        playAgainPos  = {100, bottomOfScreen - 200};
+    Vec2 const        playAgainPos{100, bottomOfScreen - 200};
     SDL_Color const   playAgainColor =
         m_selectedIndex == 0 ? selectedColor : textColor;
     TextHelpers::renderLineOfText(renderer, fontMd, playAgainText,
                                   playAgainColor, playAgainPos);
 
     std::string const mainMenuText = "Main Menu";
-    Vec2 const        mainMenuPos  = {100, bottomOfScreen - 150};
+    Vec2 const        mainMenuPos{100, bottomOfScreen - 150};
     SDL_Color const   mainMenuColor =
         m_selectedIndex == 1 ? selectedColor : textColor;
     TextHelpers::renderLineOfText(renderer, fontMd, mainMenuText, mainMenuColor,
@@ -93,7 +93,7 @@ void ScoreScene::sDoAction(Action &action) {
 
     if (action.getName() == "SELECT") {
         audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_endTriggered = true;
         return;
     }
@@ -101,14 +101,14 @@ void ScoreScene::sDoAction(Action &action) {
     // UP takes precedence over DOWN if both are pressed
     if (action.getName() == "UP") {
         audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_selectedIndex > 0 ? m_selectedIndex -= 1 : m_selectedIndex = 1;
         return;
     }
 
     if (action.getName() == "DOWN") {
         audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_selectedIndex < 1 ? m_selectedIndex += 1 : m_selectedIndex = 0;
     }
 }

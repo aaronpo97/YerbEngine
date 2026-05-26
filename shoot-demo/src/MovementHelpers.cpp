@@ -1,4 +1,4 @@
-#include "shoot-demo/includes/Helpers/MovementHelpers.hpp"
+#include <Helpers/MovementHelpers.hpp>
 
 constexpr float BASE_MOVEMENT_MULTIPLIER = 50.0f;
 
@@ -97,7 +97,7 @@ namespace MovementHelpers {
         Vec2 &position = entityCTransform->topLeftCornerPos;
         Vec2 &velocity = entityCTransform->velocity;
 
-        velocity = {0, 0};
+        velocity = Vec2{0, 0};
 
         if (entityCInput->forward) {
             velocity.setY(-1);

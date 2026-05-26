@@ -1,7 +1,7 @@
-#include "shoot-demo/includes/MenuScene/MenuScene.hpp"
-#include "shoot-demo/includes/HowToPlayScene/HowToPlayScene.hpp"
-#include "shoot-demo/includes/MainScene/MainScene.hpp"
-#include <YerbEngine/YerbEngine.hpp>
+#include <HowToPlayScene/HowToPlayScene.hpp>
+#include <MainScene/MainScene.hpp>
+#include <MenuScene/MenuScene.hpp>
+#include <YerbEngine.hpp>
 
 #include <SDL.h>
 
@@ -62,7 +62,7 @@ void MenuScene::renderText() const {
 
     std::string const &titleText =
         m_gameEngine->getConfigManager().getGameConfig().windowTitle;
-    Vec2 const titlePos = {100, 100};
+    Vec2 const titlePos{100, 100};
     TextHelpers::renderLineOfText(renderer, fontLg, titleText, textColor,
                                   titlePos);
 
@@ -91,7 +91,7 @@ void MenuScene::renderText() const {
 
     const std::string controlsText = "W/S to move up/down, Enter to select";
     // bottom right corner
-    Vec2 const controlsPos = {
+    Vec2 const controlsPos{
         100,
         m_gameEngine->getConfigManager().getGameConfig().windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
@@ -114,7 +114,7 @@ void MenuScene::sDoAction(Action &action) {
 
     if (action.getName() == "SELECT") {
         audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_endTriggered = true;
         return;
     }
@@ -122,7 +122,7 @@ void MenuScene::sDoAction(Action &action) {
     // UP takes precedence over DOWN if both are pressed
     if (action.getName() == "UP") {
         audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_selectedIndex > 0 ? m_selectedIndex -= 1
                             : m_selectedIndex = MAX_MENU_ITEMS - 1;
         return;
@@ -130,7 +130,7 @@ void MenuScene::sDoAction(Action &action) {
 
     if (action.getName() == "DOWN") {
         audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
-                                     AudioSamplePriority::BACKGROUND);
+                                     PriorityLevel::BACKGROUND);
         m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
                                              : m_selectedIndex = 0;
     }

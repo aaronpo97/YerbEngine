@@ -11,15 +11,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+set(ENGINE_SRC_DIR "${CMAKE_SOURCE_DIR}/YerbEngine/src")
+set(ENGINE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/YerbEngine/includes")
+
 file(GLOB_RECURSE CORE_SRC_FILES 
-    "${SRC_DIR}/*.cpp"
+    "${ENGINE_SRC_DIR}/*.cpp"
 )
 
 add_library(yerb_engine_core STATIC ${CORE_SRC_FILES})
 
 target_include_directories(yerb_engine_core PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${ENGINE_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 
