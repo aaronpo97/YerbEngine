@@ -1,6 +1,6 @@
 #pragma once
-
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 #include <memory>
 
 namespace MovementHelpers {

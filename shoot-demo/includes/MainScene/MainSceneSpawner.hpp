@@ -1,5 +1,6 @@
 #pragma once
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 #include <random>
 
 class MainSceneSpawner {

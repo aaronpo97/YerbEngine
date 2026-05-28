@@ -2,6 +2,7 @@
 #include <MenuScene/MenuScene.hpp>
 #include <SDL.h>
 #include <YerbEngine.hpp>
+using namespace YerbEngine;
 
 HowToPlayScene::HowToPlayScene(GameEngine *gameEngine) : Scene(gameEngine) {
     registerAction(SDLK_RETURN, "SELECT");

@@ -11,8 +11,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-set(ENGINE_SRC_DIR "${CMAKE_SOURCE_DIR}/YerbEngine/src")
-set(ENGINE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/YerbEngine/includes")
+set(ENGINE_SRC_DIR "${CMAKE_SOURCE_DIR}/lib/src")
+set(ENGINE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/lib/includes")
 
 file(GLOB_RECURSE CORE_SRC_FILES 
     "${ENGINE_SRC_DIR}/*.cpp"
