@@ -4,6 +4,9 @@ project(YerbEngine VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable testing
+enable_testing()
+
 include(FetchContent)
 FetchContent_Declare(
         json
@@ -89,6 +92,19 @@ else()
             COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/config"
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${OUT_DIR}/config"
         )
+    endif()
+endif()
+
+# Boost.Test setup (only for native builds)
+if(NOT EMSCRIPTEN)
+    find_package(Boost COMPONENTS unit_test_framework)
+    
+    if(Boost_FOUND)
+        message(STATUS "Boost.Test found - tests will be built")
+        add_subdirectory(tests)
+    else()
+        message(WARNING "Boost.Test not found - tests will be skipped")
+        message(WARNING "Install with: brew install boost (macOS) or apt-get install libboost-test-dev (Linux)")
     endif()
 endif()
 
