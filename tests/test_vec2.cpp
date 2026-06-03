@@ -8,7 +8,7 @@ using namespace YerbEngine;
 BOOST_AUTO_TEST_SUITE(Vec2Tests)
 
 BOOST_AUTO_TEST_CASE(vec2_construction) {
-    Timer t("Vec2 construction test duration: ");
+    Timer t("Vec2 construction");
 
     Vec2 v1;
     BOOST_CHECK_CLOSE(v1.x(), 0.0f, 0.001f);
@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(vec2_construction) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_equality) {
-    Timer t("Vec2 equality test duration: ");
+    Timer t("Vec2 equality");
     Vec2 v1(1.0f, 2.0f);
     Vec2 v2(1.0f, 2.0f);
     Vec2 v3(2.0f, 3.0f);
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(vec2_equality) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_addition) {
-    Timer t("Vec2 addition test duration: ");
+    Timer t("Vec2 addition");
     Vec2 v1(1.0f, 2.0f);
     Vec2 v2(3.0f, 4.0f);
     Vec2 result = v1 + v2;
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(vec2_addition) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_subtraction) {
-    Timer t("Vec2 subtraction test duration: ");
+    Timer t("Vec2 subtraction");
     Vec2 v1(5.0f, 7.0f);
     Vec2 v2(2.0f, 3.0f);
     Vec2 result = v1 - v2;
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(vec2_subtraction) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_scalar_multiplication) {
-    Timer t("Vec2 scalar multiplication test duration: ");
+    Timer t("Vec2 scalar multiplication");
     Vec2 v(2.0f, 3.0f);
     Vec2 result = v * 2.0f;
 
@@ -58,17 +58,8 @@ BOOST_AUTO_TEST_CASE(vec2_scalar_multiplication) {
     BOOST_CHECK_CLOSE(result.y(), 6.0f, 0.001f);
 }
 
-BOOST_AUTO_TEST_CASE(vec2_scalar_division) {
-    Timer t("Vec2 scalar division test duration: ");
-    Vec2 v(4.0f, 6.0f);
-    Vec2 result = v / 2.0f;
-
-    BOOST_CHECK_CLOSE(result.x(), 2.0f, 0.001f);
-    BOOST_CHECK_CLOSE(result.y(), 3.0f, 0.001f);
-}
-
 BOOST_AUTO_TEST_CASE(vec2_addition_assignment) {
-    Timer t("Vec2 addition assignment test duration: ");
+    Timer t("Vec2 addition assignment");
     Vec2 v1(1.0f, 2.0f);
     Vec2 v2(3.0f, 4.0f);
     v1 += v2;
@@ -77,8 +68,17 @@ BOOST_AUTO_TEST_CASE(vec2_addition_assignment) {
     BOOST_CHECK_CLOSE(v1.y(), 6.0f, 0.001f);
 }
 
+BOOST_AUTO_TEST_CASE(vec2_scalar_division) {
+    Timer t("Vec2 scalar division");
+    Vec2 v(4.0f, 6.0f);
+    Vec2 result = v / 2.0f;
+
+    BOOST_CHECK_CLOSE(result.x(), 2.0f, 0.001f);
+    BOOST_CHECK_CLOSE(result.y(), 3.0f, 0.001f);
+}
+
 BOOST_AUTO_TEST_CASE(vec2_subtraction_assignment) {
-    Timer t("Vec2 subtraction assignment test duration: ");
+    Timer t("Vec2 subtraction assignment");
     Vec2 v1(5.0f, 7.0f);
     Vec2 v2(2.0f, 3.0f);
     v1 -= v2;
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(vec2_subtraction_assignment) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_multiplication_assignment) {
-    Timer t("Vec2 multiplication assignment test duration: ");
+    Timer t("Vec2 multiplication assignment");
     Vec2 v(2.0f, 3.0f);
     v *= 2.0f;
 
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(vec2_multiplication_assignment) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_division_assignment) {
-    Timer t("Vec2 division assignment test duration: ");
+    Timer t("Vec2 division assignment");
     Vec2 v(4.0f, 6.0f);
     v /= 2.0f;
 
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(vec2_division_assignment) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_normalize) {
-    Timer t("Vec2 normalize test duration: ");
+    Timer t("Vec2 normalize");
     Vec2 v(3.0f, 4.0f);
     v.normalize();
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(vec2_normalize) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_normalize_zero_vector) {
-    Timer t("Vec2 normalize zero vector test duration: ");
+    Timer t("Vec2 normalize zero vector");
     Vec2 v(0.0f, 0.0f);
     v.normalize();
 
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(vec2_normalize_zero_vector) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_euclidean_distance) {
-    Timer t("Vec2 euclidean distance test duration: ");
+    Timer t("Vec2 euclidean distance");
     Vec2 v1(0.0f, 0.0f);
     Vec2 v2(3.0f, 4.0f);
 
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(vec2_euclidean_distance) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_euclidean_distance_squared) {
-    Timer t("Vec2 euclidean distance squared test duration: ");
+    Timer t("Vec2 euclidean distance squared");
     Vec2 v1(0.0f, 0.0f);
     Vec2 v2(3.0f, 4.0f);
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(vec2_euclidean_distance_squared) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_setters) {
-    Timer t("Vec2 setters test duration: ");
+    Timer t("Vec2 setters");
     Vec2 v;
     v.setX(5.0f);
     v.setY(10.0f);
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(vec2_setters) {
 }
 
 BOOST_AUTO_TEST_CASE(vec2_to_string) {
-    Timer t("Vec2 toString test duration: ");
+    Timer t("Vec2 toString");
     
     Vec2 v(1.5f, 2.5f);
     std::string str = v.toString();

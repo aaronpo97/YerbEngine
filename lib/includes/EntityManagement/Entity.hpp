@@ -2,6 +2,7 @@
 
 #include "./Components.hpp"
 #include <memory>
+#include <ostream>
 namespace YerbEngine {
     enum class EntityTags {
         Player,
@@ -13,6 +14,36 @@ namespace YerbEngine {
         Item,
         Default
     };
+
+    inline std::ostream &operator<<(std::ostream &os, EntityTags const &tag) {
+        switch (tag) {
+        case EntityTags::Player:
+            os << "Player";
+            break;
+        case EntityTags::Wall:
+            os << "Wall";
+            break;
+        case EntityTags::SpeedBoost:
+            os << "SpeedBoost";
+            break;
+        case EntityTags::SlownessDebuff:
+            os << "SlownessDebuff";
+            break;
+        case EntityTags::Enemy:
+            os << "Enemy";
+            break;
+        case EntityTags::Bullet:
+            os << "Bullet";
+            break;
+        case EntityTags::Item:
+            os << "Item";
+            break;
+        case EntityTags::Default:
+            os << "Default";
+            break;
+        }
+        return os;
+    }
 
     using EntityComponents = std::tuple<std::shared_ptr<CTransform>,
                                         std::shared_ptr<CShape>,
