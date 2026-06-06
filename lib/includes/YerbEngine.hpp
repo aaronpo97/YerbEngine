@@ -14,8 +14,11 @@
 #include <EntityManagement/Entity.hpp>
 #include <EntityManagement/EntityManager.hpp>
 
+
 #include <Configuration/Config.hpp>
 #include <Configuration/ConfigManager.hpp>
+
+#include <Configuration/ConfigDictionary.hpp>
 
 #include <AssetManagement/AudioSampleQueue.hpp>
 #include <AssetManagement/FontManager.hpp>
