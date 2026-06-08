@@ -1,0 +1,26 @@
+{
+  "window": {
+    "width": 1920,
+    "height": 1080,
+    "title": "Test Game",
+    "fullscreen": false
+  },
+  "player": {
+    "speed": 5.5,
+    "health": 100,
+    "color": {
+      "r": 255,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
+  },
+  "audio": {
+    "volume": 0.75,
+    "muted": false
+  },
+  "testInt": 42,
+  "testFloat": 3.14,
+  "testString": "hello",
+  "testBool": true
+}
