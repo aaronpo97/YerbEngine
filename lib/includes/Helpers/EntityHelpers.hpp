@@ -7,9 +7,9 @@
 namespace YerbEngine {
 
     namespace EntityHelpers {
-    EntityList getEntitiesInRadius(std::shared_ptr<Entity> const &entity,
-                                   EntityList const              &candidates,
-                                   float const                   &radius);
+        EntityList getEntitiesInRadius(std::shared_ptr<Entity> const &entity,
+                                       EntityList const &candidates,
+                                       float const      &radius);
     } // namespace EntityHelpers
 
 } // namespace YerbEngine

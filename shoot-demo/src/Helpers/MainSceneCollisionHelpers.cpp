@@ -58,12 +58,14 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
         auto const &cTransform     = entity->getComponent<CTransform>();
         auto const &cBounceTracker = entity->getComponent<CBounceTracker>();
 
-        Vec2 const &overlap = YerbEngine::CollisionHelpers::calculateOverlap(entity, wall);
+        Vec2 const &overlap =
+            YerbEngine::CollisionHelpers::calculateOverlap(entity, wall);
 
         bool const mustResolveCollisionVertically   = overlap.x() > overlap.y();
         bool const mustResolveCollisionHorizontally = overlap.x() < overlap.y();
         std::bitset<4> const positionRelativeToWall =
-            YerbEngine::CollisionHelpers::getPositionRelativeToEntity(entity, wall);
+            YerbEngine::CollisionHelpers::getPositionRelativeToEntity(entity,
+                                                                      wall);
 
         bool const playerAboveWall   = positionRelativeToWall[ABOVE];
         bool const playerBelowWall   = positionRelativeToWall[BELOW];
@@ -110,9 +112,11 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
         bool const mustResolveCollisionVertically   = overlap.x() > overlap.y();
         bool const mustResolveCollisionHorizontally = overlap.x() < overlap.y();
         std::bitset<4> const entityARelativePosition =
-            YerbEngine::CollisionHelpers::getPositionRelativeToEntity(entityA, entityB);
+            YerbEngine::CollisionHelpers::getPositionRelativeToEntity(entityA,
+                                                                      entityB);
         std::bitset<4> const entityBRelativePosition =
-            YerbEngine::CollisionHelpers::getPositionRelativeToEntity(entityB, entityA);
+            YerbEngine::CollisionHelpers::getPositionRelativeToEntity(entityB,
+                                                                      entityA);
 
         bool const entityAAboveEntityB   = entityARelativePosition[ABOVE];
         bool const entityABelowEntityB   = entityARelativePosition[BELOW];
@@ -181,36 +185,42 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         auto const tag = entity->tag();
         if (tag == EntityTags::SpeedBoost) {
             std::bitset<4> const speedBoostCollides =
-                YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
+                YerbEngine::CollisionHelpers::detectOutOfBounds(entity,
+                                                                windowSize);
             Enforce::enforceNonPlayerBounds(entity, speedBoostCollides);
         }
 
         if (tag == EntityTags::Player) {
             std::bitset<4> const playerCollides =
-                YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
+                YerbEngine::CollisionHelpers::detectOutOfBounds(entity,
+                                                                windowSize);
             Enforce::enforcePlayerBounds(entity, playerCollides, windowSize);
         }
 
         if (tag == EntityTags::Enemy) {
             std::bitset<4> const enemyCollides =
-                YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
+                YerbEngine::CollisionHelpers::detectOutOfBounds(entity,
+                                                                windowSize);
             Enforce::enforceNonPlayerBounds(entity, enemyCollides);
         }
 
         if (tag == EntityTags::SlownessDebuff) {
             std::bitset<4> const slownessCollides =
-                YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
+                YerbEngine::CollisionHelpers::detectOutOfBounds(entity,
+                                                                windowSize);
             Enforce::enforceNonPlayerBounds(entity, slownessCollides);
         }
 
         if (tag == EntityTags::Bullet) {
             std::bitset<4> const bulletCollides =
-                YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
+                YerbEngine::CollisionHelpers::detectOutOfBounds(entity,
+                                                                windowSize);
             Enforce::enforceNonPlayerBounds(entity, bulletCollides);
         }
         if (tag == EntityTags::Item) {
             std::bitset<4> const itemCollides =
-                YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
+                YerbEngine::CollisionHelpers::detectOutOfBounds(entity,
+                                                                windowSize);
             Enforce::enforceNonPlayerBounds(entity, itemCollides);
         }
     }
@@ -245,8 +255,8 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         }
 
         bool const entitiesCollided =
-            YerbEngine::CollisionHelpers::calculateCollisionBetweenEntities(entity,
-                                                                otherEntity);
+            YerbEngine::CollisionHelpers::calculateCollisionBetweenEntities(
+                entity, otherEntity);
 
         if (!entitiesCollided) {
             return;

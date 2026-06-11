@@ -12,25 +12,25 @@ namespace YerbEngine {
     using EntityMap  = std::unordered_map<EntityTags, EntityList>;
 
     class EntityManager {
-    EntityList m_entities;
-    EntityList m_toAdd;
-    EntityMap  m_entityMap;
-    size_t     m_totalEntities = 0;
+        EntityList m_entities;
+        EntityList m_toAdd;
+        EntityMap  m_entityMap;
+        size_t     m_totalEntities = 0;
 
-  public:
-    EntityManager()  = default;
-    ~EntityManager() = default;
+      public:
+        EntityManager()  = default;
+        ~EntityManager() = default;
 
-    // No copying or moving allowed
-    EntityManager(EntityManager const &)            = delete;
-    EntityManager &operator=(EntityManager const &) = delete;
-    EntityManager(EntityManager &&)                 = delete;
-    EntityManager &operator=(EntityManager &&)      = delete;
+        // No copying or moving allowed
+        EntityManager(EntityManager const &)            = delete;
+        EntityManager &operator=(EntityManager const &) = delete;
+        EntityManager(EntityManager &&)                 = delete;
+        EntityManager &operator=(EntityManager &&)      = delete;
 
-    std::shared_ptr<Entity> addEntity(EntityTags tag);
-    EntityList             &getEntities();
-    EntityList             &getEntities(EntityTags tag);
-    void                    update();
+        std::shared_ptr<Entity> addEntity(EntityTags tag);
+        EntityList             &getEntities();
+        EntityList             &getEntities(EntityTags tag);
+        void                    update();
     };
 
 } // namespace YerbEngine

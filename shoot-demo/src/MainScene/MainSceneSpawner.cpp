@@ -6,8 +6,10 @@ MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
                                    TextureManager &textureManager,
                                    EntityManager  &entityManager,
                                    SDL_Renderer   *renderer)
-    : m_randomGenerator(randomGenerator), m_configManager(configManager),
-      m_textureManager(textureManager), m_entityManager(entityManager),
+    : m_randomGenerator(randomGenerator),
+      m_configManager(configManager),
+      m_textureManager(textureManager),
+      m_entityManager(entityManager),
       m_renderer(renderer) {
     std::cout << "spawner created\n";
 }

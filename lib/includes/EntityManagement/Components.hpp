@@ -12,8 +12,10 @@ namespace YerbEngine {
         Vec2 topLeftCornerPos{0, 0};
         Vec2 velocity{0, 0};
 
-        CTransform(Vec2 const &position, Vec2 const &velocity)
-            : topLeftCornerPos(position), velocity(velocity) {}
+        CTransform(Vec2 const &position,
+                   Vec2 const &velocity)
+            : topLeftCornerPos(position),
+              velocity(velocity) {}
 
         CTransform() = default;
     };
@@ -25,8 +27,11 @@ namespace YerbEngine {
         SDL_Rect  rect;
         SDL_Color color;
 
-        CShape(SDL_Renderer *renderer, ShapeConfig const &config)
-            : renderer(renderer), rect(), color() {
+        CShape(SDL_Renderer      *renderer,
+               ShapeConfig const &config)
+            : renderer(renderer),
+              rect(),
+              color() {
 
             if (renderer == nullptr) {
                 SDL_LogError(
@@ -64,7 +69,8 @@ namespace YerbEngine {
         CLifespan() : birthTime(SDL_GetTicks64()) {}
 
         explicit CLifespan(Uint64 const lifespan)
-            : birthTime(SDL_GetTicks64()), lifespan(lifespan) {}
+            : birthTime(SDL_GetTicks64()),
+              lifespan(lifespan) {}
     };
 
     enum EffectTypes { Speed, Slowness };
