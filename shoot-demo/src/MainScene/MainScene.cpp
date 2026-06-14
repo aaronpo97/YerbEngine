@@ -15,7 +15,7 @@ MainScene::MainScene(GameEngine *gameEngine)
     : Scene(gameEngine),
       m_entities(EntityManager()),
       m_spawner(m_randomGenerator,
-                gameEngine->getConfigManager(),
+                gameEngine->GetConfigManager(),
                 gameEngine->getTextureManager(),
                 m_entities,
                 gameEngine->getVideoManager().getRenderer()) {
@@ -232,7 +232,7 @@ void MainScene::sRender() {
 
 void MainScene::sCollision() {
     using namespace ShootDemo::CollisionHelpers::MainScene;
-    ConfigManager const &configManager = m_gameEngine->getConfigManager();
+    ConfigManagerDeprecated const &configManager = m_gameEngine->GetConfigManager();
     Vec2 const          &windowSize = configManager.getGameConfig().windowSize;
 
     AudioSampleQueue &audioSampleManager = m_gameEngine->getAudioSampleQueue();
@@ -259,7 +259,7 @@ void MainScene::sCollision() {
 }
 
 void MainScene::sMovement() {
-    ConfigManager const &configManager = m_gameEngine->getConfigManager();
+    ConfigManagerDeprecated const &configManager = m_gameEngine->GetConfigManager();
     PlayerConfig const  &playerConfig  = configManager.getPlayerConfig();
     EnemyConfig const   &enemyConfig   = configManager.getEnemyConfig();
     SlownessEffectConfig const &slownessEffectConfig =
@@ -280,7 +280,7 @@ void MainScene::sMovement() {
 }
 
 void MainScene::sSpawner() {
-    ConfigManager const &configManager = m_gameEngine->getConfigManager();
+    ConfigManagerDeprecated const &configManager = m_gameEngine->GetConfigManager();
     Uint64 const         ticks         = SDL_GetTicks64();
     Uint64 const SPAWN_INTERVAL = configManager.getGameConfig().spawnInterval;
 
@@ -456,11 +456,11 @@ void MainScene::decrementLives() {
 
 void MainScene::onEnd() {
     if (!m_gameOver) {
-        m_gameEngine->loadScene("Menu",
+        m_gameEngine->LoadScene("Menu",
                                 std::make_shared<MenuScene>(m_gameEngine));
         return;
     }
-    m_gameEngine->loadScene(
+    m_gameEngine->LoadScene(
         "ScoreScene", std::make_shared<ScoreScene>(m_gameEngine, m_score));
 }
 

@@ -24,11 +24,11 @@ void MenuScene::update() {
 void MenuScene::onEnd() {
     switch (m_selectedIndex) {
     case 0:
-        m_gameEngine->loadScene("Main",
+        m_gameEngine->LoadScene("Main",
                                 std::make_shared<MainScene>(m_gameEngine));
         break;
     case 1:
-        m_gameEngine->loadScene("HowToPlay",
+        m_gameEngine->LoadScene("HowToPlay",
                                 std::make_shared<HowToPlayScene>(m_gameEngine));
         break;
     case 2:
@@ -61,7 +61,7 @@ void MenuScene::renderText() const {
     }
 
     std::string const &titleText =
-        m_gameEngine->getConfigManager().getGameConfig().windowTitle;
+        m_gameEngine->GetConfigManager().getGameConfig().windowTitle;
     Vec2 const titlePos{100, 100};
     TextHelpers::renderLineOfText(renderer, fontLg, titleText, textColor,
                                   titlePos);
@@ -93,7 +93,7 @@ void MenuScene::renderText() const {
     // bottom right corner
     Vec2 const controlsPos{
         100,
-        m_gameEngine->getConfigManager().getGameConfig().windowSize.y() - 50};
+        m_gameEngine->GetConfigManager().getGameConfig().windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
                                   controlsPos);
 }

@@ -25,10 +25,10 @@ void ScoreScene::update() {
 
 void ScoreScene::onEnd() {
     if (m_selectedIndex == 0) {
-        m_gameEngine->loadScene("Main",
+        m_gameEngine->LoadScene("Main",
                                 std::make_shared<MainScene>(m_gameEngine));
     } else if (m_selectedIndex == 1) {
-        m_gameEngine->loadScene("Menu",
+        m_gameEngine->LoadScene("Menu",
                                 std::make_shared<MenuScene>(m_gameEngine));
     }
 }
@@ -68,7 +68,7 @@ void ScoreScene::renderText() const {
                                   scorePos);
 
     float const bottomOfScreen =
-        m_gameEngine->getConfigManager().getGameConfig().windowSize.y();
+        m_gameEngine->GetConfigManager().getGameConfig().windowSize.y();
 
     std::string const playAgainText = "Play Again";
     Vec2 const        playAgainPos{100, bottomOfScreen - 200};

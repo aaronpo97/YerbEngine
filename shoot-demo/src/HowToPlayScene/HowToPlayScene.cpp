@@ -19,7 +19,7 @@ void HowToPlayScene::update() {
 }
 
 void HowToPlayScene::onEnd() {
-    m_gameEngine->loadScene("Menu", std::make_shared<MenuScene>(m_gameEngine));
+    m_gameEngine->LoadScene("Menu", std::make_shared<MenuScene>(m_gameEngine));
 }
 
 void HowToPlayScene::sRender() {
@@ -135,7 +135,7 @@ void HowToPlayScene::renderText() const {
     // How to exit text
     std::string const exitText = "Press Backspace to go back to the main menu.";
     Vec2 const        windowSize =
-        m_gameEngine->getConfigManager().getGameConfig().windowSize;
+        m_gameEngine->GetConfigManager().getGameConfig().windowSize;
     Vec2 const exitPos{100, windowSize.y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, exitText, textColor,
                                   exitPos);

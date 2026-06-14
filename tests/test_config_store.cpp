@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(test_get_nonexistent_value) {
 BOOST_AUTO_TEST_CASE(test_reload) {
     Timer timer("Reload ConfigStore");
 
-    ConfigStore store(std::move(      ;
+    ConfigStore store(std::move(
         std::make_unique<JsonConfigProvider>("tests/data/test_config.json")));
 
     BOOST_CHECK_NO_THROW(store.reload());

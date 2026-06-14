@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./Config.hpp"
+#include "./ConfigDeprecated.hpp"
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <stdexcept>
@@ -14,7 +14,7 @@ namespace YerbEngine {
             : std::runtime_error(message) {}
     };
 
-    class ConfigManager {
+    class ConfigManagerDeprecated {
         GameConfig            m_gameConfig;
         PlayerConfig          m_playerConfig;
         EnemyConfig           m_enemyConfig;
@@ -45,7 +45,7 @@ namespace YerbEngine {
         void               loadConfig();
 
       public:
-        explicit ConfigManager(
+        explicit ConfigManagerDeprecated(
             std::filesystem::path configPath = "assets/config.json");
 
         GameConfig const           &getGameConfig() const;

@@ -1,10 +1,10 @@
-#include <Configuration/ConfigManager.hpp>
+#include <Configuration/ConfigManagerDeprecated.hpp>
 #include <fstream>
 
 namespace YerbEngine {
 
     template <typename JsonReturnType>
-    JsonReturnType ConfigManager::getJsonValue(json const        &jsonValue,
+    JsonReturnType ConfigManagerDeprecated::getJsonValue(json const        &jsonValue,
                                                std::string const &key,
                                                std::string const &context) {
         try {
@@ -15,7 +15,7 @@ namespace YerbEngine {
         }
     }
 
-    SDL_Color ConfigManager::parseColor(json const        &colorJson,
+    SDL_Color ConfigManagerDeprecated::parseColor(json const        &colorJson,
                                         std::string const &context) {
         auto const red   = getJsonValue<Uint8>(colorJson, "r", context);
         auto const green = getJsonValue<Uint8>(colorJson, "g", context);
@@ -25,7 +25,7 @@ namespace YerbEngine {
         return {.r = red, .g = green, .b = blue, .a = alpha};
     }
 
-    ShapeConfig ConfigManager::parseShapeConfig(json const        &shapeJson,
+    ShapeConfig ConfigManagerDeprecated::parseShapeConfig(json const        &shapeJson,
                                                 std::string const &context) {
         auto const height = getJsonValue<float>(shapeJson, "height", context);
         auto const width  = getJsonValue<float>(shapeJson, "width", context);
@@ -35,7 +35,7 @@ namespace YerbEngine {
         return {height, width, color};
     }
 
-    void ConfigManager::parseGameConfig() {
+    void ConfigManagerDeprecated::parseGameConfig() {
         auto const &gameConfigJson = m_json["gameConfig"];
         auto const &sizeJson       = gameConfigJson["windowSize"];
 
@@ -71,7 +71,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::parseItemConfig() {
+    void ConfigManagerDeprecated::parseItemConfig() {
         auto const &config = m_json["itemConfig"];
 
         m_itemConfig.lifespan =
@@ -88,7 +88,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::parseEnemyConfig() {
+    void ConfigManagerDeprecated::parseEnemyConfig() {
         auto const &config = m_json["enemyConfig"];
 
         m_enemyConfig.speed =
@@ -106,7 +106,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::parseSpeedEffectConfig() {
+    void ConfigManagerDeprecated::parseSpeedEffectConfig() {
         auto const &config = m_json["speedEffectConfig"];
 
         m_speedEffectConfig.speed =
@@ -125,7 +125,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::parseSlownessEffectConfig() {
+    void ConfigManagerDeprecated::parseSlownessEffectConfig() {
         auto const &config = m_json["slownessEffectConfig"];
 
         m_slownessEffectConfig.speed =
@@ -143,7 +143,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::parseBulletConfig() {
+    void ConfigManagerDeprecated::parseBulletConfig() {
         auto const &config = m_json["bulletConfig"];
 
         m_bulletConfig.speed =
@@ -154,7 +154,7 @@ namespace YerbEngine {
             parseShapeConfig(config["shape"], "bulletConfig.shape");
     }
 
-    void ConfigManager::parsePlayerConfig() {
+    void ConfigManagerDeprecated::parsePlayerConfig() {
         auto const &config = m_json["playerConfig"];
 
         m_playerConfig.baseSpeed =
@@ -173,7 +173,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::parseConfig() {
+    void ConfigManagerDeprecated::parseConfig() {
         try {
             parseGameConfig();
             parsePlayerConfig();
@@ -188,7 +188,7 @@ namespace YerbEngine {
         }
     }
 
-    void ConfigManager::loadConfig() {
+    void ConfigManagerDeprecated::loadConfig() {
         if (!fs::exists(m_configPath)) {
             throw ConfigurationError("Config file not found: " +
                                      m_configPath.string());
@@ -211,7 +211,7 @@ namespace YerbEngine {
         configFile.close();
     }
 
-    ConfigManager::ConfigManager(std::filesystem::path configPath)
+    ConfigManagerDeprecated::ConfigManagerDeprecated(std::filesystem::path configPath)
         : m_configPath(std::move(configPath)) {
         try {
             loadConfig();
@@ -226,71 +226,71 @@ namespace YerbEngine {
         }
     }
 
-    GameConfig const &ConfigManager::getGameConfig() const {
+    GameConfig const &ConfigManagerDeprecated::getGameConfig() const {
         return m_gameConfig;
     }
 
-    ItemConfig const &ConfigManager::getItemConfig() const {
+    ItemConfig const &ConfigManagerDeprecated::getItemConfig() const {
         return m_itemConfig;
     }
 
-    PlayerConfig const &ConfigManager::getPlayerConfig() const {
+    PlayerConfig const &ConfigManagerDeprecated::getPlayerConfig() const {
         return m_playerConfig;
     }
 
-    EnemyConfig const &ConfigManager::getEnemyConfig() const {
+    EnemyConfig const &ConfigManagerDeprecated::getEnemyConfig() const {
         return m_enemyConfig;
     }
 
-    BulletConfig const &ConfigManager::getBulletConfig() const {
+    BulletConfig const &ConfigManagerDeprecated::getBulletConfig() const {
         return m_bulletConfig;
     }
 
-    SpeedEffectConfig const &ConfigManager::getSpeedEffectConfig() const {
+    SpeedEffectConfig const &ConfigManagerDeprecated::getSpeedEffectConfig() const {
         return m_speedEffectConfig;
     }
 
-    SlownessEffectConfig const &ConfigManager::getSlownessEffectConfig() const {
+    SlownessEffectConfig const &ConfigManagerDeprecated::getSlownessEffectConfig() const {
         return m_slownessEffectConfig;
     }
 
-    void ConfigManager::updatePlayerShape(ShapeConfig const &shape) {
+    void ConfigManagerDeprecated::updatePlayerShape(ShapeConfig const &shape) {
         m_playerConfig.shape = shape;
     }
 
-    void ConfigManager::updatePlayerSpeed(float const speed) {
+    void ConfigManagerDeprecated::updatePlayerSpeed(float const speed) {
         if (speed <= 0) {
             throw ConfigurationError("Player speed must be positive");
         }
         m_playerConfig.baseSpeed = speed;
     }
 
-    void ConfigManager::updateEnemyShape(ShapeConfig const &shape) {
+    void ConfigManagerDeprecated::updateEnemyShape(ShapeConfig const &shape) {
         m_enemyConfig.shape = shape;
     }
 
-    void ConfigManager::updateEnemySpeed(float const speed) {
+    void ConfigManagerDeprecated::updateEnemySpeed(float const speed) {
         if (speed <= 0) {
             throw ConfigurationError("Enemy speed must be positive");
         }
         m_enemyConfig.speed = speed;
     }
 
-    void ConfigManager::updateGameWindowSize(Vec2 const &size) {
+    void ConfigManagerDeprecated::updateGameWindowSize(Vec2 const &size) {
         if (size.x() <= 0 || size.y() <= 0) {
             throw ConfigurationError("Window dimensions must be positive");
         }
         m_gameConfig.windowSize = size;
     }
 
-    void ConfigManager::updateGameWindowTitle(std::string const &title) {
+    void ConfigManagerDeprecated::updateGameWindowTitle(std::string const &title) {
         if (title.empty()) {
             throw ConfigurationError("Window title cannot be empty");
         }
         m_gameConfig.windowTitle = title;
     }
 
-    void ConfigManager::updateSpeedBoostEffectSpeed(float const speed) {
+    void ConfigManagerDeprecated::updateSpeedBoostEffectSpeed(float const speed) {
         if (speed <= 0) {
             throw ConfigurationError(
                 "Speed boost effect speed must be positive");
@@ -298,21 +298,21 @@ namespace YerbEngine {
         m_speedEffectConfig.speed = speed;
     }
 
-    void ConfigManager::updateSlownessEffectSpeed(float const speed) {
+    void ConfigManagerDeprecated::updateSlownessEffectSpeed(float const speed) {
         if (speed <= 0) {
             throw ConfigurationError("Slowness effect speed must be positive");
         }
         m_slownessEffectConfig.speed = speed;
     }
 
-    void ConfigManager::updateBulletSpeed(float const speed) {
+    void ConfigManagerDeprecated::updateBulletSpeed(float const speed) {
         if (speed <= 0) {
             throw ConfigurationError("Bullet speed must be positive");
         }
         m_bulletConfig.speed = speed;
     }
 
-    void ConfigManager::updateItemSpeed(float const speed) {
+    void ConfigManagerDeprecated::updateItemSpeed(float const speed) {
         if (speed <= 0) {
             throw ConfigurationError("Item speed must be positive");
         }

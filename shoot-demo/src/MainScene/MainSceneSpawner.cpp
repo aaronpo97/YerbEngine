@@ -2,7 +2,7 @@
 #include <YerbEngine.hpp>
 
 MainSceneSpawner::MainSceneSpawner(std::mt19937   &randomGenerator,
-                                   ConfigManager  &configManager,
+                                   ConfigManagerDeprecated  &configManager,
                                    TextureManager &textureManager,
                                    EntityManager  &entityManager,
                                    SDL_Renderer   *renderer)
