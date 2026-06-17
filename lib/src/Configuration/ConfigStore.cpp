@@ -23,6 +23,11 @@ namespace YerbEngine {
         return m_provider->getKey(path);
     }
 
+    bool ConfigStore::has(std::string const &path) const
+    {
+        return m_provider->hasKey(path);
+    }
+
     void ConfigStore::reload()
     {
         // Clear cached dictionaries if you add caching later

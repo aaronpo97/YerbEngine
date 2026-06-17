@@ -21,7 +21,8 @@ namespace YerbEngine {
          */
         Path const ASSETS_DIR_PATH  = "assets";
         Path const CONFIG_DIR_PATH  = "config";
-        Path const CONFIG_FILE_PATH = CONFIG_DIR_PATH / "config.json";
+    Path const ENGINE_CONFIG_FILE_PATH = CONFIG_DIR_PATH / "engine.json";
+    Path const DEMO_CONFIG_FILE_PATH   = CONFIG_DIR_PATH / "config.json"; // legacy demo config
 
         if (!std::filesystem::exists(ASSETS_DIR_PATH)) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Assets folder not found!");
@@ -29,25 +30,34 @@ namespace YerbEngine {
             throw std::runtime_error("Assets folder not found!");
         }
 
-        m_configManager_deprecated = std::make_unique<ConfigManagerDeprecated>(
-            CONFIG_DIR_PATH);
         m_configStore = std::make_unique<ConfigStore>(
-            std::move(std::make_unique<JsonConfigProvider>(CONFIG_FILE_PATH))
+            std::move(std::make_unique<JsonConfigProvider>(ENGINE_CONFIG_FILE_PATH))
             );
+        m_configAdapter = std::make_unique<ConfigAdapter>(*m_configStore);
+
+        // Optionally load demo/game config as a separate named store if present
+        if (std::filesystem::exists(DEMO_CONFIG_FILE_PATH)) {
+            auto demoStore = std::make_unique<ConfigStore>(
+                std::move(std::make_unique<JsonConfigProvider>(DEMO_CONFIG_FILE_PATH)));
+            AddConfig("demo", std::move(demoStore));
+        }
 
         m_audioManager = std::make_unique<AudioManager>();
 
         m_audioSampleQueue = std::make_unique<
             AudioSampleQueue>(*m_audioManager);
 
-        m_fontManager = std::make_unique<FontManager>(
-            m_configManager_deprecated->getGameConfig().fontPath,
-            m_configManager_deprecated->getGameConfig().fontSizeSm,
-            m_configManager_deprecated->getGameConfig().fontSizeMd,
-            m_configManager_deprecated->getGameConfig().fontSizeLg);
+        {
+            auto const gameCfg = m_configAdapter->getGameConfig();
+            m_fontManager = std::make_unique<FontManager>(
+                gameCfg.fontPath,
+                gameCfg.fontSizeSm,
+                gameCfg.fontSizeMd,
+                gameCfg.fontSizeLg);
+        }
 
         m_videoManager = std::make_unique<VideoManager>(
-            *m_configManager_deprecated);
+            *m_configAdapter);
 
         m_textureManager = std::make_unique<TextureManager>(
             m_videoManager->getRenderer());
@@ -106,15 +116,25 @@ namespace YerbEngine {
         m_currentSceneName = sceneName;
     }
 
-    ConfigManagerDeprecated &GameEngine::GetConfigManager() const {
-        if (!m_configManager_deprecated) {
-            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                         "ConfigManager not initialized");
-            throw std::runtime_error("ConfigManager not initialized");
-        }
-
-        return *m_configManager_deprecated;
+    void GameEngine::AddConfig(std::string const &name,
+                               std::unique_ptr<ConfigStore> store) {
+        m_namedAdapters.erase(name);
+        m_namedStores[name] = std::move(store);
+        m_namedAdapters[name] = std::make_unique<ConfigAdapter>(
+            *m_namedStores[name]);
     }
+
+    ConfigAdapter &GameEngine::GetConfig(std::string const &name) const {
+        auto it = m_namedAdapters.find(name);
+        if (it == m_namedAdapters.end()) {
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
+                         "Config set '%s' not found", name.c_str());
+            throw std::runtime_error("Config set not found: " + name);
+        }
+        return *it->second;
+    }
+
+    
 
     FontManager &GameEngine::getFontManager() const {
         if (!m_fontManager) {

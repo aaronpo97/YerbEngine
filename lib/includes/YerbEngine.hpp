@@ -15,9 +15,9 @@
 #include <EntityManagement/EntityManager.hpp>
 
 #include <Configuration/ConfigDeprecated.hpp>
-#include <Configuration/ConfigManagerDeprecated.hpp>
-
 #include <Configuration/ConfigDictionary.hpp>
+#include <Configuration/ConfigStore.hpp>
+#include <Configuration/ConfigAdapter.hpp>
 
 #include <AssetManagement/AudioSampleQueue.hpp>
 #include <AssetManagement/FontManager.hpp>

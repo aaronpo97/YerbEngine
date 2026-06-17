@@ -68,7 +68,7 @@ void ScoreScene::renderText() const {
                                   scorePos);
 
     float const bottomOfScreen =
-        m_gameEngine->GetConfigManager().getGameConfig().windowSize.y();
+        m_gameEngine->getVideoManager().getWindowSize().y();
 
     std::string const playAgainText = "Play Again";
     Vec2 const        playAgainPos{100, bottomOfScreen - 200};
