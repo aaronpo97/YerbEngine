@@ -92,8 +92,7 @@ void MenuScene::renderText() const {
     const std::string controlsText = "W/S to move up/down, Enter to select";
     // bottom right corner
     Vec2 const controlsPos{
-        100,
-        m_gameEngine->getVideoManager().getWindowSize().y() - 50};
+        100, m_gameEngine->getVideoManager().getWindowSize().y() - 50};
     TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
                                   controlsPos);
 }

@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <Configuration/ConfigDeprecated.hpp>
 #include <Helpers/Vec2.hpp>
 namespace YerbEngine {
     class CTransform {
@@ -27,12 +26,13 @@ namespace YerbEngine {
         SDL_Rect  rect;
         SDL_Color color;
 
-        CShape(SDL_Renderer      *renderer,
-               ShapeConfig const &config)
+        CShape(SDL_Renderer *renderer,
+               float         height,
+               float         width,
+               SDL_Color     color)
             : renderer(renderer),
               rect(),
-              color() {
-
+              color(color) {
             if (renderer == nullptr) {
                 SDL_LogError(
                     SDL_LOG_CATEGORY_SYSTEM,
@@ -41,12 +41,10 @@ namespace YerbEngine {
                     "CShape entity initialization failed: Renderer is null.");
             }
 
-            rect.h = static_cast<int>(config.height);
-            rect.w = static_cast<int>(config.width);
-            color  = config.color;
+            rect.h = static_cast<int>(height);
+            rect.w = static_cast<int>(width);
 
-            SDL_SetRenderDrawColor(renderer, config.color.r, config.color.g,
-                                   config.color.b, 255);
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
             SDL_RenderFillRect(renderer, &rect);
         }
     };

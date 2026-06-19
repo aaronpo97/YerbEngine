@@ -9,8 +9,8 @@ namespace YerbEngine {
         SDL_Renderer *m_renderer = nullptr;
         SDL_Window   *m_window   = nullptr;
 
-  Vec2           m_currentWindowSize;
-  ConfigAdapter &m_config;
+        Vec2           m_currentWindowSize;
+        ConfigAdapter &m_config;
 
         /**
          * @brief Initializes the SDL video subsystem.
@@ -72,13 +72,13 @@ namespace YerbEngine {
          */
         ~VideoManager();
 
-  /**
-   * Get the current window size.
-   *
-   * @returns `Vec2` The current window size as a Vec2 object (width,
-   * height).
-   */
-  Vec2 getWindowSize() const;
+        /**
+         * Get the current window size.
+         *
+         * @returns `Vec2` The current window size as a Vec2 object (width,
+         * height).
+         */
+        Vec2 getWindowSize() const;
 
         /**
          * @brief Updates the current window size.

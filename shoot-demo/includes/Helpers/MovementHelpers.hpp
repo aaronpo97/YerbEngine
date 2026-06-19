@@ -1,4 +1,5 @@
 #pragma once
+#include <Configuration/DemoConfigTypes.hpp>
 #include <YerbEngine.hpp>
 using namespace YerbEngine;
 #include <memory>

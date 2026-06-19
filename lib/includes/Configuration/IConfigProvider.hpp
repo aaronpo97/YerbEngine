@@ -10,7 +10,7 @@ namespace YerbEngine {
 
       public:
         virtual ~IConfigProvider() = default;
-        
+
         virtual ConfigValue getKey(std::string const &name) const = 0;
         virtual bool        hasKey(std::string const &name) const = 0;
     };
