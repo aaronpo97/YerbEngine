@@ -1,6 +1,8 @@
 #pragma once
 #include <Configuration/ConfigStore.hpp>
-#include <Configuration/ConfigDeprecated.hpp>
+#include <Configuration/ConfigTypes.hpp>
+#include <Configuration/ConfigTypes.hpp>
+
 #include <Helpers/Vec2.hpp>
 #include <SDL.h>
 #include <string>
@@ -9,8 +11,10 @@ namespace YerbEngine {
     // Thin adapter that reconstructs the typed configs from the key-value
     // ConfigStore.
     class ConfigAdapter {
+
         ConfigStore &m_store;
 
+      public:
         static inline std::string k(std::string const &root,
                                     std::string const &child) {
             return root + "." + child;
@@ -74,9 +78,6 @@ namespace YerbEngine {
             return Vec2{w, h};
         }
 
-        // No ShapeConfig in lib anymore; gameplay parsing is moved to demo
-
-      public:
         explicit ConfigAdapter(ConfigStore &store) : m_store(store) {}
 
         GameConfig getGameConfig() {
@@ -92,17 +93,11 @@ namespace YerbEngine {
             cfg.fontSizeMd = intOr(48, m_store, "engine.fonts.sizes.md");
             cfg.fontSizeLg = intOr(68, m_store, "engine.fonts.sizes.lg");
 
-            // Legacy fallback for window size when engine.* missing
-            if (!m_store.has("engine.window.size.width") &&
-                m_store.has("gameConfig.windowSize.width")) {
-                cfg.windowSize =
-                    vec2Or(cfg.windowSize, m_store, "gameConfig.windowSize");
-            }
+            
             // Gameplay-driven, stays under demo config
             cfg.spawnInterval = u64Or(500, m_store, "gameConfig.spawnInterval");
+            
             return cfg;
         }
-
-        // Gameplay accessors have moved to the demo's DemoConfigAdapter
     };
 } // namespace YerbEngine
