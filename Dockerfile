@@ -9,4 +9,4 @@ RUN mkdir -p embuild && cd embuild && \
 RUN npm install -g serve
 
 EXPOSE 3333
-CMD  ["npx", "-s", "serve", "-s", "embuild/build", "-p", "3333"]
+CMD  ["npx", "-s", "serve", "-s", "embuild/bin", "-p", "3333"]
