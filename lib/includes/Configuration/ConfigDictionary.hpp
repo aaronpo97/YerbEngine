@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
+#include <optional>
 
 using ConfigValue = std::variant<int, float, std::string, bool, SDL_Color>;
 
