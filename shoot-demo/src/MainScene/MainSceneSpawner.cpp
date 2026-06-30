@@ -1,5 +1,27 @@
 #include <MainScene/MainSceneSpawner.hpp>
 #include <YerbEngine.hpp>
+#include <string_view>
+
+namespace {
+    constexpr std::string_view PLAYER_TEXTURE_ID = "player";
+    constexpr std::string_view ENEMY_TEXTURE_ID  = "enemy";
+    constexpr std::string_view WALL_TEXTURE_ID   = "wall";
+    constexpr std::string_view COIN_TEXTURE_ID   = "coin";
+
+    void registerDemoTextures(TextureManager &textureManager) {
+        auto const registerIfMissing = [&](std::string_view id,
+                                           std::string_view path) {
+            if (!textureManager.hasTexture(id)) {
+                textureManager.registerTexture(id, path);
+            }
+        };
+
+        registerIfMissing(PLAYER_TEXTURE_ID, "assets/images/player.png");
+        registerIfMissing(ENEMY_TEXTURE_ID, "assets/images/enemy.png");
+        registerIfMissing(WALL_TEXTURE_ID, "assets/images/wall.png");
+        registerIfMissing(COIN_TEXTURE_ID, "assets/images/coin.png");
+    }
+} // namespace
 
 MainSceneSpawner::MainSceneSpawner(std::mt19937      &randomGenerator,
                                    DemoConfigAdapter &config,
@@ -12,6 +34,7 @@ MainSceneSpawner::MainSceneSpawner(std::mt19937      &randomGenerator,
       m_entityManager(entityManager),
       m_renderer(renderer) {
     std::cout << "spawner created\n";
+    registerDemoTextures(m_textureManager);
 }
 
 std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
@@ -34,8 +57,8 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
         std::make_shared<CTransform>(playerPosition, playerVelocity);
     auto const cInput   = std::make_shared<CInput>();
     auto const cEffects = std::make_shared<CEffects>();
-    auto const cSprite  = std::make_shared<CSprite>(
-        m_textureManager.getTexture(TextureName::PLAYER));
+    auto const cSprite = std::make_shared<CSprite>(
+        m_textureManager.getTexture(PLAYER_TEXTURE_ID));
 
     std::shared_ptr<Entity> player =
         m_entityManager.addEntity(EntityTags::Player);
@@ -66,7 +89,7 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
     auto const cLifespan = std::make_shared<CLifespan>(enemyConfig.lifespan);
 
     auto const cSprite = std::make_shared<CSprite>(
-        m_textureManager.getTexture(TextureName::ENEMY));
+        m_textureManager.getTexture(ENEMY_TEXTURE_ID));
 
     std::shared_ptr<Entity> const &enemy =
         m_entityManager.addEntity(EntityTags::Enemy);
@@ -285,7 +308,7 @@ void MainSceneSpawner::spawnWalls() {
         }
 
         auto const cSprite = std::make_shared<CSprite>(
-            m_textureManager.getTexture(TextureName::WALL));
+            m_textureManager.getTexture(WALL_TEXTURE_ID));
 
         std::shared_ptr<Entity> const wall =
             m_entityManager.addEntity(EntityTags::Wall);
@@ -373,7 +396,7 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
                                                      shape.width, shape.color);
     auto const cLifespan  = std::make_shared<CLifespan>(lifespan);
     auto const cSprite    = std::make_shared<CSprite>(
-        m_textureManager.getTexture(TextureName::COIN));
+        m_textureManager.getTexture(COIN_TEXTURE_ID));
 
     auto const &item = m_entityManager.addEntity(EntityTags::Item);
     item->setComponent<CTransform>(cTransform);

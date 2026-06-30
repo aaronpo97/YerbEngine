@@ -30,8 +30,7 @@ namespace YerbEngine {
         std::unique_ptr<AudioSampleQueue> m_audioSampleQueue;
         std::unique_ptr<VideoManager>     m_videoManager;
         std::unique_ptr<ConfigStore> m_configStore; // default engine config
-        std::unique_ptr<ConfigAdapter>
-            m_configAdapter; // default engine adapter
+        std::unique_ptr<ConfigAdapter> m_configAdapter; // default engine adapter
         std::map<std::string, std::unique_ptr<ConfigStore>>   m_namedStores;
         std::map<std::string, std::unique_ptr<ConfigAdapter>> m_namedAdapters;
 
@@ -79,7 +78,8 @@ namespace YerbEngine {
          *
          * @throws std::runtime_error if the assets directory is not found.
          */
-        GameEngine();
+        explicit GameEngine(Path assetsDir = Path{"assets"},
+                            Path configDir = Path{"config"});
 
         /**
          * Destroys the GameEngine object and cleans up all resources.
