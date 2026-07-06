@@ -1,6 +1,7 @@
 # YerbEngine
 
-YerbEngine is a work-in-progress game engine featuring an _Entity-Component-System_ (ECS) architecture, built with `SDL2` and `C++`.
+YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL2` and `C++`.
+I am currently in the process of refactoring this engine to be a entity component system.
 
 ## Features
 
