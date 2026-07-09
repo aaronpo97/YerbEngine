@@ -3,7 +3,7 @@
 #include "Configuration/ConfigAdapter.hpp"
 #include "Configuration/ConfigStore.hpp"
 
-#include <AssetManagement/AudioSampleQueue.hpp>
+#include <AssetManagement/AudioSampleBuffer.hpp>
 #include <AssetManagement/FontManager.hpp>
 #include <AssetManagement/TextureManager.hpp>
 #include <SystemManagement/AudioManager.hpp>
@@ -27,7 +27,7 @@ namespace YerbEngine {
         std::unique_ptr<FontManager>      m_fontManager;
         std::unique_ptr<AudioManager>     m_audioManager;
         std::unique_ptr<TextureManager>   m_textureManager;
-        std::unique_ptr<AudioSampleQueue> m_audioSampleQueue;
+        std::unique_ptr<AudioSampleBuffer> m_audioSampleBuffer;
         std::unique_ptr<VideoManager>     m_videoManager;
         std::unique_ptr<ConfigStore> m_configStore; // default engine config
         std::unique_ptr<ConfigAdapter> m_configAdapter; // default engine adapter
@@ -131,13 +131,13 @@ namespace YerbEngine {
         AudioManager &getAudioManager() const;
 
         /**
-         * Retrieves the AudioSampleQueue instance associated with the game
+         * Retrieves the AudioSampleBuffer instance associated with the game
          * engine.
          *
-         * @throws std::runtime_error if AudioSampleQueue is not initialized.
-         * @returns A reference to the initialized AudioSampleQueue object.
+         * @throws std::runtime_error if AudioSampleBuffer is not initialized.
+         * @returns A reference to the initialized AudioSampleBuffer object.
          */
-        AudioSampleQueue &getAudioSampleQueue() const;
+        AudioSampleBuffer &getAudioSampleBuffer() const;
 
         /**
          * Retrieves the VideoManager instance associated with the game engine.

@@ -106,13 +106,13 @@ void MenuScene::sDoAction(Action &action) {
     constexpr int MAX_MENU_ITEMS = 3;
 #endif
 
-    AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
     if (action.getState() == ActionState::END) {
         return;
     }
 
     if (action.getName() == "SELECT") {
-        audioSampleQueue.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
                                      PriorityLevel::BACKGROUND);
         m_endTriggered = true;
         return;
@@ -120,7 +120,7 @@ void MenuScene::sDoAction(Action &action) {
 
     // UP takes precedence over DOWN if both are pressed
     if (action.getName() == "UP") {
-        audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
+        audioSampleBuffer.queueSample(AudioSample::MENU_MOVE,
                                      PriorityLevel::BACKGROUND);
         m_selectedIndex > 0 ? m_selectedIndex -= 1
                             : m_selectedIndex = MAX_MENU_ITEMS - 1;
@@ -128,7 +128,7 @@ void MenuScene::sDoAction(Action &action) {
     }
 
     if (action.getName() == "DOWN") {
-        audioSampleQueue.queueSample(AudioSample::MENU_MOVE,
+        audioSampleBuffer.queueSample(AudioSample::MENU_MOVE,
                                      PriorityLevel::BACKGROUND);
         m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
                                              : m_selectedIndex = 0;
@@ -137,7 +137,7 @@ void MenuScene::sDoAction(Action &action) {
 
 void MenuScene::sAudio() {
     AudioManager     &audioManager     = m_gameEngine->getAudioManager();
-    AudioSampleQueue &audioSampleQueue = m_gameEngine->getAudioSampleQueue();
+    AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
     // TEMPORARY FOR NOW
     audioManager.muteTracks();
@@ -145,5 +145,5 @@ void MenuScene::sAudio() {
     if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
         m_gameEngine->getAudioManager().playTrack(AudioTrack::MAIN_MENU, -1);
     }
-    audioSampleQueue.update();
+    audioSampleBuffer.update();
 }

@@ -18,7 +18,7 @@
 #include <Configuration/ConfigDictionary.hpp>
 #include <Configuration/ConfigStore.hpp>
 
-#include <AssetManagement/AudioSampleQueue.hpp>
+#include <AssetManagement/AudioSampleBuffer.hpp>
 #include <AssetManagement/FontManager.hpp>
 #include <AssetManagement/TextureManager.hpp>
 
