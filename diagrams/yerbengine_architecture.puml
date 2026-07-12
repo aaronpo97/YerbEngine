@@ -7,92 +7,254 @@ title YerbEngine - Detailed Class Diagram
 ' Core
 package "Core" {
   class GameEngine {
-    - m_fontManager: std::unique_ptr<FontManager>
-    - m_textureManager: std::unique_ptr<TextureManager>
-    - m_audioManager: std::unique_ptr<AudioManager>
-    - m_audioSampleQueue: std::unique_ptr<AudioSampleQueue>
-    - m_videoManager: std::unique_ptr<VideoManager>
-    - m_config: ConfigAdapter*
-    - m_currentScene: shared_ptr<Scene>
-    - m_running: bool
-    + GameEngine(configPath: string)
-    + LoadScene(name: string, scene: shared_ptr<Scene>) : void
+    - m_scenes: map<string, shared_ptr<Scene>>
+    - m_currentSceneName: string
+    - m_isRunning: bool
+    - m_fontManager: unique_ptr<FontManager>
+    - m_audioManager: unique_ptr<AudioManager>
+    - m_textureManager: unique_ptr<TextureManager>
+    - m_audioSampleBuffer: unique_ptr<AudioSampleBuffer>
+    - m_videoManager: unique_ptr<VideoManager>
+    - m_configStore: unique_ptr<ConfigStore>
+    - m_configAdapter: unique_ptr<ConfigAdapter>
+    - m_namedStores: map<string, unique_ptr<ConfigStore>>
+    - m_namedAdapters: map<string, unique_ptr<ConfigAdapter>>
+    - Update() : void
+    - S_UserInput() : void
+    - {static} MainLoop(arg: void*) : void
+    - {static} CleanUp() : void
+    + GameEngine(assetsDir: Path, configDir: Path)
+    + ~GameEngine()
+    + IsRunning() : bool
+    + LoadScene(sceneName: string, scene: shared_ptr<Scene>) : void
+    + AddConfig(name: string, store: unique_ptr<ConfigStore>) : void
     + GetConfig() : ConfigAdapter&
-    + Run() : void
-    + UpdateLoop(delta: float) : void
+    + GetConfig(name: string) : ConfigAdapter&
+    + GetConfigStore() : ConfigStore&
+    + GetConfigStore(name: string) : ConfigStore&
+    + getFontManager() : FontManager&
+    + getAudioManager() : AudioManager&
+    + getAudioSampleBuffer() : AudioSampleBuffer&
+    + getVideoManager() : VideoManager&
+    + getTextureManager() : TextureManager&
+    + run() : void
+    + quit() : void
   }
 
   abstract class Scene {
     - m_gameEngine: GameEngine*
-    + Scene(engine: GameEngine*)
-    + virtual update(delta: float) : void
+    - m_lastFrameTime: Uint64
+    - m_deltaTime: float
+    - m_endTriggered: bool
+    - m_hasEnded: bool
+    - m_paused: bool
+    - m_SceneStartTime: Uint64
+    - m_actionMap: map<int, string>
+    + Scene(gameEngine: GameEngine*)
+    + virtual ~Scene()
+    + virtual update() : void
+    + virtual onEnd() : void
     + virtual sRender() : void
     + virtual sDoAction(action: Action&) : void
     + virtual sAudio() : void
-    + virtual onEnd() : void
-    + virtual onSceneWindowResize(w: int, h: int) : void
+    + virtual onSceneWindowResize() : void
+    + registerAction(inputKey: int, actionName: string) : void
+    + setPaused(paused: bool) : void
+    + getActionMap() : map<int, string> const&
+    + setStartTime(startTime: Uint64) : void
+    + getStartTime() : Uint64 const&
+  }
+
+  class Action {
+    - m_name: string
+    - m_state: ActionState
+    - m_pos: optional<Vec2>
+    + Action(name: string, state: ActionState, pos: optional<Vec2>)
+    + getName() : string const&
+    + getState() : ActionState const&
+    + getPos() : optional<Vec2> const&
+  }
+
+  enum ActionState {
+    START
+    END
   }
 }
 
 package "Managers" {
-  package "Asset Managers" {
+  package "Asset Management" {
     class FontManager {
-      - m_fonts: map<string, Font>
-      + loadFont(path: string, size: int) : FontID
-      + getFont(id: FontID) : Font
+      - m_fontPath: Path
+      - m_fontSizeSm: int
+      - m_fontSizeMd: int
+      - m_fontSizeLg: int
+      - m_fontLg: TTF_Font*
+      - m_fontMd: TTF_Font*
+      - m_fontSm: TTF_Font*
+      + FontManager(fontPath: Path, fontSizeSm: int, fontSizeMd: int, fontSizeLg: int)
+      + ~FontManager()
+      + loadFonts(fontPath: Path) : void
+      + getFontLg() : TTF_Font*
+      + getFontMd() : TTF_Font*
+      + getFontSm() : TTF_Font*
     }
 
     class TextureManager {
-      - m_textures: map<string, Texture>
-      + loadTexture(path: string) : TextureID
-      + getTexture(id: TextureID) : Texture
+      - m_renderer: SDL_Renderer*
+      - m_textures: unordered_map<string, SDL_Texture*>
+      + TextureManager(renderer: SDL_Renderer*)
+      + ~TextureManager()
+      + registerTexture(name: string_view, path: filesystem::path) : void
+      + hasTexture(name: string_view) : bool
+      + getTexture(name: string_view) : SDL_Texture*
     }
 
-    class AudioSampleQueue {
-      - queue: deque<AudioSample>
-      + queueSample(sampleId: AudioSampleID, volume: float) : void
+    enum PriorityLevel {
+      BACKGROUND
+      STANDARD
+      IMPORTANT
+      CRITICAL
+    }
+
+    class AudioSampleBuffer {
+      - m_audioManager: AudioManager&
+      + AudioSampleBuffer(audioManager: AudioManager&)
+      + queueSample(sample: AudioSample, priority: PriorityLevel) : void
       + update() : void
     }
   }
 
-  package "System Managers" {
+  package "System Management" {
+    enum AudioSample {
+      NONE
+      ITEM_ACQUIRED
+      ENEMY_COLLISION
+      SPEED_BOOST
+      SLOWNESS_DEBUFF
+      MENU_MOVE
+      MENU_SELECT
+      SHOOT
+      BULLET_HIT_01
+      BULLET_HIT_02
+    }
+
+    enum AudioTrack {
+      NONE
+      MAIN_MENU
+      PLAY
+    }
+
     class AudioManager {
-      - m_tracks: map<AudioTrack, Track>
+      - m_audioTracks: unordered_map<AudioTrack, Mix_Music*>
+      - m_audioSamples: unordered_map<AudioSample, Mix_Chunk*>
+      - m_currentAudioTrack: AudioTrack
+      - m_lastAudioTrack: AudioTrack
+      - m_lastAudioSample: AudioSample
+      - m_tracksMuted: bool
+      - m_samplesMuted: bool
+      + AudioManager()
+      + AudioManager(frequency: int, format: Uint16, channels: int, chunksize: int)
+      + loadAllAudio() : void
       + playTrack(track: AudioTrack, loops: int) : void
+      + playSample(sample: AudioSample, loops: int) : void
+      + stopTrack() : void
       + muteTracks() : void
+      + muteSamples() : void
+      + toggleMuteAll() : void
       + getCurrentAudioTrack() : AudioTrack
+      + getLastAudioTrack() : AudioTrack
+      + getLastAudioSample() : AudioSample
     }
 
     class VideoManager {
-      - renderer: SDL_Renderer*
-      + getRenderer() : SDL_Renderer*
+      - m_renderer: SDL_Renderer*
+      - m_window: SDL_Window*
+      - m_currentWindowSize: Vec2
+      - m_config: ConfigAdapter&
+      + VideoManager(config: ConfigAdapter&)
+      + ~VideoManager()
       + getWindowSize() : Vec2
+      + updateWindowSize() : void
+      + getRenderer() : SDL_Renderer*
+      + getWindow() : SDL_Window*
+      + cleanup() : void
     }
   }
 }
 
 ' Configuration subsystem
 package "Configuration" {
-  class ConfigStore {
-    - m_values: map<string, string>
-    + get(key: string) : string
-    + set(key: string, value: string) : void
+  class ConfigDictionary {
+    - m_configuration: unordered_map<string, ConfigValue>
+    + set(key: string, value: ConfigValue) : void
+    + get(key: string) : optional<ConfigValue>
+    + contains(key: string) : bool
+    + hasType(key: string) : bool
+    + clear() : void
+  }
+
+  interface IConfigProvider {
+    + getKey(name: string) : ConfigValue
+    + hasKey(name: string) : bool
   }
 
   class JsonConfigProvider {
-    + loadFromFile(path: string) : ConfigStore
+    - m_configDict: ConfigDictionary
+    - loadJsonIntoDict(json: json, prefix: string) : void
+    + JsonConfigProvider(configPath: filesystem::path)
+    + getKey(name: string) : ConfigValue
+    + hasKey(name: string) : bool
+  }
+
+  class ConfigStore {
+    - m_provider: unique_ptr<IConfigProvider>
+    - m_dictionary: ConfigDictionary
+    + ConfigStore(provider: unique_ptr<IConfigProvider>)
+    + {static} fromJsonFile(jsonPath: filesystem::path) : unique_ptr<ConfigStore>
+    + get(path: string) : ConfigValue
+    + has(path: string) : bool
+    + reload() : void
   }
 
   class ConfigAdapter {
-    - store: ConfigStore*
-    + getInt(key: string, def: int) : int
-    + getFloat(key: string, def: float) : float
-    + getString(key: string, def: string) : string
+    - m_store: ConfigStore&
+    + ConfigAdapter(store: ConfigStore&)
+    + getGameConfig() : GameConfig
+  }
+
+  class GameConfig {
+    + windowSize: Vec2
+    + windowTitle: string
+    + fontPath: filesystem::path
+    + spawnInterval: Uint64
+    + fontSizeSm: int
+    + fontSizeMd: int
+    + fontSizeLg: int
+  }
+
+  class EngineConfig {
+    + windowSize: Vec2
+    + windowTitle: string
+    + fontPath: filesystem::path
+    + fontSizeSm: int
+    + fontSizeMd: int
+    + fontSizeLg: int
   }
 }
 
 ' Entity-Component System
 package "ECS" {
+  enum EntityTags {
+    Player
+    Wall
+    SpeedBoost
+    SlownessDebuff
+    Enemy
+    Bullet
+    Item
+    Default
+  }
+
   class EntityManager {
     - m_entities: vector<shared_ptr<Entity>>
     - m_toAdd: vector<shared_ptr<Entity>>
@@ -121,31 +283,42 @@ package "ECS" {
   }
 
   class CTransform {
-    - topLeftCornerPos: Vec2
-    - velocity: Vec2
+    + topLeftCornerPos: Vec2
+    + velocity: Vec2
     + CTransform(position: Vec2, velocity: Vec2)
   }
 
   class CShape {
     - renderer: SDL_Renderer*
-    - rect: SDL_Rect
-    - color: SDL_Color
+    + rect: SDL_Rect
+    + color: SDL_Color
     + CShape(renderer: SDL_Renderer*, height: float, width: float, color: SDL_Color)
   }
 
   class CInput {
-    - forward: bool
-    - backward: bool
-    - left: bool
-    - right: bool
+    + forward: bool
+    + backward: bool
+    + left: bool
+    + right: bool
     + CInput()
   }
 
   class CLifespan {
-    - birthTime: Uint64
-    - lifespan: Uint64
+    + birthTime: Uint64
+    + lifespan: Uint64
     + CLifespan()
     + CLifespan(lifespan: Uint64)
+  }
+
+  enum EffectTypes {
+    Speed
+    Slowness
+  }
+
+  class Effect {
+    + startTime: Uint64
+    + duration: Uint64
+    + type: EffectTypes
   }
 
   class CEffects {
@@ -174,19 +347,26 @@ package "ECS" {
 GameEngine --> FontManager : owns
 GameEngine --> TextureManager : owns
 GameEngine --> AudioManager : owns
-GameEngine --> AudioSampleQueue : owns
+GameEngine --> AudioSampleBuffer : owns
 GameEngine --> VideoManager : owns
-GameEngine --> ConfigAdapter : uses
+GameEngine --> ConfigStore : owns
+GameEngine --> ConfigAdapter : owns
 GameEngine --> Scene : manages
 
-Scene --> EntityManager : uses
-Scene --> TextureManager : uses
-Scene --> AudioManager : uses
+Scene --> GameEngine : uses
+Scene --> Action : uses
 
-ConfigAdapter --> ConfigStore : backs
-JsonConfigProvider --> ConfigStore : loads
+AudioSampleBuffer --> AudioManager : uses
+
+ConfigAdapter --> ConfigStore : wraps
+ConfigAdapter --> GameConfig : returns
+ConfigStore --> IConfigProvider : owns
+ConfigStore --> ConfigDictionary : stores
+JsonConfigProvider ..|> IConfigProvider
+JsonConfigProvider --> ConfigDictionary : fills
 
 EntityManager --> Entity : creates/manages
+Entity --> EntityTags : tags
 Entity *-- CTransform : contains
 Entity *-- CShape : contains
 Entity *-- CInput : contains
@@ -194,7 +374,8 @@ Entity *-- CLifespan : contains
 Entity *-- CEffects : contains
 Entity *-- CBounceTracker : contains
 Entity *-- CSprite : contains
-
+CEffects --> Effect : stores
+Effect --> EffectTypes : type
 
 note left of GameEngine
   Initializes managers and hosts the main loop
