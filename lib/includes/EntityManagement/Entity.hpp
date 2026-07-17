@@ -1,5 +1,6 @@
 #pragma once
 
+#include "./ComponentRegistry.hpp"
 #include "./Components.hpp"
 #include <memory>
 #include <ostream>
@@ -46,24 +47,16 @@ namespace YerbEngine {
         return os;
     }
 
-    using EntityComponents = std::tuple<std::shared_ptr<CTransform>,
-                                        std::shared_ptr<CShape>,
-                                        std::shared_ptr<CInput>,
-                                        std::shared_ptr<CLifespan>,
-                                        std::shared_ptr<CEffects>,
-                                        std::shared_ptr<CBounceTracker>,
-                                        std::shared_ptr<CSprite>>;
-
     class Entity {
         friend class EntityManager;
-        bool       m_active = true;
-        size_t     m_id     = 0;
-        EntityTags m_tag    = EntityTags::Default;
-
-        EntityComponents m_components;
+        bool                               m_active   = true;
+        size_t                             m_id       = 0;
+        EntityTags                         m_tag      = EntityTags::Default;
+        std::weak_ptr<ComponentRegistry>   m_registry;
 
         Entity(size_t     id,
-               EntityTags tag);
+               EntityTags tag,
+               std::shared_ptr<ComponentRegistry> registry);
 
       public:
         // private member access functions
@@ -85,24 +78,37 @@ namespace YerbEngine {
 
     template <typename ComponentType>
     std::shared_ptr<ComponentType> Entity::getComponent() const {
-        auto component = std::get<std::shared_ptr<ComponentType>>(m_components);
-        return component;
+        auto registry = m_registry.lock();
+        if (!registry) {
+            return nullptr;
+        }
+        return registry->get<ComponentType>(m_id);
     }
 
     template <typename ComponentType>
     void Entity::setComponent(std::shared_ptr<ComponentType> component) {
-        std::get<std::shared_ptr<ComponentType>>(m_components) = component;
+        auto registry = m_registry.lock();
+        if (!registry) {
+            return;
+        }
+        registry->emplace<ComponentType>(m_id, std::move(component));
     }
 
     template <typename ComponentType>
     void Entity::removeComponent() {
-        std::get<std::shared_ptr<ComponentType>>(m_components) = nullptr;
+        auto registry = m_registry.lock();
+        if (!registry) {
+            return;
+        }
+        registry->remove<ComponentType>(m_id);
     }
 
     template <typename ComponentType>
     bool Entity::hasComponent() const {
-        auto hasComponent =
-            std::get<std::shared_ptr<ComponentType>>(m_components) != nullptr;
-        return hasComponent;
+        auto registry = m_registry.lock();
+        if (!registry) {
+            return false;
+        }
+        return registry->contains<ComponentType>(m_id);
     }
 } // namespace YerbEngine

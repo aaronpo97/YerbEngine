@@ -1,6 +1,8 @@
 #pragma once
 
+#include "./ComponentRegistry.hpp"
 #include "./Entity.hpp"
+#include <memory>
 #include <list>
 #include <memory>
 #include <unordered_map>
@@ -12,10 +14,12 @@ namespace YerbEngine {
     using EntityMap  = std::unordered_map<EntityTags, EntityList>;
 
     class EntityManager {
-        EntityList m_entities;
-        EntityList m_toAdd;
-        EntityMap  m_entityMap;
-        size_t     m_totalEntities = 0;
+        EntityList                             m_entities;
+        EntityList                             m_toAdd;
+        EntityMap                              m_entityMap;
+        size_t                                 m_totalEntities = 0;
+        std::shared_ptr<ComponentRegistry>     m_components =
+            std::make_shared<ComponentRegistry>();
 
       public:
         EntityManager()  = default;
@@ -30,6 +34,9 @@ namespace YerbEngine {
         std::shared_ptr<Entity> addEntity(EntityTags tag);
         EntityList             &getEntities();
         EntityList             &getEntities(EntityTags tag);
+
+        ComponentRegistry       &components();
+        ComponentRegistry const &components() const;
         void                    update();
     };
 
