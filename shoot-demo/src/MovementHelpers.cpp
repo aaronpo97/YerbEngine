@@ -18,8 +18,8 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CTransform> const &entityCTransform =
-            entity->getComponent<CTransform>();
+        std::shared_ptr<Components::CTransform> const &entityCTransform =
+            entity->getComponent<Components::CTransform>();
         if (entityCTransform == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                          "Entity with ID %zu lacks a transform component.",
@@ -47,8 +47,8 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CTransform> const &entityCTransform =
-            entity->getComponent<CTransform>();
+        std::shared_ptr<Components::CTransform> const &entityCTransform =
+            entity->getComponent<Components::CTransform>();
         if (entityCTransform == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                          "Entity with ID %zu lacks a transform component.",
@@ -76,8 +76,8 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CTransform> const &entityCTransform =
-            entity->getComponent<CTransform>();
+        std::shared_ptr<Components::CTransform> const &entityCTransform =
+            entity->getComponent<Components::CTransform>();
         if (entityCTransform == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                          "Entity with ID %zu lacks a transform component.",
@@ -85,8 +85,8 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CInput> const &entityCInput =
-            entity->getComponent<CInput>();
+        std::shared_ptr<Components::CInput> const &entityCInput =
+            entity->getComponent<Components::CInput>();
         if (entityCInput == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                          "Entity with ID %zu lacks an input component.",
@@ -114,15 +114,15 @@ namespace MovementHelpers {
 
         velocity.normalize();
 
-        std::shared_ptr<CEffects> const &entityEffects =
-            entity->getComponent<CEffects>();
+        std::shared_ptr<Components::CEffects> const &entityEffects =
+            entity->getComponent<Components::CEffects>();
 
         float effectMultiplier = 1;
-        if (entityEffects->hasEffect(EffectTypes::Speed)) {
+        if (entityEffects->hasEffect(Components::EffectTypes::Speed)) {
             effectMultiplier = playerConfig.speedBoostMultiplier;
         }
 
-        if (entityEffects->hasEffect(EffectTypes::Slowness)) {
+        if (entityEffects->hasEffect(Components::EffectTypes::Slowness)) {
             effectMultiplier = playerConfig.slownessMultiplier;
         }
 
@@ -145,10 +145,10 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CTransform> const &entityCTransform =
-            entity->getComponent<CTransform>();
-        std::shared_ptr<CShape> const &entityCShape =
-            entity->getComponent<CShape>();
+        std::shared_ptr<Components::CTransform> const &entityCTransform =
+            entity->getComponent<Components::CTransform>();
+        std::shared_ptr<Components::CShape> const &entityCShape =
+            entity->getComponent<Components::CShape>();
 
         if (entityCTransform == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
@@ -185,8 +185,8 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CTransform> const &entityCTransform =
-            entity->getComponent<CTransform>();
+        std::shared_ptr<Components::CTransform> const &entityCTransform =
+            entity->getComponent<Components::CTransform>();
         if (entityCTransform == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                          "Entity with ID %zu lacks a transform component.",
@@ -214,8 +214,8 @@ namespace MovementHelpers {
             return;
         }
 
-        std::shared_ptr<CTransform> const &entityCTransform =
-            entity->getComponent<CTransform>();
+        std::shared_ptr<Components::CTransform> const &entityCTransform =
+            entity->getComponent<Components::CTransform>();
 
         if (entityCTransform == nullptr) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,

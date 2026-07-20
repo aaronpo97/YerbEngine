@@ -176,20 +176,20 @@ BOOST_AUTO_TEST_CASE(test_entity_set_and_get_component) {
     auto          entity = manager.addEntity(EntityTags::Player);
 
     // Initially, component should be null
-    BOOST_CHECK(!entity->hasComponent<CTransform>());
-    BOOST_CHECK(entity->getComponent<CTransform>() == nullptr);
+    BOOST_CHECK(!entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(entity->getComponent<Components::CTransform>() == nullptr);
 
     // Add a transform component
     auto transform =
-        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     // Now component should exist
-    BOOST_CHECK(entity->hasComponent<CTransform>());
-    BOOST_CHECK(entity->getComponent<CTransform>() != nullptr);
+    BOOST_CHECK(entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(entity->getComponent<Components::CTransform>() != nullptr);
 
     // Verify component data
-    auto retrievedTransform = entity->getComponent<CTransform>();
+    auto retrievedTransform = entity->getComponent<Components::CTransform>();
     BOOST_CHECK_EQUAL(retrievedTransform->topLeftCornerPos.x(), 100.0f);
     BOOST_CHECK_EQUAL(retrievedTransform->topLeftCornerPos.y(), 200.0f);
     BOOST_CHECK_EQUAL(retrievedTransform->velocity.x(), 5.0f);
@@ -202,17 +202,17 @@ BOOST_AUTO_TEST_CASE(test_entity_has_component) {
     EntityManager manager;
     auto          entity = manager.addEntity(EntityTags::Player);
 
-    BOOST_CHECK(!entity->hasComponent<CTransform>());
-    BOOST_CHECK(!entity->hasComponent<CInput>());
-    BOOST_CHECK(!entity->hasComponent<CLifespan>());
+    BOOST_CHECK(!entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(!entity->hasComponent<Components::CInput>());
+    BOOST_CHECK(!entity->hasComponent<Components::CLifespan>());
 
-    entity->setComponent(std::make_shared<CTransform>());
-    BOOST_CHECK(entity->hasComponent<CTransform>());
-    BOOST_CHECK(!entity->hasComponent<CInput>());
+    entity->setComponent(std::make_shared<Components::CTransform>());
+    BOOST_CHECK(entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(!entity->hasComponent<Components::CInput>());
 
-    entity->setComponent(std::make_shared<CInput>());
-    BOOST_CHECK(entity->hasComponent<CTransform>());
-    BOOST_CHECK(entity->hasComponent<CInput>());
+    entity->setComponent(std::make_shared<Components::CInput>());
+    BOOST_CHECK(entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(entity->hasComponent<Components::CInput>());
 }
 
 // Test Entity::removeComponent
@@ -222,15 +222,15 @@ BOOST_AUTO_TEST_CASE(test_entity_remove_component) {
     auto          entity = manager.addEntity(EntityTags::Player);
 
     auto transform =
-        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
-    BOOST_CHECK(entity->hasComponent<CTransform>());
+    BOOST_CHECK(entity->hasComponent<Components::CTransform>());
 
-    entity->removeComponent<CTransform>();
+    entity->removeComponent<Components::CTransform>();
 
-    BOOST_CHECK(!entity->hasComponent<CTransform>());
-    BOOST_CHECK(entity->getComponent<CTransform>() == nullptr);
+    BOOST_CHECK(!entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(entity->getComponent<Components::CTransform>() == nullptr);
 }
 
 // Test multiple components on same entity
@@ -240,23 +240,23 @@ BOOST_AUTO_TEST_CASE(test_entity_multiple_components) {
     auto          entity = manager.addEntity(EntityTags::Player);
 
     auto transform =
-        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
-    auto input    = std::make_shared<CInput>();
-    auto lifespan = std::make_shared<CLifespan>(60);
+        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+    auto input    = std::make_shared<Components::CInput>();
+    auto lifespan = std::make_shared<Components::CLifespan>(60);
 
     entity->setComponent(transform);
     entity->setComponent(input);
     entity->setComponent(lifespan);
 
-    BOOST_CHECK(entity->hasComponent<CTransform>());
-    BOOST_CHECK(entity->hasComponent<CInput>());
-    BOOST_CHECK(entity->hasComponent<CLifespan>());
+    BOOST_CHECK(entity->hasComponent<Components::CTransform>());
+    BOOST_CHECK(entity->hasComponent<Components::CInput>());
+    BOOST_CHECK(entity->hasComponent<Components::CLifespan>());
 
     // Verify each component has correct data
-    auto retrievedTransform = entity->getComponent<CTransform>();
+    auto retrievedTransform = entity->getComponent<Components::CTransform>();
     BOOST_CHECK_EQUAL(retrievedTransform->topLeftCornerPos.x(), 100.0f);
 
-    auto retrievedLifespan = entity->getComponent<CLifespan>();
+    auto retrievedLifespan = entity->getComponent<Components::CLifespan>();
     BOOST_CHECK_EQUAL(retrievedLifespan->lifespan, 60);
 }
 
@@ -267,16 +267,16 @@ BOOST_AUTO_TEST_CASE(test_entity_component_modification) {
     auto          entity = manager.addEntity(EntityTags::Player);
 
     auto transform =
-        std::make_shared<CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
+        std::make_shared<Components::CTransform>(Vec2{100.0f, 200.0f}, Vec2{5.0f, 10.0f});
     entity->setComponent(transform);
 
     // Modify the component through the entity
-    auto retrievedTransform = entity->getComponent<CTransform>();
+    auto retrievedTransform = entity->getComponent<Components::CTransform>();
     retrievedTransform->topLeftCornerPos.setX(150.0f);
     retrievedTransform->velocity.setY(20.0f);
 
     // Verify modifications persist
-    auto modifiedTransform = entity->getComponent<CTransform>();
+    auto modifiedTransform = entity->getComponent<Components::CTransform>();
     BOOST_CHECK_EQUAL(modifiedTransform->topLeftCornerPos.x(), 150.0f);
     BOOST_CHECK_EQUAL(modifiedTransform->velocity.y(), 20.0f);
 }
@@ -336,16 +336,16 @@ BOOST_AUTO_TEST_CASE(test_entity_components_lifecycle) {
 
     auto enemy = manager.addEntity(EntityTags::Enemy);
     enemy->setComponent(
-        std::make_shared<CTransform>(Vec2{50.0f, 50.0f}, Vec2{1.0f, 1.0f}));
-    enemy->setComponent(std::make_shared<CLifespan>(120));
+        std::make_shared<Components::CTransform>(Vec2{50.0f, 50.0f}, Vec2{1.0f, 1.0f}));
+    enemy->setComponent(std::make_shared<Components::CLifespan>(120));
 
     manager.update();
 
-    BOOST_CHECK(enemy->hasComponent<CTransform>());
-    BOOST_CHECK(enemy->hasComponent<CLifespan>());
+    BOOST_CHECK(enemy->hasComponent<Components::CTransform>());
+    BOOST_CHECK(enemy->hasComponent<Components::CLifespan>());
 
     // Simulate lifespan countdown
-    auto lifespan = enemy->getComponent<CLifespan>();
+    auto lifespan = enemy->getComponent<Components::CLifespan>();
     lifespan->lifespan -= 60;
     BOOST_CHECK_EQUAL(lifespan->lifespan, 60);
 

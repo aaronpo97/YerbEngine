@@ -18,9 +18,9 @@ namespace YerbEngine {
     void Entity::destroy() { m_active = false; }
 
     Vec2 Entity::getCenterPos() const {
-        std::shared_ptr<CTransform> const &cTransform =
-            getComponent<CTransform>();
-        std::shared_ptr<CShape> const &cShape = getComponent<CShape>();
+        std::shared_ptr<Components::CTransform> const &cTransform =
+            getComponent<Components::CTransform>();
+        std::shared_ptr<Components::CShape> const &cShape = getComponent<Components::CShape>();
 
         if (cTransform == nullptr || cShape == nullptr) {
             SDL_LogError(
