@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <algorithm>
+#include <string_view>
 #include <vector>
 
 #include <Helpers/Vec2.hpp>
@@ -126,12 +127,14 @@ namespace YerbEngine {
         };
 
         class CSprite {
-            SDL_Texture *m_texture;
-
           public:
-            explicit CSprite(SDL_Texture *texture) : m_texture(texture) {}
+            explicit CSprite(std::string_view textureId)
+                : m_textureId(textureId) {}
 
-            SDL_Texture *getTexture() const { return m_texture; }
+            std::string_view getTextureId() const { return m_textureId; }
+
+          private:
+            std::string_view m_textureId;
         };
     } // namespace Components
 } // namespace YerbEngine

@@ -7,6 +7,7 @@ namespace {
     constexpr std::string_view ENEMY_TEXTURE_ID  = "enemy";
     constexpr std::string_view WALL_TEXTURE_ID   = "wall";
     constexpr std::string_view COIN_TEXTURE_ID   = "coin";
+    constexpr std::string_view SPEED_BOOST_TEXTURE_ID = "speed_boost";
 
     void registerDemoTextures(TextureManager &textureManager) {
         auto const registerIfMissing = [&](std::string_view id,
@@ -20,6 +21,8 @@ namespace {
         registerIfMissing(ENEMY_TEXTURE_ID, "assets/images/enemy.png");
         registerIfMissing(WALL_TEXTURE_ID, "assets/images/wall.png");
         registerIfMissing(COIN_TEXTURE_ID, "assets/images/coin.png");
+        registerIfMissing("speed_boost",
+                              "assets/images/speedboost.png");
     }
 } // namespace
 
@@ -58,7 +61,7 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
     auto const cInput   = std::make_shared<Components::CInput>();
     auto const cEffects = std::make_shared<Components::CEffects>();
     auto const cSprite = std::make_shared<Components::CSprite>(
-        m_textureManager.getTexture(PLAYER_TEXTURE_ID));
+        PLAYER_TEXTURE_ID);
 
     std::shared_ptr<Entity> player =
         m_entityManager.addEntity(EntityTags::Player);
@@ -89,7 +92,7 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
     auto const cLifespan = std::make_shared<Components::CLifespan>(enemyConfig.lifespan);
 
     auto const cSprite = std::make_shared<Components::CSprite>(
-        m_textureManager.getTexture(ENEMY_TEXTURE_ID));
+        ENEMY_TEXTURE_ID);
 
     std::shared_ptr<Entity> const &enemy =
         m_entityManager.addEntity(EntityTags::Enemy);
@@ -148,6 +151,9 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
     speedBoost->setComponent<Components::CTransform>(cTransform);
     speedBoost->setComponent<Components::CShape>(cShape);
     speedBoost->setComponent<Components::CLifespan>(cLifespan);
+    auto const cSprite = std::make_shared<Components::CSprite>(
+        SPEED_BOOST_TEXTURE_ID);
+    speedBoost->setComponent<Components::CSprite>(cSprite);
 
     if (!player) {
         SDL_Log("Player missing, destroying speed boost");
@@ -308,7 +314,7 @@ void MainSceneSpawner::spawnWalls() {
         }
 
         auto const cSprite = std::make_shared<Components::CSprite>(
-            m_textureManager.getTexture(WALL_TEXTURE_ID));
+            WALL_TEXTURE_ID);
 
         std::shared_ptr<Entity> const wall =
             m_entityManager.addEntity(EntityTags::Wall);
@@ -396,7 +402,7 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
                                                      shape.width, shape.color);
     auto const cLifespan  = std::make_shared<Components::CLifespan>(lifespan);
     auto const cSprite    = std::make_shared<Components::CSprite>(
-        m_textureManager.getTexture(COIN_TEXTURE_ID));
+        COIN_TEXTURE_ID);
 
     auto const &item = m_entityManager.addEntity(EntityTags::Item);
     item->setComponent<Components::CTransform>(cTransform);

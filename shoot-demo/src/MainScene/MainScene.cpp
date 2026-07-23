@@ -221,12 +221,9 @@ void MainScene::sRender() {
         }
 
         auto const  &cSprite = entity->getComponent<Components::CSprite>();
-        SDL_Texture *texture = cSprite->getTexture();
-        // ensure that the texture is not a nullptr
-        if (!texture) {
-            continue;
-        }
-
+        SDL_Texture *texture =
+            m_gameEngine->getTextureManager().getTexture(
+                cSprite->getTextureId());
         SDL_RenderCopy(renderer, texture, nullptr, &rect);
     }
 
