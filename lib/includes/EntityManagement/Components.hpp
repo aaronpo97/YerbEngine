@@ -22,33 +22,15 @@ namespace YerbEngine {
         };
 
         class CShape {
-            SDL_Renderer *renderer;
 
           public:
             SDL_Rect  rect;
             SDL_Color color;
 
-            CShape(SDL_Renderer *renderer,
-                   float         height,
-                   float         width,
-                   SDL_Color     color)
-                : renderer(renderer),
-                  rect(),
-                  color(color) {
-                if (renderer == nullptr) {
-                    SDL_LogError(
-                        SDL_LOG_CATEGORY_SYSTEM,
-                        "CShape entity initialization failed: Renderer is null.");
-                    throw std::runtime_error(
-                        "CShape entity initialization failed: Renderer is null.");
-                }
-
-                rect.h = static_cast<int>(height);
-                rect.w = static_cast<int>(width);
-
-                SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
-                SDL_RenderFillRect(renderer, &rect);
-            }
+            CShape(SDL_Rect  rect,
+                   SDL_Color color)
+                : rect(rect),
+                  color(color) {}
         };
 
         class CInput {
@@ -106,10 +88,10 @@ namespace YerbEngine {
             }
 
             bool hasEffect(EffectTypes const type) const {
-                return std::ranges::find_if(effects,
-                                            [type](Effect const &effect) -> bool {
-                                                return effect.type == type;
-                                            }) != effects.end();
+                return std::ranges::find_if(
+                           effects, [type](Effect const &effect) -> bool {
+                               return effect.type == type;
+                           }) != effects.end();
             }
 
             void clearEffects() { effects.clear(); }
