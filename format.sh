@@ -6,7 +6,7 @@ if [[ "$1" == "-y" ]]; then
     SKIP_CONFIRM=true
 fi
 
-echo "WARNING: This script will format all .cpp, .h, .c, .hpp files in the lib, tests, and shoot-demo directories."
+echo "WARNING: This script will format all .cpp, .h, .c, .hpp files in the lib, tests, shoot-demo, and pong-demo directories."
 echo "This script will overwrite the files with the formatted version."
 
 if [[ "$SKIP_CONFIRM" == false ]]; then
@@ -34,6 +34,10 @@ find lib/includes lib/src \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -n
 
 if [ -d "shoot-demo" ]; then
     find shoot-demo \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" \) | xargs clang-format -i
+fi
+
+if [ -d "pong-demo" ]; then
+    find pong-demo \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" \) | xargs clang-format -i
 fi
 
 if [ -d "tests" ]; then

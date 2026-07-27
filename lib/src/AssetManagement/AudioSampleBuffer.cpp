@@ -29,8 +29,9 @@ namespace YerbEngine {
             return;
         }
 
-        pushSample(
-            {.sample = sampleKey, .priority = priority, .timestamp = currentTime});
+        pushSample({.sample    = sampleKey,
+                    .priority  = priority,
+                    .timestamp = currentTime});
     }
 
     void AudioSampleBuffer::update() {
@@ -200,8 +201,8 @@ namespace YerbEngine {
         m_cooldowns[AudioSampleId(sample)] = cooldownMs;
     }
 
-    void AudioSampleBuffer::setCooldowns(
-        std::unordered_map<AudioSampleId, Uint64> cooldowns) {
+    void AudioSampleBuffer::setCooldowns(std::unordered_map<AudioSampleId,
+                                                            Uint64> cooldowns) {
         m_cooldowns = std::move(cooldowns);
     }
 

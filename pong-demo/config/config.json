@@ -1,0 +1,23 @@
+{
+  "matchConfig": {
+    "pointsToWin": 7,
+    "serveDelay": 1200
+  },
+  "paddleConfig": {
+    "speed": 9.0,
+    "wallOffset": 48,
+    "shape": { "height": 130, "width": 18, "color": { "r": 235, "g": 235, "b": 235, "a": 255 } }
+  },
+  "ballConfig": {
+    "baseSpeed": 7.5,
+    "speedIncrement": 0.4,
+    "maxSpeed": 16.0,
+    "maxBounceAngle": 1.0472,
+    "shape": { "height": 18, "width": 18, "color": { "r": 255, "g": 255, "b": 255, "a": 255 } }
+  },
+  "opponentConfig": {
+    "speed": 7.0,
+    "deadZone": 14.0,
+    "reactionDistance": 0.62
+  }
+}
