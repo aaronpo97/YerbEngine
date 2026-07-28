@@ -3,10 +3,10 @@
 #include <string_view>
 
 namespace {
-    constexpr std::string_view PLAYER_TEXTURE_ID = "player";
-    constexpr std::string_view ENEMY_TEXTURE_ID  = "enemy";
-    constexpr std::string_view WALL_TEXTURE_ID   = "wall";
-    constexpr std::string_view COIN_TEXTURE_ID   = "coin";
+    constexpr std::string_view PLAYER_TEXTURE_ID      = "player";
+    constexpr std::string_view ENEMY_TEXTURE_ID       = "enemy";
+    constexpr std::string_view WALL_TEXTURE_ID        = "wall";
+    constexpr std::string_view COIN_TEXTURE_ID        = "coin";
     constexpr std::string_view SPEED_BOOST_TEXTURE_ID = "speed_boost";
 
     void registerDemoTextures(TextureManager &textureManager) {
@@ -21,8 +21,7 @@ namespace {
         registerIfMissing(ENEMY_TEXTURE_ID, "assets/images/enemy.png");
         registerIfMissing(WALL_TEXTURE_ID, "assets/images/wall.png");
         registerIfMissing(COIN_TEXTURE_ID, "assets/images/coin.png");
-        registerIfMissing("speed_boost",
-                              "assets/images/speedboost.png");
+        registerIfMissing("speed_boost", "assets/images/speedboost.png");
     }
 } // namespace
 
@@ -55,7 +54,8 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
 
     // auto const cShape = std::make_shared<Components::CShape>(
     //     m_renderer, static_cast<float>(playerConfig.shape.height),
-    //     static_cast<float>(playerConfig.shape.width), playerConfig.shape.color);
+    //     static_cast<float>(playerConfig.shape.width),
+    //     playerConfig.shape.color);
 
     SDL_Rect playerRect{
         .x = 0,
@@ -64,14 +64,13 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
         .h = static_cast<int>(playerHeight),
     };
     auto const cShape = std::make_shared<Components::CShape>(
-        playerRect,
-        playerConfig.shape.color);
-    auto const cTransform =
-        std::make_shared<Components::CTransform>(playerPosition, playerVelocity);
+        playerRect, playerConfig.shape.color);
+    auto const cTransform = std::make_shared<Components::CTransform>(
+        playerPosition, playerVelocity);
     auto const cInput   = std::make_shared<Components::CInput>();
     auto const cEffects = std::make_shared<Components::CEffects>();
-    auto const cSprite = std::make_shared<Components::CSprite>(
-        PLAYER_TEXTURE_ID);
+    auto const cSprite =
+        std::make_shared<Components::CSprite>(PLAYER_TEXTURE_ID);
 
     std::shared_ptr<Entity> player =
         m_entityManager.addEntity(EntityTags::Player);
@@ -95,7 +94,8 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
     Vec2 const position =
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
-    auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
+    auto const cTransform =
+        std::make_shared<Components::CTransform>(position, velocity);
     SDL_Rect enemyRect{
         .x = 0,
         .y = 0,
@@ -105,12 +105,13 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
 
     SDL_Color enemyColor = enemyConfig.shape.color;
 
-    auto const cShape     = std::make_shared<Components::CShape>(
-        enemyRect, enemyColor);
-    auto const cLifespan = std::make_shared<Components::CLifespan>(enemyConfig.lifespan);
+    auto const cShape =
+        std::make_shared<Components::CShape>(enemyRect, enemyColor);
+    auto const cLifespan =
+        std::make_shared<Components::CLifespan>(enemyConfig.lifespan);
 
-    auto const cSprite = std::make_shared<Components::CSprite>(
-        ENEMY_TEXTURE_ID);
+    auto const cSprite =
+        std::make_shared<Components::CSprite>(ENEMY_TEXTURE_ID);
 
     std::shared_ptr<Entity> const &enemy =
         m_entityManager.addEntity(EntityTags::Enemy);
@@ -132,7 +133,8 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const &player) {
     while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
         auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-        enemy->getComponent<Components::CTransform>()->topLeftCornerPos = newPosition;
+        enemy->getComponent<Components::CTransform>()->topLeftCornerPos =
+            newPosition;
         isValidSpawn = SpawnHelpers::validateSpawnPosition(
             enemy, player, m_entityManager, windowSize);
         spawnAttempt += 1;
@@ -157,7 +159,8 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
     Vec2 const position =
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
-    auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
+    auto const cTransform =
+        std::make_shared<Components::CTransform>(position, velocity);
     // auto const cShape     = std::make_shared<Components::CShape>(
     //     m_renderer, static_cast<float>(speedEffectConfig.shape.height),
     //     static_cast<float>(speedEffectConfig.shape.width),
@@ -169,9 +172,8 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
         .w = static_cast<int>(speedEffectConfig.shape.width),
         .h = static_cast<int>(speedEffectConfig.shape.height),
     };
-    auto const cShape     = std::make_shared<Components::CShape>(
-        speedBoostRect,
-        speedEffectConfig.shape.color);
+    auto const cShape = std::make_shared<Components::CShape>(
+        speedBoostRect, speedEffectConfig.shape.color);
 
     auto const cLifespan =
         std::make_shared<Components::CLifespan>(speedEffectConfig.lifespan);
@@ -180,8 +182,8 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
     speedBoost->setComponent<Components::CTransform>(cTransform);
     speedBoost->setComponent<Components::CShape>(cShape);
     speedBoost->setComponent<Components::CLifespan>(cLifespan);
-    auto const cSprite = std::make_shared<Components::CSprite>(
-        SPEED_BOOST_TEXTURE_ID);
+    auto const cSprite =
+        std::make_shared<Components::CSprite>(SPEED_BOOST_TEXTURE_ID);
     speedBoost->setComponent<Components::CSprite>(cSprite);
 
     if (!player) {
@@ -197,7 +199,8 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
     while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
         auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-        speedBoost->getComponent<Components::CTransform>()->topLeftCornerPos = newPosition;
+        speedBoost->getComponent<Components::CTransform>()->topLeftCornerPos =
+            newPosition;
         isValidSpawn = SpawnHelpers::validateSpawnPosition(
             speedBoost, player, m_entityManager, windowSize);
         spawnAttempt += 1;
@@ -224,7 +227,8 @@ void MainSceneSpawner::spawnSlownessEntity(
     auto const position =
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
 
-    auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
+    auto const cTransform =
+        std::make_shared<Components::CTransform>(position, velocity);
     // auto const cShape     = std::make_shared<Components::CShape>(
     //     m_renderer, static_cast<float>(slownessEffectConfig.shape.height),
     //     static_cast<float>(slownessEffectConfig.shape.width),
@@ -236,9 +240,8 @@ void MainSceneSpawner::spawnSlownessEntity(
         .w = static_cast<int>(slownessEffectConfig.shape.width),
         .h = static_cast<int>(slownessEffectConfig.shape.height),
     };
-    auto const cShape     = std::make_shared<Components::CShape>(
-        slownessRect,
-        slownessEffectConfig.shape.color);
+    auto const cShape = std::make_shared<Components::CShape>(
+        slownessRect, slownessEffectConfig.shape.color);
 
     auto const cLifespan =
         std::make_shared<Components::CLifespan>(slownessEffectConfig.lifespan);
@@ -263,9 +266,9 @@ void MainSceneSpawner::spawnSlownessEntity(
     while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
         auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-        slownessEntity->getComponent<Components::CTransform>()->topLeftCornerPos =
-            newPosition;
-        isValidSpawn = SpawnHelpers::validateSpawnPosition(
+        slownessEntity->getComponent<Components::CTransform>()
+            ->topLeftCornerPos = newPosition;
+        isValidSpawn           = SpawnHelpers::validateSpawnPosition(
             slownessEntity, player, m_entityManager, windowSize);
         spawnAttempt += 1;
     }
@@ -304,13 +307,14 @@ void MainSceneSpawner::spawnWalls() {
 
     for (int i = 0; i < WALL_COUNT; i++) {
         // auto const shapeComponent = std::make_shared<Components::CShape>(
-        //     m_renderer, wallConfig.height, wallConfig.width, wallConfig.color);
+        //     m_renderer, wallConfig.height, wallConfig.width,
+        //     wallConfig.color);
 
-       SDL_Rect shapeRect{};
-        auto const shapeComponent = std::make_shared<Components::CShape>(
-            shapeRect,
-            wallConfig.color);
-        auto const transformComponent = std::make_shared<Components::CTransform>();
+        SDL_Rect   shapeRect{};
+        auto const shapeComponent =
+            std::make_shared<Components::CShape>(shapeRect, wallConfig.color);
+        auto const transformComponent =
+            std::make_shared<Components::CTransform>();
 
         Vec2 &topLeftCornerPos = transformComponent->topLeftCornerPos;
 
@@ -358,8 +362,8 @@ void MainSceneSpawner::spawnWalls() {
             topLeftCornerPos.setY(innerStartY + innerGapSize);
         }
 
-        auto const cSprite = std::make_shared<Components::CSprite>(
-            WALL_TEXTURE_ID);
+        auto const cSprite =
+            std::make_shared<Components::CSprite>(WALL_TEXTURE_ID);
 
         std::shared_ptr<Entity> const wall =
             m_entityManager.addEntity(EntityTags::Wall);
@@ -383,7 +387,8 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
     }
     Vec2 const &playerCenter = player->getCenterPos();
     float const playerHalfWidth =
-        static_cast<float>(player->getComponent<Components::CShape>()->rect.w) / 2;
+        static_cast<float>(player->getComponent<Components::CShape>()->rect.w) /
+        2;
 
     Vec2 direction;
     direction.setX(mousePosition.x() - playerCenter.x());
@@ -411,9 +416,10 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
 
     auto const cTransform =
         std::make_shared<Components::CTransform>(bulletPos, bulletVelocity);
-    auto const cLifespan      = std::make_shared<Components::CLifespan>(lifespan);
+    auto const cLifespan = std::make_shared<Components::CLifespan>(lifespan);
     auto const cBounceTracker = std::make_shared<Components::CBounceTracker>();
-    // auto const cShape = std::make_shared<Components::CShape>(m_renderer, shape.height,
+    // auto const cShape = std::make_shared<Components::CShape>(m_renderer,
+    // shape.height,
     //                                              shape.width, shape.color);
 
     SDL_Rect bulletRect{
@@ -423,9 +429,8 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const &player,
         .h = static_cast<int>(shape.height),
     };
 
-    auto const cShape = std::make_shared<Components::CShape>(
-        bulletRect,
-        shape.color);
+    auto const cShape =
+        std::make_shared<Components::CShape>(bulletRect, shape.color);
 
     bullet->setComponent<Components::CShape>(cShape);
     bullet->setComponent<Components::CTransform>(cTransform);
@@ -452,10 +457,13 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
 
     auto const position =
         SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-    auto const velocity   = Vec2(0, 0);
-    auto const cTransform = std::make_shared<Components::CTransform>(position, velocity);
-    // auto const cShape     = std::make_shared<Components::CShape>(m_renderer, shape.height,
-    //                                                  shape.width, shape.color);
+    auto const velocity = Vec2(0, 0);
+    auto const cTransform =
+        std::make_shared<Components::CTransform>(position, velocity);
+    // auto const cShape     = std::make_shared<Components::CShape>(m_renderer,
+    // shape.height,
+    //                                                  shape.width,
+    //                                                  shape.color);
 
     SDL_Rect itemRect{
         .x = 0,
@@ -464,12 +472,10 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
         .h = static_cast<int>(shape.height),
     };
 
-    auto const cShape     = std::make_shared<Components::CShape>(
-        itemRect,
-        shape.color);
-    auto const cLifespan  = std::make_shared<Components::CLifespan>(lifespan);
-    auto const cSprite    = std::make_shared<Components::CSprite>(
-        COIN_TEXTURE_ID);
+    auto const cShape =
+        std::make_shared<Components::CShape>(itemRect, shape.color);
+    auto const cLifespan = std::make_shared<Components::CLifespan>(lifespan);
+    auto const cSprite = std::make_shared<Components::CSprite>(COIN_TEXTURE_ID);
 
     auto const &item = m_entityManager.addEntity(EntityTags::Item);
     item->setComponent<Components::CTransform>(cTransform);
@@ -490,7 +496,8 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const &player) {
     while (!isValidSpawn && spawnAttempt < MAX_SPAWN_ATTEMPTS) {
         auto const newPosition =
             SpawnHelpers::createRandomPosition(m_randomGenerator, windowSize);
-        item->getComponent<Components::CTransform>()->topLeftCornerPos = newPosition;
+        item->getComponent<Components::CTransform>()->topLeftCornerPos =
+            newPosition;
 
         isValidSpawn = SpawnHelpers::validateSpawnPosition(
             item, player, m_entityManager, windowSize);

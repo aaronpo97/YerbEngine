@@ -12,7 +12,8 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
                              std::bitset<4> const          &collides,
                              Vec2 const                    &window_size) {
 
-        std::shared_ptr<Components::CShape> const &cShape = entity->getComponent<Components::CShape>();
+        std::shared_ptr<Components::CShape> const &cShape =
+            entity->getComponent<Components::CShape>();
         std::shared_ptr<Components::CTransform> const &cTransform =
             entity->getComponent<Components::CTransform>();
 
@@ -55,8 +56,9 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
     void enforceCollisionWithWall(std::shared_ptr<Entity> const &entity,
                                   std::shared_ptr<Entity> const &wall) {
 
-        auto const &cTransform     = entity->getComponent<Components::CTransform>();
-        auto const &cBounceTracker = entity->getComponent<Components::CBounceTracker>();
+        auto const &cTransform = entity->getComponent<Components::CTransform>();
+        auto const &cBounceTracker =
+            entity->getComponent<Components::CBounceTracker>();
 
         Vec2 const &overlap =
             YerbEngine::CollisionHelpers::calculateOverlap(entity, wall);
@@ -103,8 +105,10 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
 
     void enforceEntityEntityCollision(std::shared_ptr<Entity> const &entityA,
                                       std::shared_ptr<Entity> const &entityB) {
-        auto const &cTransformA = entityA->getComponent<Components::CTransform>();
-        auto const &cTransformB = entityB->getComponent<Components::CTransform>();
+        auto const &cTransformA =
+            entityA->getComponent<Components::CTransform>();
+        auto const &cTransformB =
+            entityB->getComponent<Components::CTransform>();
 
         Vec2 const &overlap =
             YerbEngine::CollisionHelpers::calculateOverlap(entityA, entityB);
@@ -284,7 +288,8 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             args.audioSampleManager.queueSample(nextSample,
                                                 PriorityLevel::STANDARD);
 
-            auto const &cBounceTracker = entity->getComponent<Components::CBounceTracker>();
+            auto const &cBounceTracker =
+                entity->getComponent<Components::CBounceTracker>();
 
             if (!cBounceTracker) {
                 entity->destroy();
@@ -352,7 +357,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             auto const &cEffects = entity->getComponent<Components::CEffects>();
             cEffects->addEffect({.startTime = startTime,
                                  .duration  = duration,
-                                 .type      = Components::EffectTypes::Slowness});
+                                 .type = Components::EffectTypes::Slowness});
 
             EntityList        effectsToCheck;
             EntityList const &slownessDebuffs =
@@ -386,7 +391,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         if (tag == EntityTags::Player && otherTag == EntityTags::SpeedBoost) {
             Uint64 const startTime = SDL_GetTicks64();
             Uint64 const duration = randomSpeedBoostDuration(m_randomGenerator);
-            auto const  &cEffects = entity->getComponent<Components::CEffects>();
+            auto const &cEffects = entity->getComponent<Components::CEffects>();
 
             cEffects->addEffect({.startTime = startTime,
                                  .duration  = duration,
@@ -413,8 +418,9 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             // set the lifespan of the speed boost to 10% of previous value
             for (auto const &speedBoost : speedBoosts) {
                 constexpr float MULTIPLIER = 0.1f;
-                auto const &cLifespan = speedBoost->getComponent<Components::CLifespan>();
-                Uint64     &lifespan  = cLifespan->lifespan;
+                auto const     &cLifespan =
+                    speedBoost->getComponent<Components::CLifespan>();
+                Uint64 &lifespan = cLifespan->lifespan;
 
                 lifespan = static_cast<Uint64>(
                     std::round(static_cast<float>(lifespan) * MULTIPLIER));

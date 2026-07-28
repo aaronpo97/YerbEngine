@@ -7,16 +7,16 @@
 
 namespace YerbEngine {
     class TextureManager {
-        SDL_Renderer *m_renderer;
+        SDL_Renderer                                  *m_renderer;
         std::unordered_map<std::string, SDL_Texture *> m_textures{};
 
       public:
         explicit TextureManager(SDL_Renderer *renderer);
         ~TextureManager();
 
-        void registerTexture(std::string_view name,
-                             std::filesystem::path const &path);
-        bool hasTexture(std::string_view name) const;
+        void         registerTexture(std::string_view             name,
+                                     std::filesystem::path const &path);
+        bool         hasTexture(std::string_view name) const;
         SDL_Texture *getTexture(std::string_view name) const;
     };
 } // namespace YerbEngine

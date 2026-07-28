@@ -49,13 +49,13 @@ namespace YerbEngine {
 
     class Entity {
         friend class EntityManager;
-        bool                               m_active   = true;
-        size_t                             m_id       = 0;
-        EntityTags                         m_tag      = EntityTags::Default;
-        std::weak_ptr<ComponentRegistry>   m_registry;
+        bool                             m_active = true;
+        size_t                           m_id     = 0;
+        EntityTags                       m_tag    = EntityTags::Default;
+        std::weak_ptr<ComponentRegistry> m_registry;
 
-        Entity(size_t     id,
-               EntityTags tag,
+        Entity(size_t                             id,
+               EntityTags                         tag,
                std::shared_ptr<ComponentRegistry> registry);
 
       public:

@@ -113,7 +113,7 @@ void MenuScene::sDoAction(Action &action) {
 
     if (action.getName() == "SELECT") {
         audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
-                                     PriorityLevel::BACKGROUND);
+                                      PriorityLevel::BACKGROUND);
         m_endTriggered = true;
         return;
     }
@@ -121,7 +121,7 @@ void MenuScene::sDoAction(Action &action) {
     // UP takes precedence over DOWN if both are pressed
     if (action.getName() == "UP") {
         audioSampleBuffer.queueSample(AudioSample::MENU_MOVE,
-                                     PriorityLevel::BACKGROUND);
+                                      PriorityLevel::BACKGROUND);
         m_selectedIndex > 0 ? m_selectedIndex -= 1
                             : m_selectedIndex = MAX_MENU_ITEMS - 1;
         return;
@@ -129,14 +129,14 @@ void MenuScene::sDoAction(Action &action) {
 
     if (action.getName() == "DOWN") {
         audioSampleBuffer.queueSample(AudioSample::MENU_MOVE,
-                                     PriorityLevel::BACKGROUND);
+                                      PriorityLevel::BACKGROUND);
         m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
                                              : m_selectedIndex = 0;
     }
 }
 
 void MenuScene::sAudio() {
-    AudioManager     &audioManager     = m_gameEngine->getAudioManager();
+    AudioManager      &audioManager      = m_gameEngine->getAudioManager();
     AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
     // TEMPORARY FOR NOW

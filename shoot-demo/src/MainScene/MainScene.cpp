@@ -72,8 +72,8 @@ void MainScene::sDoAction(Action &action) {
         return;
     }
 
-    ActionState const &actionState      = action.getState();
-    AudioSampleBuffer  &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
+    ActionState const &actionState       = action.getState();
+    AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
     auto const &cInput = m_player->getComponent<Components::CInput>();
 
@@ -123,20 +123,20 @@ void MainScene::sDoAction(Action &action) {
         Vec2 const mousePosition = *position;
 
         audioSampleBuffer.queueSample(AudioSample::SHOOT,
-                                     PriorityLevel::STANDARD);
+                                      PriorityLevel::STANDARD);
         m_spawner.spawnBullets(m_player, mousePosition);
         m_lastBulletSpawnTime = currentTime;
 
         if (action.getName() == "PAUSE") {
             audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
-                                         PriorityLevel::CRITICAL);
+                                          PriorityLevel::CRITICAL);
             m_paused = !m_paused;
         }
     }
 
     if (action.getName() == "GO_BACK") {
         audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
-                                     PriorityLevel::CRITICAL);
+                                      PriorityLevel::CRITICAL);
         m_endTriggered = true;
     }
 }
@@ -221,9 +221,8 @@ void MainScene::sRender() {
         }
 
         auto const  &cSprite = entity->getComponent<Components::CSprite>();
-        SDL_Texture *texture =
-            m_gameEngine->getTextureManager().getTexture(
-                cSprite->getTextureId());
+        SDL_Texture *texture = m_gameEngine->getTextureManager().getTexture(
+            cSprite->getTextureId());
         SDL_RenderCopy(renderer, texture, nullptr, &rect);
     }
 
@@ -236,15 +235,16 @@ void MainScene::sCollision() {
     using namespace ShootDemo::CollisionHelpers::MainScene;
     Vec2 const &windowSize = m_gameEngine->getVideoManager().getWindowSize();
 
-    AudioSampleBuffer &audioSampleManager = m_gameEngine->getAudioSampleBuffer();
-    GameState const   gameState          = {
-                   .entityManager   = m_entities,
-                   .randomGenerator = m_randomGenerator,
-                   .score           = m_score,
-                   .setScore = [this](int const score) -> void { setScore(score); },
-                   .decrementLives     = [this]() -> void { decrementLives(); },
-                   .audioSampleManager = audioSampleManager,
-                   .windowSize         = windowSize,
+    AudioSampleBuffer &audioSampleManager =
+        m_gameEngine->getAudioSampleBuffer();
+    GameState const gameState = {
+        .entityManager   = m_entities,
+        .randomGenerator = m_randomGenerator,
+        .score           = m_score,
+        .setScore        = [this](int const score) -> void { setScore(score); },
+        .decrementLives  = [this]() -> void { decrementLives(); },
+        .audioSampleManager = audioSampleManager,
+        .windowSize         = windowSize,
     };
 
     for (auto &entity : m_entities.getEntities()) {
@@ -336,8 +336,8 @@ void MainScene::sSpawner() {
 }
 
 void MainScene::sEffects() const {
-    auto const               &cEffects = m_player->getComponent<Components::CEffects>();
-    std::vector<Components::Effect> const effects  = cEffects->getEffects();
+    auto const &cEffects = m_player->getComponent<Components::CEffects>();
+    std::vector<Components::Effect> const effects = cEffects->getEffects();
     if (effects.empty()) {
         return;
     }
@@ -466,7 +466,7 @@ void MainScene::onEnd() {
 }
 
 void MainScene::sAudio() {
-    AudioManager     &audioManager     = m_gameEngine->getAudioManager();
+    AudioManager      &audioManager      = m_gameEngine->getAudioManager();
     AudioSampleBuffer &audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
     if (audioManager.getCurrentAudioTrack() != AudioTrack::PLAY) {
