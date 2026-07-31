@@ -23,7 +23,7 @@ MainScene::MainScene(GameEngine *gameEngine)
                 })(),
                 gameEngine->getTextureManager(),
                 m_entities,
-                gameEngine->getVideoManager().getRenderer()) {
+                gameEngine->getVideoManager()) {
     m_player = m_spawner.spawnPlayer();
     std::cout << "spawned the player" << std::endl;
     m_spawner.spawnWalls();
@@ -83,24 +83,19 @@ void MainScene::sDoAction(Action &action) {
         return;
     }
 
-    bool &forward  = cInput->forward;
-    bool &backward = cInput->backward;
-    bool &left     = cInput->left;
-    bool &right    = cInput->right;
-
     bool const actionStateStart = actionState == ActionState::START;
 
     if (action.getName() == "FORWARD") {
-        forward = actionStateStart;
+        cInput->directions[Components::CInput::Forward] = actionStateStart;
     }
     if (action.getName() == "BACKWARD") {
-        backward = actionStateStart;
+        cInput->directions[Components::CInput::Backward] = actionStateStart;
     }
     if (action.getName() == "LEFT") {
-        left = actionStateStart;
+        cInput->directions[Components::CInput::Left] = actionStateStart;
     }
     if (action.getName() == "RIGHT") {
-        right = actionStateStart;
+        cInput->directions[Components::CInput::Right] = actionStateStart;
     }
 
     if (!actionStateStart) {
@@ -481,6 +476,7 @@ void MainScene::onSceneWindowResize() {
     for (auto const &wall : walls) {
         wall->destroy();
     }
+    
 
     m_entities.update();
 

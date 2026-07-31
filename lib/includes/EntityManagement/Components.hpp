@@ -35,12 +35,8 @@ namespace YerbEngine {
 
         class CInput {
           public:
-            bool forward  = false;
-            bool backward = false;
-            bool left     = false;
-            bool right    = false;
-
-            CInput() = default;
+            enum Directions { Forward, Backward, Left, Right };
+            std::bitset<4> directions;
         };
 
         class CLifespan {

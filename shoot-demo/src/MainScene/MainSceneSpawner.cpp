@@ -29,12 +29,12 @@ MainSceneSpawner::MainSceneSpawner(std::mt19937      &randomGenerator,
                                    DemoConfigAdapter &config,
                                    TextureManager    &textureManager,
                                    EntityManager     &entityManager,
-                                   SDL_Renderer      *renderer)
+                                   VideoManager      &videoManager)
     : m_randomGenerator(randomGenerator),
       m_config(config),
+      m_videoManager(videoManager),
       m_textureManager(textureManager),
-      m_entityManager(entityManager),
-      m_renderer(renderer) {
+      m_entityManager(entityManager) {
     std::cout << "spawner created\n";
     registerDemoTextures(m_textureManager);
 }
@@ -281,34 +281,32 @@ void MainSceneSpawner::spawnSlownessEntity(
 }
 
 void MainSceneSpawner::spawnWalls() {
-    GameConfig const &gameConfig = m_config.getGameConfig();
+    // Get current window size from VideoManager
+    Vec2 const windowSize = m_videoManager.getWindowSize();
 
     constexpr SDL_Color wallColor  = {.r = 176, .g = 196, .b = 222, .a = 255};
-    float const         wallHeight = gameConfig.windowSize.y() * 0.6f;
-    float const         wallWidth  = gameConfig.windowSize.x() * 0.025f;
+    float const         wallHeight = windowSize.y() * 0.6f;
+    float const         wallWidth  = windowSize.x() * 0.025f;
 
     auto const wallConfig = ShapeConfig(wallHeight, wallWidth, wallColor);
 
     constexpr size_t WALL_COUNT = 8;
 
-    float const innerWidth  = gameConfig.windowSize.x() * 0.6f;
-    float const innerHeight = gameConfig.windowSize.y() * 0.6f;
-    float const innerStartX = (gameConfig.windowSize.x() - innerWidth) / 2;
-    float const innerStartY = (gameConfig.windowSize.y() - innerHeight) / 2;
+    float const innerWidth  = windowSize.x() * 0.6f;
+    float const innerHeight = windowSize.y() * 0.6f;
+    float const innerStartX = (windowSize.x() - innerWidth) / 2;
+    float const innerStartY = (windowSize.y() - innerHeight) / 2;
 
-    float const outerWidth  = gameConfig.windowSize.x();
-    float const outerHeight = gameConfig.windowSize.y();
-    float const outerStartX = (gameConfig.windowSize.x() - outerWidth) / 2;
-    float const outerStartY = (gameConfig.windowSize.y() - outerHeight) / 2;
+    float const outerWidth  = windowSize.x();
+    float const outerHeight = windowSize.y();
+    float const outerStartX = (windowSize.x() - outerWidth) / 2;
+    float const outerStartY = (windowSize.y() - outerHeight) / 2;
 
     // Gap sizes proportional to respective rectangles
     float const innerGapSize = innerWidth * 0.15f;
     float const outerGapSize = outerWidth * 0.18f;
 
     for (int i = 0; i < WALL_COUNT; i++) {
-        // auto const shapeComponent = std::make_shared<Components::CShape>(
-        //     m_renderer, wallConfig.height, wallConfig.width,
-        //     wallConfig.color);
 
         SDL_Rect   shapeRect{};
         auto const shapeComponent =
