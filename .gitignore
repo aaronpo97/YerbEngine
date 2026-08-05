@@ -4,7 +4,6 @@ dist-web
 .vscode/
 .DS_Store
 .netlify
-makefile
 .idea
 cmake-build-debug
 cmake-build-release

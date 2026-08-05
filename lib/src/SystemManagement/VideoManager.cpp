@@ -77,9 +77,6 @@ namespace YerbEngine {
 
         m_currentWindowSize = Vec2{static_cast<float>(currentWindowWidth),
                                    static_cast<float>(currentWindowHeight)};
-
-        // Source of truth for window size is internal; scenes query via
-        // getWindowSize().
     }
 
     SDL_Renderer *VideoManager::createRenderer() const {

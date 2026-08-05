@@ -9,16 +9,16 @@ class MainSceneSpawner {
 
   public:
     DemoConfigAdapter &m_config;
+    VideoManager      &m_videoManager;
     TextureManager    &m_textureManager;
     EntityManager     &m_entityManager;
-    SDL_Renderer      *m_renderer;
 
   public:
     MainSceneSpawner(std::mt19937      &randomGenerator,
                      DemoConfigAdapter &config,
                      TextureManager    &textureManager,
                      EntityManager     &entityManager,
-                     SDL_Renderer      *renderer);
+                     VideoManager      &videoManager);
 
     std::shared_ptr<Entity> spawnPlayer();
 

@@ -12,9 +12,10 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
                              std::bitset<4> const          &collides,
                              Vec2 const                    &window_size) {
 
-        std::shared_ptr<CShape> const &cShape = entity->getComponent<CShape>();
-        std::shared_ptr<CTransform> const &cTransform =
-            entity->getComponent<CTransform>();
+        std::shared_ptr<Components::CShape> const &cShape =
+            entity->getComponent<Components::CShape>();
+        std::shared_ptr<Components::CTransform> const &cTransform =
+            entity->getComponent<Components::CTransform>();
 
         if (!cShape || !cTransform) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
@@ -55,8 +56,9 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
     void enforceCollisionWithWall(std::shared_ptr<Entity> const &entity,
                                   std::shared_ptr<Entity> const &wall) {
 
-        auto const &cTransform     = entity->getComponent<CTransform>();
-        auto const &cBounceTracker = entity->getComponent<CBounceTracker>();
+        auto const &cTransform = entity->getComponent<Components::CTransform>();
+        auto const &cBounceTracker =
+            entity->getComponent<Components::CBounceTracker>();
 
         Vec2 const &overlap =
             YerbEngine::CollisionHelpers::calculateOverlap(entity, wall);
@@ -103,8 +105,10 @@ namespace ShootDemo::CollisionHelpers::MainScene::Enforce {
 
     void enforceEntityEntityCollision(std::shared_ptr<Entity> const &entityA,
                                       std::shared_ptr<Entity> const &entityB) {
-        auto const &cTransformA = entityA->getComponent<CTransform>();
-        auto const &cTransformB = entityB->getComponent<CTransform>();
+        auto const &cTransformA =
+            entityA->getComponent<Components::CTransform>();
+        auto const &cTransformB =
+            entityB->getComponent<Components::CTransform>();
 
         Vec2 const &overlap =
             YerbEngine::CollisionHelpers::calculateOverlap(entityA, entityB);
@@ -284,7 +288,8 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             args.audioSampleManager.queueSample(nextSample,
                                                 PriorityLevel::STANDARD);
 
-            auto const &cBounceTracker = entity->getComponent<CBounceTracker>();
+            auto const &cBounceTracker =
+                entity->getComponent<Components::CBounceTracker>();
 
             if (!cBounceTracker) {
                 entity->destroy();
@@ -323,10 +328,10 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             otherEntity->destroy();
             decrementLives();
 
-            std::shared_ptr<CTransform> const &cTransform =
-                entity->getComponent<CTransform>();
-            std::shared_ptr<CEffects> const &cEffects =
-                entity->getComponent<CEffects>();
+            std::shared_ptr<Components::CTransform> const &cTransform =
+                entity->getComponent<Components::CTransform>();
+            std::shared_ptr<Components::CEffects> const &cEffects =
+                entity->getComponent<Components::CEffects>();
             cTransform->topLeftCornerPos =
                 Vec2{windowSize.x() / 2, windowSize.y() / 2};
 
@@ -349,10 +354,10 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             Uint64 const startTime = SDL_GetTicks64();
             Uint64 const duration  = randomSlownessDuration(m_randomGenerator);
 
-            auto const &cEffects = entity->getComponent<CEffects>();
+            auto const &cEffects = entity->getComponent<Components::CEffects>();
             cEffects->addEffect({.startTime = startTime,
                                  .duration  = duration,
-                                 .type      = EffectTypes::Slowness});
+                                 .type = Components::EffectTypes::Slowness});
 
             EntityList        effectsToCheck;
             EntityList const &slownessDebuffs =
@@ -386,11 +391,11 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         if (tag == EntityTags::Player && otherTag == EntityTags::SpeedBoost) {
             Uint64 const startTime = SDL_GetTicks64();
             Uint64 const duration = randomSpeedBoostDuration(m_randomGenerator);
-            auto const  &cEffects = entity->getComponent<CEffects>();
+            auto const &cEffects = entity->getComponent<Components::CEffects>();
 
             cEffects->addEffect({.startTime = startTime,
                                  .duration  = duration,
-                                 .type      = EffectTypes::Speed});
+                                 .type      = Components::EffectTypes::Speed});
 
             AudioSample const nextSample = AudioSample::SPEED_BOOST;
             args.audioSampleManager.queueSample(nextSample,
@@ -413,8 +418,9 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             // set the lifespan of the speed boost to 10% of previous value
             for (auto const &speedBoost : speedBoosts) {
                 constexpr float MULTIPLIER = 0.1f;
-                auto const &cLifespan = speedBoost->getComponent<CLifespan>();
-                Uint64     &lifespan  = cLifespan->lifespan;
+                auto const     &cLifespan =
+                    speedBoost->getComponent<Components::CLifespan>();
+                Uint64 &lifespan = cLifespan->lifespan;
 
                 lifespan = static_cast<Uint64>(
                     std::round(static_cast<float>(lifespan) * MULTIPLIER));
