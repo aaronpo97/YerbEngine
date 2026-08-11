@@ -1,3 +1,4 @@
+#include <Configuration/AudioIds.hpp>
 #include <Helpers/MainSceneCollisionHelpers.hpp>
 #include <YerbEngine.hpp>
 using namespace YerbEngine;
@@ -284,7 +285,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         }
 
         if (tag == EntityTags::Bullet && otherTag == EntityTags::Enemy) {
-            AudioSample nextSample = AudioSample::BULLET_HIT_02;
+            auto const nextSample = DemoAudio::SAMPLE_BULLET_HIT_02;
             args.audioSampleManager.queueSample(nextSample,
                                                 PriorityLevel::STANDARD);
 
@@ -302,7 +303,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         }
 
         if (tag == EntityTags::Bullet && otherTag == EntityTags::Wall) {
-            args.audioSampleManager.queueSample(AudioSample::BULLET_HIT_01,
+            args.audioSampleManager.queueSample(DemoAudio::SAMPLE_BULLET_HIT_01,
                                                 PriorityLevel::BACKGROUND);
         }
 
@@ -322,8 +323,8 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         }
 
         if (tag == EntityTags::Player && otherTag == EntityTags::Enemy) {
-            args.audioSampleManager.queueSample(AudioSample::ENEMY_COLLISION,
-                                                PriorityLevel::STANDARD);
+            args.audioSampleManager.queueSample(
+                DemoAudio::SAMPLE_ENEMY_COLLISION, PriorityLevel::STANDARD);
             setScore(m_score > 10 ? m_score - 10 : 0);
             otherEntity->destroy();
             decrementLives();
@@ -370,7 +371,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
             effectsToCheck.insert(effectsToCheck.end(), speedBoosts.begin(),
                                   speedBoosts.end());
 
-            AudioSample const nextSample = AudioSample::SLOWNESS_DEBUFF;
+            auto const nextSample = DemoAudio::SAMPLE_SLOWNESS_DEBUFF;
             args.audioSampleManager.queueSample(nextSample,
                                                 PriorityLevel::STANDARD);
 
@@ -397,7 +398,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
                                  .duration  = duration,
                                  .type      = Components::EffectTypes::Speed});
 
-            AudioSample const nextSample = AudioSample::SPEED_BOOST;
+            auto const nextSample = DemoAudio::SAMPLE_SPEED_BOOST;
             args.audioSampleManager.queueSample(nextSample,
                                                 PriorityLevel::STANDARD);
 
@@ -431,7 +432,7 @@ namespace ShootDemo::CollisionHelpers::MainScene {
         }
 
         if (tag == EntityTags::Player && otherTag == EntityTags::Item) {
-            args.audioSampleManager.queueSample(AudioSample::ITEM_ACQUIRED,
+            args.audioSampleManager.queueSample(DemoAudio::SAMPLE_ITEM_ACQUIRED,
                                                 PriorityLevel::STANDARD);
             setScore(m_score + 90);
             otherEntity->destroy();

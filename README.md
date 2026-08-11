@@ -1,11 +1,11 @@
 # YerbEngine
 
-YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL2` and `C++`.
-I am currently in the process of refactoring this engine to be a entity component system.
+YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL2` and `C++`. The core engine now lives in `lib/` (public headers in `lib/includes`, implementations in `lib/src`) and powers the playable `shoot-demo` sample game.
 
 ## Features
 
 - **Cross-platform** – Supports builds on MacOS, Linux (tested on Fedora), and the Web via Emscripten/WebAssembly.
+- **Core library + demo** – Engine code is packaged as a static library (`yerb_engine_core`) and consumed by the `shoot-demo` reference game.
 - **Modular ECS design** – Independent systems for input, rendering, and more, enabling scalability.
 - **JSON configuration** – Loads game settings using [nlohmann/json](https://github.com/nlohmann/json).
 - **Modern C++** – Written in C++23, with code quality enforced by `clang-format` and `clang-tidy`.
@@ -15,20 +15,17 @@ I am currently in the process of refactoring this engine to be a entity componen
 ## Project Structure
 
 ```
-YerbEngine/                   # Core engine headers
-├── AssetManagement/          # Texture, font, and audio managers
-├── Configuration/            # Config structures and JSON parsing
-├── EntityManagement/         # ECS components, entities, entity manager
-├── GameEngine/               # Main engine class and action system
-├── GameScenes/               # Scene base class
-├── Helpers/                  # Utility namespaces (collision, movement, spawn, etc.)
-└── SystemManagement/         # Audio and video managers
-
-src/                          # Core engine implementation (.cpp files)
-shoot-demo/                   # Shoot demo game implementation
-config/                       # JSON configuration files
-assets/                       # Game assets (audio, fonts, images)
-template/                     # Web build HTML templates
+lib/                          # Core engine library
+├── includes/                 # Public headers (AssetManagement, Configuration, EntityManagement, GameEngine, GameScenes, Helpers, SystemManagement)
+└── src/                      # Engine implementations mirroring the include layout
+shoot-demo/                   # Playable reference game using the engine
+├── includes/                 # Demo-specific scenes and helpers
+├── src/                      # Demo gameplay code
+└── assets/                   # Audio, fonts, and images bundled into builds
+config/                       # JSON configuration consumed at runtime
+template/                     # HTML/CSS/JS for Emscripten builds
+tests/                        # Boost.Test-based unit tests for engine modules
+diagrams/                     # Supporting diagrams (buildable with the Makefile in this folder)
 ```
 
 ## Building from Source
@@ -46,21 +43,21 @@ template/                     # Web build HTML templates
 ### Native Build (macOS/Linux)
 
 ```bash
-mkdir build
+mkdir -p build
 cd build
 cmake ..
-make 2>&1 | tee build.log
+cmake --build .
 ```
 
 Run the demo:
 ```bash
-./demo-1
+./shoot-demo   # assets and config are copied into the build directory automatically
 ```
 
 ### Web Build (Emscripten)
 
 ```bash
-mkdir dist-web
+mkdir -p dist-web
 cd dist-web
 emcmake cmake ..
 cmake --build .
@@ -68,7 +65,7 @@ cmake --build .
 
 Serve locally:
 ```bash
-emrun --no_browser --port 3333 bin/
+emrun --no_browser --port 3333 bin/index.html
 ```
 
 Open `http://localhost:3333` in your browser.
@@ -79,16 +76,11 @@ Open `http://localhost:3333` in your browser.
 docker-compose up --build
 ```
 
-#### macOS/Linux
-
-To build natively:
-
-Run the formatter before committing:
+### Formatting
 ```bash
 ./format.sh
 ```
-
-This formats all code in `YerbEngine/`, `src/`, and `shoot-demo/` using clang-format.
+Formats all code in `lib/` and `shoot-demo/` using clang-format.
 
 ### Audio Conversion
 
@@ -100,13 +92,16 @@ Convert audio files to the correct formats:
 - Samples → WAV format (for sound effects)
 - Tracks → OGG format (for music)
 
+### Tests (native)
+After configuring the native build (Boost.Test required):
+```bash
+cd build
+ctest --output-on-failure
+```
+
 ## Usage
 
-On launch, the menu scene appears. Follow on-screen instructions to navigate through the demo.
-
-## TODO
-
-- [] Decouple configuration, sprite management, movement helpers from core engine code.
+Run `./shoot-demo` from the build directory. On launch, the menu scene appears; follow on-screen instructions to navigate through the demo.
 
 ## Contributions
 
@@ -114,4 +109,4 @@ Contributions are welcome! Submit issues or pull requests to help improve the en
 
 ## License
 
-Licensed under GNU GPL v3.0. See [LICENSE.md](LICENSE) for details.
+Licensed under GNU GPL v3.0. See [LICENSE.md](LICENSE.md) for details.

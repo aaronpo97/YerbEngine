@@ -1,3 +1,4 @@
+#include <Configuration/AudioIds.hpp>
 #include <HowToPlayScene/HowToPlayScene.hpp>
 #include <MainScene/MainScene.hpp>
 #include <MenuScene/MenuScene.hpp>
@@ -112,7 +113,7 @@ void MenuScene::sDoAction(Action &action) {
     }
 
     if (action.getName() == "SELECT") {
-        audioSampleBuffer.queueSample(AudioSample::MENU_SELECT,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
                                       PriorityLevel::BACKGROUND);
         m_endTriggered = true;
         return;
@@ -120,7 +121,7 @@ void MenuScene::sDoAction(Action &action) {
 
     // UP takes precedence over DOWN if both are pressed
     if (action.getName() == "UP") {
-        audioSampleBuffer.queueSample(AudioSample::MENU_MOVE,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
                                       PriorityLevel::BACKGROUND);
         m_selectedIndex > 0 ? m_selectedIndex -= 1
                             : m_selectedIndex = MAX_MENU_ITEMS - 1;
@@ -128,7 +129,7 @@ void MenuScene::sDoAction(Action &action) {
     }
 
     if (action.getName() == "DOWN") {
-        audioSampleBuffer.queueSample(AudioSample::MENU_MOVE,
+        audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
                                       PriorityLevel::BACKGROUND);
         m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
                                              : m_selectedIndex = 0;
@@ -142,8 +143,10 @@ void MenuScene::sAudio() {
     // TEMPORARY FOR NOW
     audioManager.muteTracks();
 
-    if (audioManager.getCurrentAudioTrack() != AudioTrack::MAIN_MENU) {
-        m_gameEngine->getAudioManager().playTrack(AudioTrack::MAIN_MENU, -1);
+    if (audioManager.getCurrentAudioTrack() !=
+        std::string(DemoAudio::TRACK_MAIN_MENU)) {
+        m_gameEngine->getAudioManager().playTrack(
+            DemoAudio::TRACK_MAIN_MENU, -1);
     }
     audioSampleBuffer.update();
 }

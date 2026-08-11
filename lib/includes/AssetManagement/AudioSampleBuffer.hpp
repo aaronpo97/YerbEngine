@@ -3,6 +3,7 @@
 #include <SystemManagement/AudioManager.hpp>
 #include <array>
 #include <unordered_map>
+#include <string_view>
 namespace YerbEngine {
     enum class PriorityLevel : uint8_t {
         BACKGROUND,
@@ -13,7 +14,7 @@ namespace YerbEngine {
     class AudioSampleBuffer {
 
         struct QueuedSample {
-            AudioSample   sample;
+            AudioSampleId sample;
             PriorityLevel priority;
             Uint64        timestamp;
 
@@ -33,11 +34,11 @@ namespace YerbEngine {
         size_t                                           m_head = 0;
         size_t                                           m_tail = 0;
         size_t                                           m_size = 0;
-        std::unordered_map<AudioSample, Uint64>          m_lastPlayTimes;
+        std::unordered_map<AudioSampleId, Uint64>         m_lastPlayTimes;
         AudioManager                                    &m_audioManager;
 
-        static constexpr Uint64                 MIN_REPLAY_INTERVAL = 50;
-        std::unordered_map<AudioSample, Uint64> m_cooldowns;
+        static constexpr Uint64                  MIN_REPLAY_INTERVAL = 50;
+        std::unordered_map<AudioSampleId, Uint64> m_cooldowns;
 
         [[nodiscard]] bool isBufferFull() const;
         void               pushSample(QueuedSample const &queuedSample);
@@ -48,8 +49,12 @@ namespace YerbEngine {
 
       public:
         explicit AudioSampleBuffer(AudioManager &audioManager);
-        void queueSample(AudioSample   sample,
-                         PriorityLevel priority);
+        void queueSample(std::string_view sample,
+                         PriorityLevel    priority);
+        void setCooldown(std::string_view sample,
+                         Uint64           cooldownMs);
+        void
+        setCooldowns(std::unordered_map<AudioSampleId, Uint64> cooldowns);
         void update();
     };
 } // namespace YerbEngine
