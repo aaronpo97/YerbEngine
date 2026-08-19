@@ -79,8 +79,9 @@ namespace YerbEngine {
          *
          * @throws std::runtime_error if the assets directory is not found.
          */
-        explicit GameEngine(Path assetsDir = Path{"assets"},
-                            Path configDir = Path{"config"});
+        explicit GameEngine(Path             assetsDir = Path{"assets"},
+                            Path             configDir = Path{"config"},
+                            AudioInitOptions audioOptions = AudioInitOptions{});
 
         /**
          * Destroys the GameEngine object and cleans up all resources.

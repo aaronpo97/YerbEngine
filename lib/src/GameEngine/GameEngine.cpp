@@ -1,6 +1,7 @@
 #include <GameEngine/GameEngine.hpp>
 #include <GameScenes/Scene.hpp>
 #include <SystemManagement/VideoManager.hpp>
+#include <utility>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -42,7 +43,8 @@ namespace YerbEngine {
     } // namespace
 
     GameEngine::GameEngine(Path assetsDirPath,
-                           Path configDirPath) {
+                           Path configDirPath,
+                           AudioInitOptions audioOptions) {
         /*
          * Set up the paths for the assets and configuration files.
          *
@@ -75,7 +77,8 @@ namespace YerbEngine {
             std::make_unique<JsonConfigProvider>(ENGINE_CONFIG_FILE_PATH)));
         m_configAdapter = std::make_unique<ConfigAdapter>(*m_configStore);
 
-        m_audioManager = std::make_unique<AudioManager>();
+        m_audioManager =
+            std::make_unique<AudioManager>(std::move(audioOptions));
 
         m_audioSampleBuffer =
             std::make_unique<AudioSampleBuffer>(*m_audioManager);
