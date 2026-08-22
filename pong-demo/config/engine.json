@@ -1,0 +1,12 @@
+{
+  "engine": {
+    "window": {
+      "title": "Project Yerb: Pong",
+      "size": { "width": 1280, "height": 720 }
+    },
+    "fonts": {
+      "path": "./pong-assets/fonts/MotionControl-Bold.otf",
+      "sizes": { "sm": 28, "md": 44, "lg": 96 }
+    }
+  }
+}
