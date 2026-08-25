@@ -1,12 +1,3 @@
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
-BinPackParameters: AlwaysOnePerLine
-BreakBeforeBraces: Attach
+BasedOnStyle: Google
 ColumnLimit: 80
-PointerAlignment: Right
-QualifierAlignment: Right
-UseTab: Never
-NamespaceIndentation: All
-AllowShortFunctionsOnASingleLine: All
-IndentWidth: 4
-AlwaysBreakTemplateDeclarations: Yes
+IndentWidth: 3
