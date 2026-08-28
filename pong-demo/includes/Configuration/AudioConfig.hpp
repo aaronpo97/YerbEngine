@@ -1,18 +1,17 @@
 #pragma once
 
-#include <Configuration/AudioIds.hpp>
 #include <SDL.h>
+
+#include <Configuration/AudioIds.hpp>
 #include <SystemManagement/AudioManager.hpp>
 #include <filesystem>
 #include <unordered_map>
 
 namespace PongAudio {
 
-    YerbEngine::AudioInitOptions
-    buildAudioInitOptions(std::filesystem::path const &assetsDir);
+YerbEngine::AudioInitOptions buildAudioInitOptions(
+    std::filesystem::path const& assetsDir);
 
-    std::unordered_map<YerbEngine::AudioSampleId,
-                       Uint64>
-    sampleCooldowns();
+std::unordered_map<YerbEngine::AudioSampleId, Uint64> sampleCooldowns();
 
-} // namespace PongAudio
+}  // namespace PongAudio

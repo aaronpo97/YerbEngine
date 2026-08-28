@@ -4,16 +4,16 @@ using namespace YerbEngine;
 
 class HowToPlayScene final : public Scene {
   private:
-    void renderText() const;
+   void renderText() const;
 
   public:
-    explicit HowToPlayScene(GameEngine *gameEngine);
+   explicit HowToPlayScene(GameEngine* gameEngine);
 
-    void update() override;
-    void onEnd() override;
-    void sRender() override;
-    void sDoAction(Action &action) override;
-    void sAudio() override;
+   void update() override;
+   void onEnd() override;
+   void sRender() override;
+   void sDoAction(Action& action) override;
+   void sAudio() override;
 
-    void onSceneWindowResize() override {};
+   void onSceneWindowResize() override {};
 };

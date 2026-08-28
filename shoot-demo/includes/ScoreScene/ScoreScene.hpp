@@ -5,18 +5,17 @@ using namespace YerbEngine;
 
 class ScoreScene final : public Scene {
   private:
-    unsigned int m_score;
-    unsigned int m_selectedIndex = 0;
-    void         renderText() const;
+   unsigned int m_score;
+   unsigned int m_selectedIndex = 0;
+   void renderText() const;
 
   public:
-    ScoreScene(GameEngine *gameEngine,
-               int         score);
+   ScoreScene(GameEngine* gameEngine, int score);
 
-    void update() override;
-    void onEnd() override;
-    void sRender() override;
-    void sDoAction(Action &action) override;
-    void sAudio() override;
-    void onSceneWindowResize() override {};
+   void update() override;
+   void onEnd() override;
+   void sRender() override;
+   void sDoAction(Action& action) override;
+   void sAudio() override;
+   void onSceneWindowResize() override {};
 };

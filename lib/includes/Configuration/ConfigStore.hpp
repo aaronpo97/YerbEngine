@@ -1,22 +1,23 @@
 #pragma once
-#include "ConfigDictionary.hpp"
-#include "IConfigProvider.hpp"
 #include <memory>
 #include <string>
 
+#include "ConfigDictionary.hpp"
+#include "IConfigProvider.hpp"
+
 namespace YerbEngine {
-    class ConfigStore {
-        std::unique_ptr<IConfigProvider> m_provider;
-        ConfigDictionary                 m_dictionary;
+class ConfigStore {
+   std::unique_ptr<IConfigProvider> m_provider;
+   ConfigDictionary m_dictionary;
 
-      public:
-        explicit ConfigStore(std::unique_ptr<IConfigProvider> provider);
+  public:
+   explicit ConfigStore(std::unique_ptr<IConfigProvider> provider);
 
-        static std::unique_ptr<ConfigStore>
-        fromJsonFile(std::filesystem::path const &jsonPath);
+   static std::unique_ptr<ConfigStore> fromJsonFile(
+       std::filesystem::path const& jsonPath);
 
-        ConfigValue get(std::string const &path) const;
-        bool        has(std::string const &path) const;
-        void        reload();
-    };
-} // namespace YerbEngine
+   ConfigValue get(std::string const& path) const;
+   bool has(std::string const& path) const;
+   void reload();
+};
+}  // namespace YerbEngine
