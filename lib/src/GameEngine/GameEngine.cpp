@@ -136,7 +136,7 @@ void GameEngine::LoadScene(std::string const& sceneName,
                            std::shared_ptr<Scene> const& scene) {
    m_scenes[sceneName] = scene;
 
-   scene->setStartTime(SDL_GetTicks64());
+   scene->setStartTime(SDL_GetTicks());
    m_currentSceneName = sceneName;
 }
 
@@ -214,40 +214,35 @@ void GameEngine::S_UserInput() {
    std::shared_ptr<Scene> const activeScene = m_scenes[m_currentSceneName];
 
    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
+      if (event.type == SDL_EVENT_QUIT) {
          quit();
          return;
       }
 
       // Handle window events
-      if (event.type == SDL_WINDOWEVENT) {
-         switch (event.window.event) {
-            case SDL_WINDOWEVENT_RESIZED:
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-               m_videoManager->updateWindowSize();
-               activeScene->onSceneWindowResize();
-               break;
-            default:
-               break;
-         }
+      if (event.type == SDL_EVENT_WINDOW_RESIZED ||
+          event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+         m_videoManager->updateWindowSize();
+         activeScene->onSceneWindowResize();
       }
 
-      if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-         if (!activeScene->getActionMap().contains(event.key.keysym.sym)) {
+      if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
+         if (!activeScene->getActionMap().contains(event.key.key)) {
             continue;
          }
 
-         ActionState const actionState =
-             event.type == SDL_KEYDOWN ? ActionState::START : ActionState::END;
+         ActionState const actionState = event.type == SDL_EVENT_KEY_DOWN
+                                             ? ActionState::START
+                                             : ActionState::END;
 
          std::string const& actionName =
-             activeScene->getActionMap().at(event.key.keysym.sym);
+             activeScene->getActionMap().at(event.key.key);
          Action action(actionName, actionState, std::nullopt);
          activeScene->sDoAction(action);
       }
 
-      if (event.type == SDL_MOUSEBUTTONDOWN ||
-          event.type == SDL_MOUSEBUTTONUP) {
+      if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+          event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
          if (!activeScene->getActionMap().contains(event.button.button)) {
             continue;
          }
@@ -256,34 +251,32 @@ void GameEngine::S_UserInput() {
           * If the event is a mouse button event, set the action state to
           * start on mouse down, and end on mouse up.
           */
-         ActionState const actionState = event.type == SDL_MOUSEBUTTONDOWN
-                                             ? ActionState::START
-                                             : ActionState::END;
+         ActionState const actionState =
+             event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? ActionState::START
+                                                       : ActionState::END;
 
          std::string const& actionName =
              activeScene->getActionMap().at(event.button.button);
 
          // Get mouse position and convert to game coordinates
-         int mouseX, mouseY;
+         float mouseX, mouseY;
          SDL_GetMouseState(&mouseX, &mouseY);
 
-         Vec2 gamePosition{static_cast<float>(mouseX),
-                           static_cast<float>(mouseY)};
+         Vec2 gamePosition{mouseX, mouseY};
 
          Action action(actionName, actionState, gamePosition);
          activeScene->sDoAction(action);
       }
 
       // Mouse motion handling
-      if (event.type == SDL_MOUSEMOTION &&
-          activeScene->getActionMap().contains(SDL_MOUSEMOTION)) {
-         int mouseX, mouseY;
+      if (event.type == SDL_EVENT_MOUSE_MOTION &&
+          activeScene->getActionMap().contains(SDL_EVENT_MOUSE_MOTION)) {
+         float mouseX, mouseY;
          SDL_GetMouseState(&mouseX, &mouseY);
-         Vec2 gamePosition{static_cast<float>(mouseX),
-                           static_cast<float>(mouseY)};
+         Vec2 gamePosition{mouseX, mouseY};
 
          std::string const& actionName =
-             activeScene->getActionMap().at(SDL_MOUSEMOTION);
+             activeScene->getActionMap().at(SDL_EVENT_MOUSE_MOTION);
          Action action(actionName, ActionState::START, gamePosition);
          activeScene->sDoAction(action);
       }

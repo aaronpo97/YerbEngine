@@ -7,7 +7,7 @@ AudioSampleBuffer::AudioSampleBuffer(AudioManager& audioManager)
 
 void AudioSampleBuffer::queueSample(std::string_view const sample,
                                     PriorityLevel const priority) {
-   Uint64 const currentTime = SDL_GetTicks64();
+   Uint64 const currentTime = SDL_GetTicks();
    removeExpiredSamples(currentTime);
 
    AudioSampleId const sampleKey(sample);
@@ -34,7 +34,7 @@ void AudioSampleBuffer::queueSample(std::string_view const sample,
 }
 
 void AudioSampleBuffer::update() {
-   Uint64 const currentTime = SDL_GetTicks64();
+   Uint64 const currentTime = SDL_GetTicks();
    size_t soundsPlayedThisFrame = 0;
    constexpr size_t MAX_SOUNDS_PER_FRAME = AudioManager::MAX_SAMPLES_PER_FRAME;
 

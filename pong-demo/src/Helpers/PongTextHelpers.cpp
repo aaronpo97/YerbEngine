@@ -12,9 +12,9 @@ Vec2 measureText(TTF_Font* font, std::string const& text) {
 
    int width = 0;
    int height = 0;
-   if (TTF_SizeText(font, text.c_str(), &width, &height) != 0) {
+   if (!TTF_GetStringSize(font, text.c_str(), text.size(), &width, &height)) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to measure text: %s",
-                   TTF_GetError());
+                   SDL_GetError());
       return Vec2{0, 0};
    }
 

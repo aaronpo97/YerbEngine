@@ -8,9 +8,9 @@ FontManager::FontManager(Path const& fontPath, int const fontSizeSm,
       m_fontSizeSm(fontSizeSm),
       m_fontSizeMd(fontSizeMd),
       m_fontSizeLg(fontSizeLg) {
-   if (TTF_Init() != 0) {
+   if (!TTF_Init()) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Failed to initialize SDL_ttf: %s",
-                   TTF_GetError());
+                   SDL_GetError());
       return;
    }
 
@@ -28,7 +28,7 @@ void FontManager::loadFonts(Path const& fontPath) {
 
    if (!fontsLoaded) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load fonts: %s",
-                   TTF_GetError());
+                   SDL_GetError());
       return;
    }
 

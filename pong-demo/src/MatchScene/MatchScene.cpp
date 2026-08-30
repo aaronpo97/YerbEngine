@@ -53,7 +53,7 @@ MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
     : Scene(gameEngine),
       m_config(gameEngine->GetConfig(), gameEngine->GetConfigStore("demo")),
       m_mode(mode) {
-   m_lastFrameTime = SDL_GetTicks64();
+   m_lastFrameTime = SDL_GetTicks();
 
    spawnPaddles();
    spawnBall();
@@ -62,13 +62,13 @@ MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
    std::uniform_int_distribution<int> coinFlip(0, 1);
    serveBall(coinFlip(m_randomGenerator) == 0 ? -1 : 1);
 
-   registerAction(SDLK_w, "LEFT_UP");
-   registerAction(SDLK_s, "LEFT_DOWN");
+   registerAction(SDLK_W, "LEFT_UP");
+   registerAction(SDLK_S, "LEFT_DOWN");
 
    registerAction(SDLK_UP, "RIGHT_UP");
    registerAction(SDLK_DOWN, "RIGHT_DOWN");
 
-   registerAction(SDLK_p, "PAUSE");
+   registerAction(SDLK_P, "PAUSE");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
 }
 
@@ -86,11 +86,11 @@ void MatchScene::spawnPaddles() {
    float const paddleHeight = paddleConfig.shape.height * scale;
 
    auto const spawnPaddle = [&](float const x) -> std::shared_ptr<Entity> {
-      SDL_Rect const paddleRect{
+      SDL_FRect const paddleRect{
           .x = 0,
           .y = 0,
-          .w = static_cast<int>(paddleWidth),
-          .h = static_cast<int>(paddleHeight),
+          .w = static_cast<float>(paddleWidth),
+          .h = static_cast<float>(paddleHeight),
       };
 
       Vec2 const position{x, (windowSize.y() - paddleHeight) / 2.0f};
@@ -118,11 +118,11 @@ void MatchScene::spawnBall() {
    BallConfig const ballConfig = m_config.getBallConfig();
    float const scale = courtScale();
 
-   SDL_Rect const ballRect{
+   SDL_FRect const ballRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(ballConfig.shape.width * scale),
-       .h = static_cast<int>(ballConfig.shape.height * scale),
+       .w = static_cast<float>(ballConfig.shape.width * scale),
+       .h = static_cast<float>(ballConfig.shape.height * scale),
    };
 
    constexpr Vec2 position{0, 0};
@@ -158,11 +158,11 @@ void MatchScene::serveBall(int const direction) {
 
    m_ballSpeed = ballConfig.baseSpeed;
    m_serveDirection = direction;
-   m_serveTime = SDL_GetTicks64() + matchConfig.serveDelay;
+   m_serveTime = SDL_GetTicks() + matchConfig.serveDelay;
 }
 
 void MatchScene::update() {
-   Uint64 const currentTime = SDL_GetTicks64();
+   Uint64 const currentTime = SDL_GetTicks();
    m_deltaTime =
        std::min(static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f,
                 MAX_FRAME_DELTA);
@@ -193,7 +193,7 @@ void MatchScene::sOpponent() {
    auto const& cInput = m_rightPaddle->getComponent<Components::CInput>();
    cInput->directions.reset();
 
-   if (SDL_GetTicks64() < m_serveTime) {
+   if (SDL_GetTicks() < m_serveTime) {
       return;
    }
 
@@ -233,7 +233,7 @@ void MatchScene::sMovement() {
                                       : paddleConfig.speed;
    movePaddle(m_rightPaddle, rightPaddleSpeed * scale, m_deltaTime, windowSize);
 
-   if (SDL_GetTicks64() < m_serveTime) {
+   if (SDL_GetTicks() < m_serveTime) {
       return;
    }
 
@@ -384,7 +384,7 @@ void MatchScene::sDoAction(Action& action) {
       m_paused = !m_paused;
 
       if (!m_paused) {
-         m_lastFrameTime = SDL_GetTicks64();
+         m_lastFrameTime = SDL_GetTicks();
       }
    }
 
@@ -411,11 +411,11 @@ void MatchScene::renderCourt() const {
 
    for (float y = SEGMENT_GAP; y < windowSize.y();
         y += SEGMENT_HEIGHT + SEGMENT_GAP) {
-      SDL_Rect const segment{
-          .x = static_cast<int>(centerX),
-          .y = static_cast<int>(y),
-          .w = static_cast<int>(SEGMENT_WIDTH),
-          .h = static_cast<int>(SEGMENT_HEIGHT),
+      SDL_FRect const segment{
+          .x = static_cast<float>(centerX),
+          .y = static_cast<float>(y),
+          .w = static_cast<float>(SEGMENT_WIDTH),
+          .h = static_cast<float>(SEGMENT_HEIGHT),
       };
       SDL_RenderFillRect(renderer, &segment);
    }
@@ -447,7 +447,7 @@ void MatchScene::renderBanner() {
       PongTextHelpers::renderCenteredText(
           renderer, fontMd, "PAUSED", TEXT_COLOR,
           Vec2{windowSize.x() / 2.0f, windowSize.y() * 0.4f});
-   } else if (SDL_GetTicks64() < m_serveTime) {
+   } else if (SDL_GetTicks() < m_serveTime) {
       std::string const serveText =
           m_serveDirection < 0 ? "SERVING LEFT" : "SERVING RIGHT";
       PongTextHelpers::renderCenteredText(
@@ -480,11 +480,11 @@ void MatchScene::sRender() {
          continue;
       }
 
-      SDL_Rect& rect = cShape->rect;
+      SDL_FRect& rect = cShape->rect;
       Vec2 const& pos = cTransform->topLeftCornerPos;
 
-      rect.x = static_cast<int>(pos.x());
-      rect.y = static_cast<int>(pos.y());
+      rect.x = static_cast<float>(pos.x());
+      rect.y = static_cast<float>(pos.y());
 
       SDL_SetRenderDrawColor(renderer, cShape->color.r, cShape->color.g,
                              cShape->color.b, cShape->color.a);
@@ -507,9 +507,9 @@ void MatchScene::onSceneWindowResize() {
 
    auto const resizeEntity = [](std::shared_ptr<Entity> const& entity,
                                 float const width, float const height) {
-      SDL_Rect& rect = entity->getComponent<Components::CShape>()->rect;
-      rect.w = static_cast<int>(width);
-      rect.h = static_cast<int>(height);
+      SDL_FRect& rect = entity->getComponent<Components::CShape>()->rect;
+      rect.w = static_cast<float>(width);
+      rect.h = static_cast<float>(height);
    };
 
    bool const hasPreviousCourt = m_courtSize.y() > 0;
@@ -549,7 +549,7 @@ void MatchScene::onSceneWindowResize() {
 
    m_courtSize = windowSize;
 
-   if (SDL_GetTicks64() < m_serveTime) {
+   if (SDL_GetTicks() < m_serveTime) {
       serveBall(m_serveDirection);
    }
 }

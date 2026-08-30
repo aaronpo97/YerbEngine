@@ -222,7 +222,7 @@ void moveItems(std::shared_ptr<Entity> const& entity, float const& deltaTime) {
 
    // Use deltaTime to maintain consistent movement speed
    constexpr float ITEM_MOVEMENT_MULTIPLIER = .9f;
-   float const time = static_cast<float>(SDL_GetTicks64()) / 1000.0f;
+   float const time = static_cast<float>(SDL_GetTicks()) / 1000.0f;
    // Entity id will be odd when the last bit is 1
    bool const ENTITY_ID_ODD = entity->id() & 1;
 

@@ -1,6 +1,6 @@
 // Strongly-typed config types used by the engine and adapters.
 #pragma once
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <Helpers/Vec2.hpp>
 #include <filesystem>

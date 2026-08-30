@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <Helpers/Vec2.hpp>
 #include <algorithm>
@@ -21,10 +21,10 @@ class CTransform {
 
 class CShape {
   public:
-   SDL_Rect rect;
+   SDL_FRect rect;
    SDL_Color color;
 
-   CShape(SDL_Rect rect, SDL_Color color) : rect(rect), color(color) {}
+   CShape(SDL_FRect rect, SDL_Color color) : rect(rect), color(color) {}
 };
 
 class CInput {
@@ -38,10 +38,10 @@ class CLifespan {
    Uint64 birthTime;
    Uint64 lifespan = 0;
 
-   CLifespan() : birthTime(SDL_GetTicks64()) {}
+   CLifespan() : birthTime(SDL_GetTicks()) {}
 
    explicit CLifespan(Uint64 const lifespan)
-       : birthTime(SDL_GetTicks64()), lifespan(lifespan) {}
+       : birthTime(SDL_GetTicks()), lifespan(lifespan) {}
 };
 
 enum EffectTypes { Speed, Slowness };

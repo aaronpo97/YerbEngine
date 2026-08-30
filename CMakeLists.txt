@@ -46,20 +46,54 @@ if(EMSCRIPTEN)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
-    target_compile_options(yerb_engine_core PUBLIC
-        "-sUSE_SDL=2"
-        "-sUSE_SDL_IMAGE=2"
-        "-sUSE_SDL_TTF=2"
-        "-sUSE_SDL_MIXER=2"
-    )
+    # Emscripten carries ports for SDL3 and SDL3_ttf. SDL3_image and SDL3_mixer
+    # have no port, so they are built from source against the SDL3 port's
+    # headers: both skip their own find_package(SDL3) when the SDL3::SDL3 and
+    # SDL3::Headers targets already exist, which sdl3_port provides below.
+    add_library(sdl3_port INTERFACE)
+    target_compile_options(sdl3_port INTERFACE "--use-port=sdl3")
+    target_link_options(sdl3_port INTERFACE "--use-port=sdl3")
+    add_library(SDL3::SDL3 ALIAS sdl3_port)
+    add_library(SDL3::Headers ALIAS sdl3_port)
 
-    # Add SDL include dirs from Emscripten
-    execute_process(
-        COMMAND ${CMAKE_C_COMPILER} -print-file-name=include
-        OUTPUT_VARIABLE EMSCRIPTEN_INCLUDE_DIR
-        OUTPUT_STRIP_TRAILING_WHITESPACE
+    # PNG and JPEG both go through SDL3_image's stb backend, and Ogg Vorbis
+    # through SDL3_mixer's stb_vorbis, so neither pulls in an external codec.
+    set(SDLIMAGE_VENDORED     OFF CACHE BOOL "" FORCE)
+    set(SDLIMAGE_SAMPLES      OFF CACHE BOOL "" FORCE)
+    set(SDLIMAGE_TESTS        OFF CACHE BOOL "" FORCE)
+    set(SDLIMAGE_BACKEND_STB  ON  CACHE BOOL "" FORCE)
+    set(SDLIMAGE_PNG_LIBPNG   OFF CACHE BOOL "" FORCE)
+    foreach(fmt ANI AVIF BMP GIF JXL LBM PCX PNM QOI SVG TGA TIF WEBP XCF XPM XV)
+        set(SDLIMAGE_${fmt} OFF CACHE BOOL "" FORCE)
+    endforeach()
+    set(SDLIMAGE_PNG ON CACHE BOOL "" FORCE)
+    set(SDLIMAGE_JPG ON CACHE BOOL "" FORCE)
+
+    set(SDLMIXER_VENDORED            OFF CACHE BOOL "" FORCE)
+    set(SDLMIXER_TESTS               OFF CACHE BOOL "" FORCE)
+    set(SDLMIXER_EXAMPLES            OFF CACHE BOOL "" FORCE)
+    foreach(fmt AIFF VOC AU FLAC GME MOD MP3 MIDI OPUS WAVPACK VORBIS_VORBISFILE)
+        set(SDLMIXER_${fmt} OFF CACHE BOOL "" FORCE)
+    endforeach()
+    set(SDLMIXER_WAVE       ON CACHE BOOL "" FORCE)
+    set(SDLMIXER_VORBIS_STB ON CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(sdl3_image
+        URL https://github.com/libsdl-org/SDL_image/releases/download/release-3.4.8/SDL3_image-3.4.8.tar.gz
     )
-    target_include_directories(yerb_engine_core PUBLIC ${EMSCRIPTEN_INCLUDE_DIR})
+    FetchContent_Declare(sdl3_mixer
+        URL https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.4/SDL3_mixer-3.2.4.tar.gz
+    )
+    FetchContent_MakeAvailable(sdl3_image sdl3_mixer)
+
+    target_compile_options(yerb_engine_core PUBLIC
+        "--use-port=sdl3"
+        "--use-port=sdl3_ttf"
+    )
+    target_link_libraries(yerb_engine_core PUBLIC
+        SDL3_image::SDL3_image
+        SDL3_mixer::SDL3_mixer
+    )
 
     if(NOT TARGET copy_templates)
         add_custom_target(copy_templates ALL
@@ -71,16 +105,16 @@ if(EMSCRIPTEN)
 else()
     message(STATUS "Configuring for native")
 
-    find_package(SDL2       REQUIRED)
-    find_package(SDL2_image REQUIRED)
-    find_package(SDL2_ttf   REQUIRED)
-    find_package(SDL2_mixer REQUIRED)
+    find_package(SDL3       REQUIRED CONFIG)
+    find_package(SDL3_image REQUIRED CONFIG)
+    find_package(SDL3_ttf   REQUIRED CONFIG)
+    find_package(SDL3_mixer REQUIRED CONFIG)
 
     target_link_libraries(yerb_engine_core PUBLIC
-        SDL2::SDL2
-        SDL2_image::SDL2_image
-        SDL2_ttf::SDL2_ttf
-        SDL2_mixer::SDL2_mixer
+        SDL3::SDL3
+        SDL3_image::SDL3_image
+        SDL3_ttf::SDL3_ttf
+        SDL3_mixer::SDL3_mixer
     )
 
     set(OUT_DIR "${CMAKE_BINARY_DIR}")

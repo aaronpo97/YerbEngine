@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <Configuration/AudioIds.hpp>
 #include <HowToPlayScene/HowToPlayScene.hpp>
@@ -9,8 +9,8 @@
 MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
    m_selectedIndex = 0;
    registerAction(SDLK_RETURN, "SELECT");
-   registerAction(SDLK_w, "UP");
-   registerAction(SDLK_s, "DOWN");
+   registerAction(SDLK_W, "UP");
+   registerAction(SDLK_S, "DOWN");
 }
 
 void MenuScene::update() {

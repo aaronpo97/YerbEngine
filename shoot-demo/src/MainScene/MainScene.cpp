@@ -28,22 +28,22 @@ MainScene::MainScene(GameEngine* gameEngine)
    m_spawner.spawnWalls();
 
    // WASD
-   registerAction(SDLK_w, "FORWARD");
-   registerAction(SDLK_s, "BACKWARD");
-   registerAction(SDLK_a, "LEFT");
-   registerAction(SDLK_d, "RIGHT");
+   registerAction(SDLK_W, "FORWARD");
+   registerAction(SDLK_S, "BACKWARD");
+   registerAction(SDLK_A, "LEFT");
+   registerAction(SDLK_D, "RIGHT");
 
    // Mouse click
    registerAction(SDL_BUTTON_LEFT, "SHOOT");
    // Pause
-   registerAction(SDLK_p, "PAUSE");
+   registerAction(SDLK_P, "PAUSE");
 
    // Go to menu
    registerAction(SDLK_BACKSPACE, "GO_BACK");
 }
 
 void MainScene::update() {
-   Uint64 const currentTime = SDL_GetTicks64();
+   Uint64 const currentTime = SDL_GetTicks();
    m_deltaTime = static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f;
 
    if (!m_paused && !m_gameOver) {
@@ -101,7 +101,7 @@ void MainScene::sDoAction(Action& action) {
       return;
    }
    if (action.getName() == "SHOOT") {
-      auto const currentTime = SDL_GetTicks64();
+      auto const currentTime = SDL_GetTicks();
       auto const spawnBullet =
           currentTime - m_lastBulletSpawnTime > m_bulletSpawnCooldown;
       if (!spawnBullet) {
@@ -200,11 +200,11 @@ void MainScene::sRender() {
          continue;
       }
 
-      SDL_Rect& rect = cShape->rect;
+      SDL_FRect& rect = cShape->rect;
       Vec2 const& pos = cTransform->topLeftCornerPos;
 
-      rect.x = static_cast<int>(pos.x());
-      rect.y = static_cast<int>(pos.y());
+      rect.x = static_cast<float>(pos.x());
+      rect.y = static_cast<float>(pos.y());
 
       // If there's no sprite, render a plain box
       if (!entity->hasComponent<Components::CSprite>()) {
@@ -217,7 +217,7 @@ void MainScene::sRender() {
       auto const& cSprite = entity->getComponent<Components::CSprite>();
       SDL_Texture* texture =
           m_gameEngine->getTextureManager().getTexture(cSprite->getTextureId());
-      SDL_RenderCopy(renderer, texture, nullptr, &rect);
+      SDL_RenderTexture(renderer, texture, nullptr, &rect);
    }
 
    renderText();
@@ -273,7 +273,7 @@ void MainScene::sMovement() {
 }
 
 void MainScene::sSpawner() {
-   Uint64 const ticks = SDL_GetTicks64();
+   Uint64 const ticks = SDL_GetTicks();
    Uint64 const SPAWN_INTERVAL =
        m_spawner.m_config.getGameConfig().spawnInterval;
 
@@ -335,7 +335,7 @@ void MainScene::sEffects() const {
       return;
    }
 
-   Uint64 const currentTime = SDL_GetTicks64();
+   Uint64 const currentTime = SDL_GetTicks();
    for (auto const& [startTime, duration, type] : effects) {
       bool const effectExpired = currentTime - startTime > duration;
       if (!effectExpired) {
@@ -347,7 +347,7 @@ void MainScene::sEffects() const {
 }
 
 void MainScene::sTimer() {
-   Uint64 const currentTime = SDL_GetTicks64();
+   Uint64 const currentTime = SDL_GetTicks();
 
    // Check if the timer was recently operated by comparing the current time
    // with the last frame time and the scene's start time.

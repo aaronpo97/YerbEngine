@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <Configuration/AudioIds.hpp>
 #include <MainScene/MainScene.hpp>
@@ -9,8 +9,8 @@
 ScoreScene::ScoreScene(GameEngine* gameEngine, int const score)
     : Scene(gameEngine), m_score(score) {
    registerAction(SDLK_RETURN, "SELECT");
-   registerAction(SDLK_w, "UP");
-   registerAction(SDLK_s, "DOWN");
+   registerAction(SDLK_W, "UP");
+   registerAction(SDLK_S, "DOWN");
 }
 
 void ScoreScene::update() {

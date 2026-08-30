@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <Configuration/ConfigAdapter.hpp>
 #include <SystemManagement/VideoManager.hpp>
@@ -21,7 +21,7 @@ VideoManager::VideoManager(ConfigAdapter& config) : m_config(config) {
 }
 
 void VideoManager::initializeVideoSystem() {
-   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+   if (!SDL_Init(SDL_INIT_VIDEO)) {
       SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "SDL video system is not ready: %s",
                    SDL_GetError());
       throw std::runtime_error("SDL video system is not ready to go");
@@ -31,10 +31,10 @@ void VideoManager::initializeVideoSystem() {
 }
 
 SDL_Window* VideoManager::createWindow() {
-   Uint32 windowFlags = 0;
+   SDL_WindowFlags windowFlags = 0;
 
-   constexpr Uint32 baseFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
-   constexpr Uint32 macFlags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+   constexpr SDL_WindowFlags baseFlags = SDL_WINDOW_RESIZABLE;
+   constexpr SDL_WindowFlags macFlags = SDL_WINDOW_FULLSCREEN;
    windowFlags |= baseFlags;
 
 #ifdef __APPLE__
@@ -45,10 +45,9 @@ SDL_Window* VideoManager::createWindow() {
    std::string const& windowTitle = gameConfig.windowTitle;
    Vec2 const& windowSize = gameConfig.windowSize;
 
-   SDL_Window* window = SDL_CreateWindow(
-       windowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-       static_cast<int>(windowSize.x()), static_cast<int>(windowSize.y()),
-       windowFlags);
+   SDL_Window* window =
+       SDL_CreateWindow(windowTitle.c_str(), static_cast<int>(windowSize.x()),
+                        static_cast<int>(windowSize.y()), windowFlags);
 
    if (window == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Window could not be created: %s",
@@ -57,10 +56,7 @@ SDL_Window* VideoManager::createWindow() {
    }
 
    int currentWindowWidth, currentWindowHeight;
-   int drawableWidth, drawableHeight;
-
    SDL_GetWindowSize(window, &currentWindowWidth, &currentWindowHeight);
-   SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
 
    m_currentWindowSize = Vec2{static_cast<float>(currentWindowWidth),
                               static_cast<float>(currentWindowHeight)};
@@ -71,10 +67,7 @@ SDL_Window* VideoManager::createWindow() {
 
 void VideoManager::updateWindowSize() {
    int currentWindowWidth, currentWindowHeight;
-   int drawableWidth, drawableHeight;
-
    SDL_GetWindowSize(m_window, &currentWindowWidth, &currentWindowHeight);
-   SDL_GL_GetDrawableSize(m_window, &drawableWidth, &drawableHeight);
 
    m_currentWindowSize = Vec2{static_cast<float>(currentWindowWidth),
                               static_cast<float>(currentWindowHeight)};
@@ -86,8 +79,7 @@ SDL_Renderer* VideoManager::createRenderer() const {
       throw std::runtime_error("Window is not initialized");
    }
 
-   SDL_Renderer* renderer =
-       SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
+   SDL_Renderer* renderer = SDL_CreateRenderer(m_window, nullptr);
    if (renderer == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "Renderer could not be created: %s",
                    SDL_GetError());

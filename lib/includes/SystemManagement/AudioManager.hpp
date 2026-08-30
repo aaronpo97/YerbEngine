@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include <filesystem>
 #include <map>
@@ -22,29 +22,53 @@ struct AudioTrackDefinition {
    Path filepath;
 };
 
+/**
+ * The inclusive upper bound of every volume value in this API.
+ *
+ * SDL_mixer works in float gain; AudioManager converts internally so that
+ * callers keep a single integer scale.
+ */
+constexpr int MAX_VOLUME = 128;
+
 struct AudioSampleDefinition {
    AudioSampleId id;
    Path filepath;
-   int defaultVolume = MIX_MAX_VOLUME;
+   int defaultVolume = MAX_VOLUME;
 };
 
 struct AudioInitOptions {
    int frequency = 44100;
-   Uint16 format = MIX_DEFAULT_FORMAT;
+   SDL_AudioFormat format = SDL_AUDIO_F32;
    int channels = 2;
-   int chunksize = 2048;
    std::vector<AudioTrackDefinition> tracks{};
    std::vector<AudioSampleDefinition> samples{};
 };
 
 class AudioManager {
-   std::unordered_map<AudioTrackId, Mix_Music*> m_audioTracks;
-   std::unordered_map<AudioSampleId, Mix_Chunk*> m_audioSamples;
+   MIX_Mixer* m_mixer = nullptr;
 
-   int m_frequency{};
-   Uint16 m_format{};
-   int m_channels{};
-   int m_chunksize{};
+   std::unordered_map<AudioTrackId, MIX_Audio*> m_audioTracks;
+   std::unordered_map<AudioSampleId, MIX_Audio*> m_audioSamples;
+
+   /*
+    * SDL_mixer carries gain on the track rather than on the audio, so the
+    * per-sample volumes the API exposes are kept here and applied when a
+    * sample is bound to a voice.
+    */
+   std::unordered_map<AudioSampleId, int> m_sampleVolumes;
+
+   /// Dedicated voice for the looping background track.
+   MIX_Track* m_trackVoice = nullptr;
+
+   /*
+    * Fixed pool of voices for samples, standing in for SDL_mixer 2's
+    * automatic channel allocation. Sized above MAX_SAMPLES_PER_FRAME so a
+    * busy frame cannot cut off the previous frame's samples.
+    */
+   static constexpr size_t SAMPLE_VOICE_COUNT = 16;
+   std::vector<MIX_Track*> m_sampleVoices;
+
+   SDL_AudioSpec m_spec{};
 
    AudioTrackId m_currentAudioTrack{};
    AudioTrackId m_lastAudioTrack{};
@@ -53,8 +77,22 @@ class AudioManager {
 
    bool m_tracksMuted = false;
    bool m_samplesMuted = false;
-   int m_savedTrackVolume = MIX_MAX_VOLUME;
+   int m_savedTrackVolume = MAX_VOLUME;
+   int m_trackVolume = MAX_VOLUME;
+
    std::map<AudioSampleId, int> m_savedSampleVolumes;
+
+   /**
+    * Converts a volume on this API's 0 to MAX_VOLUME scale into the
+    * 0.0 to 1.0 gain SDL_mixer expects.
+    */
+   static float toGain(int volume);
+
+   /**
+    * Finds a free voice in the sample pool, falling back to the first
+    * voice when every one of them is busy.
+    */
+   MIX_Track* acquireSampleVoice() const;
 
    /**
     * Loads an audio track from a file.
@@ -62,7 +100,7 @@ class AudioManager {
     * @param track The audio track to load.
     * @param filepath The path to the audio file.
     *
-    * @throws std::runtime_error if Mix_LoadMUS fails.
+    * @throws std::runtime_error if the file could not be loaded.
     */
    void loadTrack(AudioTrackId const track, Path const& filepath);
 
@@ -72,7 +110,7 @@ class AudioManager {
     * @param sample The audio sample to load.
     * @param filepath The path to the audio file.
     *
-    * @throws std::runtime_error if Mix_LoadWAV fails.
+    * @throws std::runtime_error if the file could not be loaded.
     */
    void loadSample(AudioSampleId sample, Path const& filepath,
                    int defaultVolume);
@@ -93,14 +131,12 @@ class AudioManager {
     * Initializes SDL audio subsystem and loads all audio tracks and
     * samples.
     *
-    * @throws std::runtime_error if SDL_Init(SDL_INIT_AUDIO) or
-    * Mix_OpenAudio fails.
+    * @throws std::runtime_error if SDL_Init(SDL_INIT_AUDIO) or the
+    * mixer device fails to open.
     *
     * @param frequency The frequency to playback audio at (in Hz).
-    * @param format Audio format, one of SDL's AUDIO_* values.
+    * @param format Audio format, one of SDL's SDL_AUDIO_* values.
     * @param channels number of channels.
-    * @param chunksize Audio buffer size in sample FRAMES (total samples
-    * divided by channel count).
     */
    AudioManager() : AudioManager(AudioInitOptions{}) {}
 
@@ -108,8 +144,8 @@ class AudioManager {
 
    static constexpr size_t MAX_SAMPLES_PER_FRAME = 4;
    static constexpr int DEFAULT_SAMPLE_VOLUME =
-       MIX_MAX_VOLUME / MAX_SAMPLES_PER_FRAME;
-   static constexpr int DEFAULT_TRACK_VOLUME = MIX_MAX_VOLUME * 0.8;
+       MAX_VOLUME / MAX_SAMPLES_PER_FRAME;
+   static constexpr int DEFAULT_TRACK_VOLUME = MAX_VOLUME * 0.8;
 
    /**
     * Destructor for AudioManager.
@@ -173,15 +209,15 @@ class AudioManager {
    /**
     * Sets the volume of the currently playing audio track.
     *
-    * @param volume The volume level (0 to MIX_MAX_VOLUME).
+    * @param volume The volume level (0 to MAX_VOLUME).
     */
-   static void setTrackVolume(int volume);
+   void setTrackVolume(int volume);
 
    /**
     * Sets the volume of a specific audio sample.
     *
     * @param sampleTag The audio sample to set the volume for.
-    * @param volume The volume level (0 to MIX_MAX_VOLUME).
+    * @param volume The volume level (0 to MAX_VOLUME).
     */
    void setSampleVolume(std::string_view sampleTag, int volume);
 
@@ -189,16 +225,16 @@ class AudioManager {
     * Gets the volume of a specific audio sample.
     *
     * @param sampleTag The audio sample to get the volume for.
-    * @return The volume level (0 to MIX_MAX_VOLUME).
+    * @return The volume level (0 to MAX_VOLUME).
     */
    int getSampleVolume(std::string_view sampleTag);
 
    /**
     * Gets the volume of the currently playing audio track.
     *
-    * @return The volume level (0 to MIX_MAX_VOLUME).
+    * @return The volume level (0 to MAX_VOLUME).
     */
-   static int getTrackVolume();
+   int getTrackVolume() const;
 
    /**
     * Mutes all audio tracks.
@@ -292,19 +328,20 @@ class AudioManager {
    AudioSampleId getLastAudioSample() const;
 
    /**
-    * Checks if the currently playing audio track is paused.
+    * Checks whether the audio track is contributing to the mix.
     *
-    * @return true if the track is paused, false otherwise.
+    * A paused track reports false here and true from isTrackPaused().
+    *
+    * @return true if the track is playing.
     */
-
-   [[nodiscard]] static bool isTrackPlaying();
+   [[nodiscard]] bool isTrackPlaying() const;
 
    /**
-    * Checks if the currently playing audio track is paused.
+    * Checks whether the audio track is paused.
     *
-    * @return true if the track is paused, false otherwise.
+    * @return true if the track is paused.
     */
-   [[nodiscard]] static bool isTrackPaused();
+   [[nodiscard]] bool isTrackPaused() const;
 };
 
 }  // namespace YerbEngine

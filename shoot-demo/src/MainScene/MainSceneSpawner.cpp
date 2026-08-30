@@ -57,11 +57,11 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
    //     static_cast<float>(playerConfig.shape.width),
    //     playerConfig.shape.color);
 
-   SDL_Rect playerRect{
+   SDL_FRect playerRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(playerWidth),
-       .h = static_cast<int>(playerHeight),
+       .w = static_cast<float>(playerWidth),
+       .h = static_cast<float>(playerHeight),
    };
    auto const cShape = std::make_shared<Components::CShape>(
        playerRect, playerConfig.shape.color);
@@ -96,11 +96,11 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const& player) {
 
    auto const cTransform =
        std::make_shared<Components::CTransform>(position, velocity);
-   SDL_Rect enemyRect{
+   SDL_FRect enemyRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(enemyConfig.shape.width),
-       .h = static_cast<int>(enemyConfig.shape.height),
+       .w = static_cast<float>(enemyConfig.shape.width),
+       .h = static_cast<float>(enemyConfig.shape.height),
    };
 
    SDL_Color enemyColor = enemyConfig.shape.color;
@@ -164,11 +164,11 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
    //     static_cast<float>(speedEffectConfig.shape.width),
    //     speedEffectConfig.shape.color);
 
-   SDL_Rect speedBoostRect{
+   SDL_FRect speedBoostRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(speedEffectConfig.shape.width),
-       .h = static_cast<int>(speedEffectConfig.shape.height),
+       .w = static_cast<float>(speedEffectConfig.shape.width),
+       .h = static_cast<float>(speedEffectConfig.shape.height),
    };
    auto const cShape = std::make_shared<Components::CShape>(
        speedBoostRect, speedEffectConfig.shape.color);
@@ -232,11 +232,11 @@ void MainSceneSpawner::spawnSlownessEntity(
    //     static_cast<float>(slownessEffectConfig.shape.width),
    //     slownessEffectConfig.shape.color);
 
-   auto const slownessRect = SDL_Rect{
+   auto const slownessRect = SDL_FRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(slownessEffectConfig.shape.width),
-       .h = static_cast<int>(slownessEffectConfig.shape.height),
+       .w = static_cast<float>(slownessEffectConfig.shape.width),
+       .h = static_cast<float>(slownessEffectConfig.shape.height),
    };
    auto const cShape = std::make_shared<Components::CShape>(
        slownessRect, slownessEffectConfig.shape.color);
@@ -305,7 +305,7 @@ void MainSceneSpawner::spawnWalls() {
    float const outerGapSize = outerWidth * 0.18f;
 
    for (int i = 0; i < WALL_COUNT; i++) {
-      SDL_Rect shapeRect{};
+      SDL_FRect shapeRect{};
       auto const shapeComponent =
           std::make_shared<Components::CShape>(shapeRect, wallConfig.color);
       auto const transformComponent =
@@ -321,7 +321,7 @@ void MainSceneSpawner::spawnWalls() {
       bool const isInnerVertical = !isOuterWall && !isHorizontal;
 
       if (isOuterHorizontal) {
-         shapeComponent->rect.h = static_cast<int>(wallWidth);
+         shapeComponent->rect.h = static_cast<float>(wallWidth);
          shapeComponent->rect.w =
              static_cast<int>(outerWidth - (2 * outerGapSize));
 
@@ -332,14 +332,14 @@ void MainSceneSpawner::spawnWalls() {
       if (isOuterVertical) {
          shapeComponent->rect.h =
              static_cast<int>(outerHeight - (2 * outerGapSize));
-         shapeComponent->rect.w = static_cast<int>(wallWidth);
+         shapeComponent->rect.w = static_cast<float>(wallWidth);
 
          topLeftCornerPos.setX((i == 5) ? outerStartX
                                         : outerStartX + outerWidth - wallWidth);
          topLeftCornerPos.setY(outerStartY + outerGapSize);
       }
       if (isInnerHorizontal) {
-         shapeComponent->rect.h = static_cast<int>(wallWidth);
+         shapeComponent->rect.h = static_cast<float>(wallWidth);
          shapeComponent->rect.w =
              static_cast<int>(innerWidth - (2 * innerGapSize));
 
@@ -350,7 +350,7 @@ void MainSceneSpawner::spawnWalls() {
       if (isInnerVertical) {
          shapeComponent->rect.h =
              static_cast<int>(innerHeight - (2 * innerGapSize));
-         shapeComponent->rect.w = static_cast<int>(wallWidth);
+         shapeComponent->rect.w = static_cast<float>(wallWidth);
 
          topLeftCornerPos.setX((i == 1) ? innerStartX
                                         : innerStartX + innerWidth - wallWidth);
@@ -416,11 +416,11 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const& player,
    // shape.height,
    //                                              shape.width, shape.color);
 
-   SDL_Rect bulletRect{
+   SDL_FRect bulletRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(shape.width),
-       .h = static_cast<int>(shape.height),
+       .w = static_cast<float>(shape.width),
+       .h = static_cast<float>(shape.height),
    };
 
    auto const cShape =
@@ -459,11 +459,11 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const& player) {
    //                                                  shape.width,
    //                                                  shape.color);
 
-   SDL_Rect itemRect{
+   SDL_FRect itemRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<int>(shape.width),
-       .h = static_cast<int>(shape.height),
+       .w = static_cast<float>(shape.width),
+       .h = static_cast<float>(shape.height),
    };
 
    auto const cShape =
