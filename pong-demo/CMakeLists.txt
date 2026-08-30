@@ -29,10 +29,6 @@ if(EMSCRIPTEN)
     target_link_options(pong-demo PRIVATE
         -O3
         -fwasm-exceptions
-        "-sUSE_SDL=2"
-        "-sUSE_SDL_IMAGE=2" "-sUSE_LIBPNG=1" "-sUSE_LIBJPEG=1" "-sSDL2_IMAGE_FORMATS=['png','jpg']"
-        "-sUSE_SDL_TTF=2" "-sUSE_FREETYPE=1"
-        "-sUSE_SDL_MIXER=2"
         "-sALLOW_MEMORY_GROWTH=1"
         "--preload-file=${PONG_DIR}/assets@pong-assets"
         "--preload-file=${PONG_DIR}/config@pong-config"

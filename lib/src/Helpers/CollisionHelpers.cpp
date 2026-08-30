@@ -26,8 +26,8 @@ std::bitset<4> detectOutOfBounds(std::shared_ptr<Entity> const& entity,
    }
 
    Vec2 const& topLeftCorner = cTransform->topLeftCornerPos;
-   auto const rectHeight = static_cast<float>(cShape->rect.h);
-   auto const rectWidth = static_cast<float>(cShape->rect.w);
+   auto const rectHeight = cShape->rect.h;
+   auto const rectWidth = cShape->rect.w;
 
    bool const collidesWithTop = topLeftCorner.y() <= 0;
    bool const collidesWithBottom =
@@ -66,11 +66,11 @@ Vec2 calculateOverlap(std::shared_ptr<Entity> const& entityA,
       return Vec2{0, 0};
    }
 
-   float const halfWidthA = static_cast<float>(cShapeA->rect.w) / 2.0f;
-   float const halfHeightA = static_cast<float>(cShapeA->rect.h) / 2.0f;
+   float const halfWidthA = cShapeA->rect.w / 2.0f;
+   float const halfHeightA = cShapeA->rect.h / 2.0f;
 
-   float const halfWidthB = static_cast<float>(cShapeB->rect.w) / 2.0f;
-   float const halfHeightB = static_cast<float>(cShapeB->rect.h) / 2.0f;
+   float const halfWidthB = cShapeB->rect.w / 2.0f;
+   float const halfHeightB = cShapeB->rect.h / 2.0f;
 
    auto const halfSizeA = Vec2(halfWidthA, halfHeightA);
    auto const halfSizeB = Vec2(halfWidthB, halfHeightB);

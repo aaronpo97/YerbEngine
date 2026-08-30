@@ -1,6 +1,6 @@
 # YerbEngine
 
-YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL2` and `C++`. The core engine now lives in `lib/` (public headers in `lib/includes`, implementations in `lib/src`) and powers the playable `shoot-demo` sample game.
+YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL3` and `C++`. The core engine now lives in `lib/` (public headers in `lib/includes`, implementations in `lib/src`) and powers the playable `shoot-demo` sample game.
 
 ## Features
 
@@ -35,7 +35,7 @@ diagrams/                     # Supporting diagrams (buildable with the Makefile
 **Native builds:**
 - CMake 3.21 or higher
 - C++23 compatible compiler (Clang, GCC)
-- SDL2, SDL2_image, SDL2_ttf, SDL2_mixer
+- SDL3, SDL3_image, SDL3_ttf, SDL3_mixer
 
 **Web builds:**
 - Emscripten SDK

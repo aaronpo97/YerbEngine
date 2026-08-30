@@ -1,4 +1,4 @@
-#include <SDL_main.h>
+#include <SDL3/SDL_main.h>
 
 #include <Configuration/AudioConfig.hpp>
 #include <Configuration/ConfigStore.hpp>
@@ -13,7 +13,7 @@
 
 int main(int argc, char** argv) {
 #ifndef __EMSCRIPTEN__
-   SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+   SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);
 #endif
 
    // Assets/config directories are copied next to the executable by CMake.

@@ -1,5 +1,5 @@
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <AssetManagement/TextureManager.hpp>
 #include <iostream>
@@ -9,11 +9,6 @@
 namespace YerbEngine {
 
 TextureManager::TextureManager(SDL_Renderer* renderer) : m_renderer(renderer) {
-   if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == -1) {
-      std::cout << "SDL_image could not initialize! SDL_image Error: %s\n"
-                << IMG_GetError();
-   }
-
    SDL_Log("TextureManager created.");
 }
 
@@ -46,12 +41,12 @@ void TextureManager::registerTexture(std::string_view name,
    if (img == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                    "Unable to load image %s! SDL_image Error: %s", path.c_str(),
-                   IMG_GetError());
+                   SDL_GetError());
       return;
    }
 
    SDL_Texture* texture = SDL_CreateTextureFromSurface(m_renderer, img);
-   SDL_FreeSurface(img);
+   SDL_DestroySurface(img);
 
    if (texture == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,

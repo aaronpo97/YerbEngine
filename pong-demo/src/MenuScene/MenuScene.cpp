@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <Configuration/AudioIds.hpp>
 #include <Helpers/PongTextHelpers.hpp>
@@ -24,8 +24,8 @@ constexpr SDL_Color HINT_COLOR = {.r = 120, .g = 120, .b = 120, .a = 255};
 
 MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
    registerAction(SDLK_RETURN, "SELECT");
-   registerAction(SDLK_w, "UP");
-   registerAction(SDLK_s, "DOWN");
+   registerAction(SDLK_W, "UP");
+   registerAction(SDLK_S, "DOWN");
    registerAction(SDLK_UP, "UP");
    registerAction(SDLK_DOWN, "DOWN");
 }

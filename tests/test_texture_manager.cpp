@@ -21,11 +21,10 @@ struct TextureManagerTestFixture {
    std::unique_ptr<TextureManager> manager;
 
    TextureManagerTestFixture() {
-      SDL_SetHint(SDL_HINT_VIDEODRIVER, "dummy");
+      SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");
       SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
-      BOOST_REQUIRE_EQUAL(SDL_Init(SDL_INIT_VIDEO), 0);
-      surface =
-          SDL_CreateRGBSurfaceWithFormat(0, 32, 32, 32, SDL_PIXELFORMAT_RGBA32);
+      BOOST_REQUIRE(SDL_Init(SDL_INIT_VIDEO));
+      surface = SDL_CreateSurface(32, 32, SDL_PIXELFORMAT_RGBA32);
       BOOST_REQUIRE(surface != nullptr);
 
       renderer = SDL_CreateSoftwareRenderer(surface);
@@ -42,7 +41,7 @@ struct TextureManagerTestFixture {
       }
 
       if (surface != nullptr) {
-         SDL_FreeSurface(surface);
+         SDL_DestroySurface(surface);
       }
 
       SDL_Quit();

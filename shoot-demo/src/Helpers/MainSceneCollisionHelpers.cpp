@@ -334,7 +334,7 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
    }
 
    if (tag == EntityTags::Player && otherTag == EntityTags::SlownessDebuff) {
-      Uint64 const startTime = SDL_GetTicks64();
+      Uint64 const startTime = SDL_GetTicks();
       Uint64 const duration = randomSlownessDuration(m_randomGenerator);
 
       auto const& cEffects = entity->getComponent<Components::CEffects>();
@@ -370,7 +370,7 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
    }
 
    if (tag == EntityTags::Player && otherTag == EntityTags::SpeedBoost) {
-      Uint64 const startTime = SDL_GetTicks64();
+      Uint64 const startTime = SDL_GetTicks();
       Uint64 const duration = randomSpeedBoostDuration(m_randomGenerator);
       auto const& cEffects = entity->getComponent<Components::CEffects>();
 
