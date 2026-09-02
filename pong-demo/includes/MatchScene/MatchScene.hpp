@@ -5,21 +5,16 @@
 #include <Configuration/PongConfigAdapter.hpp>
 #include <YerbEngine.hpp>
 using namespace YerbEngine;
-#include <random>
 
 enum class MatchMode { SinglePlayer, TwoPlayer };
 
 class MatchScene final : public Scene {
-   EntityManager m_entities;
    PongConfigAdapter m_config;
    MatchMode m_mode;
 
    std::shared_ptr<Entity> m_leftPaddle;
    std::shared_ptr<Entity> m_rightPaddle;
    std::shared_ptr<Entity> m_ball;
-
-   std::random_device m_rd;
-   std::mt19937 m_randomGenerator = std::mt19937(m_rd());
 
    Vec2 m_courtSize{0, 0};
 
@@ -50,7 +45,6 @@ class MatchScene final : public Scene {
    void onEnd() override;
    void sRender() override;
    void sDoAction(Action& action) override;
-   void sAudio() override;
    void onSceneWindowResize() override;
 
    void sOpponent();

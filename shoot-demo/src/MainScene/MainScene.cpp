@@ -14,7 +14,6 @@
 
 MainScene::MainScene(GameEngine* gameEngine)
     : Scene(gameEngine),
-      m_entities(EntityManager()),
       m_spawner(m_randomGenerator, *([&]() -> DemoConfigAdapter* {
                    static DemoConfigAdapter adapter(
                        gameEngine->GetConfig(),
@@ -43,8 +42,7 @@ MainScene::MainScene(GameEngine* gameEngine)
 }
 
 void MainScene::update() {
-   Uint64 const currentTime = SDL_GetTicks();
-   m_deltaTime = static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f;
+   tick();
 
    if (!m_paused && !m_gameOver) {
       sMovement();
@@ -57,7 +55,6 @@ void MainScene::update() {
 
    sAudio();
    sRender();
-   m_lastFrameTime = currentTime;
 
    if (m_endTriggered) {
       onEnd();
@@ -65,6 +62,7 @@ void MainScene::update() {
 }
 
 void MainScene::sDoAction(Action& action) {
+   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
    if (m_player == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
                    "Player entity is null, cannot process action.");
@@ -72,7 +70,6 @@ void MainScene::sDoAction(Action& action) {
    }
 
    ActionState const& actionState = action.getState();
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
    auto const& cInput = m_player->getComponent<Components::CInput>();
 
@@ -459,14 +456,12 @@ void MainScene::onEnd() {
 
 void MainScene::sAudio() {
    AudioManager& audioManager = m_gameEngine->getAudioManager();
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
    if (audioManager.getCurrentAudioTrack() !=
        std::string(DemoAudio::TRACK_PLAY)) {
       audioManager.playTrack(DemoAudio::TRACK_PLAY, -1);
    }
-
-   audioSampleBuffer.update();
+   Scene::sAudio();
 }
 
 void MainScene::onSceneWindowResize() {

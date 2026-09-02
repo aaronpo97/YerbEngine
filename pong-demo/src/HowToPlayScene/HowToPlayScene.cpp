@@ -91,6 +91,4 @@ void HowToPlayScene::sDoAction(Action& action) {
    }
 }
 
-void HowToPlayScene::sAudio() { m_gameEngine->getAudioSampleBuffer().update(); }
-
 void HowToPlayScene::onSceneWindowResize() {}

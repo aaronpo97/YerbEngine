@@ -97,6 +97,7 @@ void MenuScene::renderText() const {
 }
 
 void MenuScene::sDoAction(Action& action) {
+   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 // Emscripten build does not have the quit option (option 3)
 #ifdef __EMSCRIPTEN__
    constexpr int MAX_MENU_ITEMS = 2;
@@ -104,7 +105,6 @@ void MenuScene::sDoAction(Action& action) {
    constexpr int MAX_MENU_ITEMS = 3;
 #endif
 
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
    if (action.getState() == ActionState::END) {
       return;
    }
@@ -135,7 +135,6 @@ void MenuScene::sDoAction(Action& action) {
 
 void MenuScene::sAudio() {
    AudioManager& audioManager = m_gameEngine->getAudioManager();
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
 
    // TEMPORARY FOR NOW
    audioManager.muteTracks();
@@ -144,5 +143,5 @@ void MenuScene::sAudio() {
        std::string(DemoAudio::TRACK_MAIN_MENU)) {
       m_gameEngine->getAudioManager().playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
    }
-   audioSampleBuffer.update();
+   Scene::sAudio();
 }
