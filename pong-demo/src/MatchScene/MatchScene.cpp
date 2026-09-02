@@ -9,8 +9,6 @@
 namespace {
 constexpr float BASE_MOVEMENT_MULTIPLIER = 50.0f;
 
-constexpr float MAX_FRAME_DELTA = 0.05f;
-
 constexpr float REFERENCE_COURT_HEIGHT = 720.0f;
 
 constexpr SDL_Color COURT_COLOR = {.r = 70, .g = 70, .b = 70, .a = 255};
@@ -53,8 +51,6 @@ MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
     : Scene(gameEngine),
       m_config(gameEngine->GetConfig(), gameEngine->GetConfigStore("demo")),
       m_mode(mode) {
-   m_lastFrameTime = SDL_GetTicks();
-
    spawnPaddles();
    spawnBall();
    m_courtSize = m_gameEngine->getVideoManager().getWindowSize();
@@ -162,11 +158,7 @@ void MatchScene::serveBall(int const direction) {
 }
 
 void MatchScene::update() {
-   Uint64 const currentTime = SDL_GetTicks();
-   m_deltaTime =
-       std::min(static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f,
-                MAX_FRAME_DELTA);
-   m_lastFrameTime = currentTime;
+   tick();
 
    if (!m_paused && !m_matchOver) {
       sOpponent();
@@ -496,8 +488,6 @@ void MatchScene::sRender() {
 
    SDL_RenderPresent(renderer);
 }
-
-void MatchScene::sAudio() { m_gameEngine->getAudioSampleBuffer().update(); }
 
 void MatchScene::onSceneWindowResize() {
    PaddleConfig const paddleConfig = m_config.getPaddleConfig();

@@ -137,6 +137,4 @@ void MenuScene::sDoAction(Action& action) {
    }
 }
 
-void MenuScene::sAudio() { m_gameEngine->getAudioSampleBuffer().update(); }
-
 void MenuScene::onSceneWindowResize() {}

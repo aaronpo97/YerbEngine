@@ -100,6 +100,4 @@ void ResultScene::sDoAction(Action& action) {
    m_endTriggered = true;
 }
 
-void ResultScene::sAudio() { m_gameEngine->getAudioSampleBuffer().update(); }
-
 void ResultScene::onSceneWindowResize() {}

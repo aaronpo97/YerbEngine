@@ -115,11 +115,9 @@ void ScoreScene::sDoAction(Action& action) {
 
 void ScoreScene::sAudio() {
    AudioManager& audioManager = m_gameEngine->getAudioManager();
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
    if (audioManager.getCurrentAudioTrack() !=
        std::string(DemoAudio::TRACK_MAIN_MENU)) {
       m_gameEngine->getAudioManager().playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
    }
-
-   audioSampleBuffer.update();
+   Scene::sAudio();
 }
