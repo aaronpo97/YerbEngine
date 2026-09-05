@@ -39,6 +39,81 @@ MainScene::MainScene(GameEngine* gameEngine)
 
    // Go to menu
    registerAction(SDLK_BACKSPACE, "GO_BACK");
+
+   bindControls();
+}
+
+void MainScene::bindControls() {
+   using Directions = Components::CInput::Directions;
+
+   bindHold("FORWARD", [this](bool const pressed) {
+      setPlayerDirection(Directions::Forward, pressed);
+   });
+   bindHold("BACKWARD", [this](bool const pressed) {
+      setPlayerDirection(Directions::Backward, pressed);
+   });
+   bindHold("LEFT", [this](bool const pressed) {
+      setPlayerDirection(Directions::Left, pressed);
+   });
+   bindHold("RIGHT", [this](bool const pressed) {
+      setPlayerDirection(Directions::Right, pressed);
+   });
+
+   bindPress("SHOOT", [this](Action& action) {
+      std::optional<Vec2> const position = action.getPos();
+      if (!position.has_value()) {
+         SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
+                      "A mouse event was called without a position.");
+         return;
+      }
+
+      shootAt(*position);
+   });
+
+   bindPress("PAUSE", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_paused = !m_paused;
+   });
+
+   bindPress("GO_BACK", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_endTriggered = true;
+   });
+}
+
+void MainScene::setPlayerDirection(
+    Components::CInput::Directions const direction, bool const pressed) {
+   auto const& cInput = m_player == nullptr
+                            ? nullptr
+                            : m_player->getComponent<Components::CInput>();
+
+   if (cInput == nullptr) {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "Player entity lacks an input component.");
+      return;
+   }
+
+   cInput->directions[direction] = pressed;
+}
+
+void MainScene::shootAt(Vec2 const& target) {
+   if (m_player == nullptr) {
+      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
+                   "Player entity is null, cannot shoot.");
+      return;
+   }
+
+   Uint64 const currentTime = SDL_GetTicks();
+   if (currentTime - m_lastBulletSpawnTime <= m_bulletSpawnCooldown) {
+      return;
+   }
+
+   m_gameEngine->getAudioSampleBuffer().queueSample(DemoAudio::SAMPLE_SHOOT,
+                                                    PriorityLevel::STANDARD);
+   m_spawner.spawnBullets(m_player, target);
+   m_lastBulletSpawnTime = currentTime;
 }
 
 void MainScene::update() {
@@ -58,77 +133,6 @@ void MainScene::update() {
 
    if (m_endTriggered) {
       onEnd();
-   }
-}
-
-void MainScene::sDoAction(Action& action) {
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-   if (m_player == nullptr) {
-      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "Player entity is null, cannot process action.");
-      return;
-   }
-
-   ActionState const& actionState = action.getState();
-
-   auto const& cInput = m_player->getComponent<Components::CInput>();
-
-   if (cInput == nullptr) {
-      SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                   "Player entity lacks an input component.");
-      return;
-   }
-
-   bool const actionStateStart = actionState == ActionState::START;
-
-   if (action.getName() == "FORWARD") {
-      cInput->directions[Components::CInput::Forward] = actionStateStart;
-   }
-   if (action.getName() == "BACKWARD") {
-      cInput->directions[Components::CInput::Backward] = actionStateStart;
-   }
-   if (action.getName() == "LEFT") {
-      cInput->directions[Components::CInput::Left] = actionStateStart;
-   }
-   if (action.getName() == "RIGHT") {
-      cInput->directions[Components::CInput::Right] = actionStateStart;
-   }
-
-   if (!actionStateStart) {
-      return;
-   }
-   if (action.getName() == "SHOOT") {
-      auto const currentTime = SDL_GetTicks();
-      auto const spawnBullet =
-          currentTime - m_lastBulletSpawnTime > m_bulletSpawnCooldown;
-      if (!spawnBullet) {
-         return;
-      }
-
-      std::optional<Vec2> const position = action.getPos();
-      if (!position.has_value()) {
-         SDL_LogError(SDL_LOG_CATEGORY_SYSTEM,
-                      "A mouse event was called without a position.");
-         return;
-      }
-      Vec2 const mousePosition = *position;
-
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_SHOOT,
-                                    PriorityLevel::STANDARD);
-      m_spawner.spawnBullets(m_player, mousePosition);
-      m_lastBulletSpawnTime = currentTime;
-
-      if (action.getName() == "PAUSE") {
-         audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
-                                       PriorityLevel::CRITICAL);
-         m_paused = !m_paused;
-      }
-   }
-
-   if (action.getName() == "GO_BACK") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::CRITICAL);
-      m_endTriggered = true;
    }
 }
 

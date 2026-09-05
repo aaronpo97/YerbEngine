@@ -24,6 +24,12 @@ constexpr SDL_Color HINT_COLOR = {.r = 120, .g = 120, .b = 120, .a = 255};
 HowToPlayScene::HowToPlayScene(GameEngine* gameEngine) : Scene(gameEngine) {
    registerAction(SDLK_RETURN, "GO_BACK");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
+
+   bindPress("GO_BACK", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_endTriggered = true;
+   });
 }
 
 void HowToPlayScene::update() {
@@ -78,17 +84,3 @@ void HowToPlayScene::sRender() {
    renderText();
    SDL_RenderPresent(renderer);
 }
-
-void HowToPlayScene::sDoAction(Action& action) {
-   if (action.getState() == ActionState::END) {
-      return;
-   }
-
-   if (action.getName() == "GO_BACK") {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
-      m_endTriggered = true;
-   }
-}
-
-void HowToPlayScene::onSceneWindowResize() {}

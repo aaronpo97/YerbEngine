@@ -19,6 +19,9 @@ ResultScene::ResultScene(GameEngine* gameEngine, MatchMode const mode,
       m_rightScore(rightScore) {
    registerAction(SDLK_RETURN, "REMATCH");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
+
+   bindPress("REMATCH", [this](Action&) { chooseExit(true); });
+   bindPress("GO_BACK", [this](Action&) { chooseExit(false); });
 }
 
 void ResultScene::update() {
@@ -83,21 +86,10 @@ void ResultScene::sRender() {
    SDL_RenderPresent(renderer);
 }
 
-void ResultScene::sDoAction(Action& action) {
-   if (action.getState() == ActionState::END) {
-      return;
-   }
-
-   std::string const& actionName = action.getName();
-   if (actionName != "REMATCH" && actionName != "GO_BACK") {
-      return;
-   }
-
+void ResultScene::chooseExit(bool const rematch) {
    m_gameEngine->getAudioSampleBuffer().queueSample(
        PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
 
-   m_rematchSelected = actionName == "REMATCH";
+   m_rematchSelected = rematch;
    m_endTriggered = true;
 }
-
-void ResultScene::onSceneWindowResize() {}

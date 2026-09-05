@@ -13,6 +13,7 @@ class ResultScene final : public Scene {
    bool m_rematchSelected = false;
 
    void renderText() const;
+   void chooseExit(bool rematch);
 
   public:
    ResultScene(GameEngine* gameEngine, MatchMode mode, int leftScore,
@@ -21,6 +22,4 @@ class ResultScene final : public Scene {
    void update() override;
    void onEnd() override;
    void sRender() override;
-   void sDoAction(Action& action) override;
-   void onSceneWindowResize() override;
 };

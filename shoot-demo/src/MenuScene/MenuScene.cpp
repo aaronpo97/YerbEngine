@@ -6,11 +6,35 @@
 #include <MenuScene/MenuScene.hpp>
 #include <YerbEngine.hpp>
 
+namespace {
+// The web build drops the Quit entry: the browser owns the window.
+#ifdef __EMSCRIPTEN__
+constexpr int MENU_ITEM_COUNT = 2;
+#else
+constexpr int MENU_ITEM_COUNT = 3;
+#endif
+}  // namespace
+
 MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
-   m_selectedIndex = 0;
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_W, "UP");
    registerAction(SDLK_S, "DOWN");
+
+   bindPress("SELECT", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_endTriggered = true;
+   });
+   bindPress("UP", [this](Action&) { moveSelection(-1); });
+   bindPress("DOWN", [this](Action&) { moveSelection(1); });
+}
+
+void MenuScene::moveSelection(int const delta) {
+   m_gameEngine->getAudioSampleBuffer().queueSample(DemoAudio::SAMPLE_MENU_MOVE,
+                                                    PriorityLevel::BACKGROUND);
+
+   m_selectedIndex =
+       (m_selectedIndex + delta + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
 }
 
 void MenuScene::update() {
@@ -94,43 +118,6 @@ void MenuScene::renderText() const {
        100, m_gameEngine->getVideoManager().getWindowSize().y() - 50};
    TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
                                  controlsPos);
-}
-
-void MenuScene::sDoAction(Action& action) {
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-// Emscripten build does not have the quit option (option 3)
-#ifdef __EMSCRIPTEN__
-   constexpr int MAX_MENU_ITEMS = 2;
-#else
-   constexpr int MAX_MENU_ITEMS = 3;
-#endif
-
-   if (action.getState() == ActionState::END) {
-      return;
-   }
-
-   if (action.getName() == "SELECT") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::BACKGROUND);
-      m_endTriggered = true;
-      return;
-   }
-
-   // UP takes precedence over DOWN if both are pressed
-   if (action.getName() == "UP") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
-                                    PriorityLevel::BACKGROUND);
-      m_selectedIndex > 0 ? m_selectedIndex -= 1
-                          : m_selectedIndex = MAX_MENU_ITEMS - 1;
-      return;
-   }
-
-   if (action.getName() == "DOWN") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
-                                    PriorityLevel::BACKGROUND);
-      m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
-                                           : m_selectedIndex = 0;
-   }
 }
 
 void MenuScene::sAudio() {

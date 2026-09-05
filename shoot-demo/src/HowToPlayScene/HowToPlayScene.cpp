@@ -9,6 +9,15 @@ using namespace YerbEngine;
 HowToPlayScene::HowToPlayScene(GameEngine* gameEngine) : Scene(gameEngine) {
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
+
+   auto const leave = [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_endTriggered = true;
+   };
+
+   bindPress("SELECT", leave);
+   bindPress("GO_BACK", leave);
 }
 
 void HowToPlayScene::update() {
@@ -140,25 +149,6 @@ void HowToPlayScene::renderText() const {
    Vec2 const exitPos{100, windowSize.y() - 50};
    TextHelpers::renderLineOfText(renderer, fontSm, exitText, textColor,
                                  exitPos);
-}
-
-void HowToPlayScene::sDoAction(Action& action) {
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-   if (action.getState() == ActionState::END) {
-      return;
-   }
-
-   if (action.getName() == "SELECT") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::BACKGROUND);
-      m_endTriggered = true;
-   }
-
-   if (action.getName() == "GO_BACK") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::BACKGROUND);
-      m_endTriggered = true;
-   }
 }
 
 void HowToPlayScene::sAudio() {

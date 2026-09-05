@@ -28,6 +28,22 @@ MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
    registerAction(SDLK_S, "DOWN");
    registerAction(SDLK_UP, "UP");
    registerAction(SDLK_DOWN, "DOWN");
+
+   bindPress("SELECT", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_endTriggered = true;
+   });
+   bindPress("UP", [this](Action&) { moveSelection(-1); });
+   bindPress("DOWN", [this](Action&) { moveSelection(1); });
+}
+
+void MenuScene::moveSelection(int const delta) {
+   m_gameEngine->getAudioSampleBuffer().queueSample(PongAudio::SAMPLE_MENU_MOVE,
+                                                    PriorityLevel::BACKGROUND);
+
+   constexpr int ITEM_COUNT = static_cast<int>(MENU_ITEMS.size());
+   m_selectedIndex = (m_selectedIndex + delta + ITEM_COUNT) % ITEM_COUNT;
 }
 
 void MenuScene::update() {
@@ -105,36 +121,3 @@ void MenuScene::sRender() {
    renderText();
    SDL_RenderPresent(renderer);
 }
-
-void MenuScene::sDoAction(Action& action) {
-   auto const MAX_MENU_ITEMS = static_cast<int>(MENU_ITEMS.size());
-
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-   if (action.getState() == ActionState::END) {
-      return;
-   }
-
-   if (action.getName() == "SELECT") {
-      audioSampleBuffer.queueSample(PongAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::BACKGROUND);
-      m_endTriggered = true;
-      return;
-   }
-
-   if (action.getName() == "UP") {
-      audioSampleBuffer.queueSample(PongAudio::SAMPLE_MENU_MOVE,
-                                    PriorityLevel::BACKGROUND);
-      m_selectedIndex > 0 ? m_selectedIndex -= 1
-                          : m_selectedIndex = MAX_MENU_ITEMS - 1;
-      return;
-   }
-
-   if (action.getName() == "DOWN") {
-      audioSampleBuffer.queueSample(PongAudio::SAMPLE_MENU_MOVE,
-                                    PriorityLevel::BACKGROUND);
-      m_selectedIndex < MAX_MENU_ITEMS - 1 ? m_selectedIndex += 1
-                                           : m_selectedIndex = 0;
-   }
-}
-
-void MenuScene::onSceneWindowResize() {}

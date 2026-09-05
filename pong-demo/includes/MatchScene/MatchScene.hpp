@@ -30,6 +30,10 @@ class MatchScene final : public Scene {
    void spawnPaddles();
    void spawnBall();
    void serveBall(int direction);
+   void bindPaddleControls();
+   void setPaddleDirection(std::shared_ptr<Entity> const& paddle,
+                           Components::CInput::Directions direction,
+                           bool pressed);
    void bounceOffPaddle(std::shared_ptr<Entity> const& paddle,
                         bool isLeftPaddle);
    void scorePoint(bool leftPlayerScored);
@@ -44,7 +48,6 @@ class MatchScene final : public Scene {
    void update() override;
    void onEnd() override;
    void sRender() override;
-   void sDoAction(Action& action) override;
    void onSceneWindowResize() override;
 
    void sOpponent();
