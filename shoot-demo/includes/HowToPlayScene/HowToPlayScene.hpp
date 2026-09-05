@@ -12,8 +12,5 @@ class HowToPlayScene final : public Scene {
    void update() override;
    void onEnd() override;
    void sRender() override;
-   void sDoAction(Action& action) override;
    void sAudio() override;
-
-   void onSceneWindowResize() override {};
 };

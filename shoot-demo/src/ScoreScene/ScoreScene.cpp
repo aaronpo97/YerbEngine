@@ -11,6 +11,22 @@ ScoreScene::ScoreScene(GameEngine* gameEngine, int const score)
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_W, "UP");
    registerAction(SDLK_S, "DOWN");
+
+   bindPress("SELECT", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_endTriggered = true;
+   });
+   bindPress("UP", [this](Action&) { moveSelection(-1); });
+   bindPress("DOWN", [this](Action&) { moveSelection(1); });
+}
+
+void ScoreScene::moveSelection(int const delta) {
+   m_gameEngine->getAudioSampleBuffer().queueSample(DemoAudio::SAMPLE_MENU_MOVE,
+                                                    PriorityLevel::BACKGROUND);
+
+   constexpr int ITEM_COUNT = 2;
+   m_selectedIndex = (m_selectedIndex + delta + ITEM_COUNT) % ITEM_COUNT;
 }
 
 void ScoreScene::update() {
@@ -82,35 +98,6 @@ void ScoreScene::renderText() const {
        m_selectedIndex == 1 ? selectedColor : textColor;
    TextHelpers::renderLineOfText(renderer, fontMd, mainMenuText, mainMenuColor,
                                  mainMenuPos);
-}
-
-void ScoreScene::sDoAction(Action& action) {
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-
-   if (action.getState() == ActionState::END) {
-      return;
-   }
-
-   if (action.getName() == "SELECT") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::BACKGROUND);
-      m_endTriggered = true;
-      return;
-   }
-
-   // UP takes precedence over DOWN if both are pressed
-   if (action.getName() == "UP") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
-                                    PriorityLevel::BACKGROUND);
-      m_selectedIndex > 0 ? m_selectedIndex -= 1 : m_selectedIndex = 1;
-      return;
-   }
-
-   if (action.getName() == "DOWN") {
-      audioSampleBuffer.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
-                                    PriorityLevel::BACKGROUND);
-      m_selectedIndex < 1 ? m_selectedIndex += 1 : m_selectedIndex = 0;
-   }
 }
 
 void ScoreScene::sAudio() {

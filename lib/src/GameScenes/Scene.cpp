@@ -13,4 +13,37 @@ void Scene::tick() {
 
 void Scene::sAudio() { m_gameEngine->getAudioSampleBuffer().update(); }
 
+void Scene::sDoAction(Action& action) {
+   auto const handler = m_actionHandlers.find(action.getName());
+   if (handler == m_actionHandlers.end()) {
+      return;
+   }
+
+   handler->second(action);
+}
+
+void Scene::bindAction(std::string const& actionName,
+                       std::function<void(Action&)> handler) {
+   m_actionHandlers[actionName] = std::move(handler);
+}
+
+void Scene::bindPress(std::string const& actionName,
+                      std::function<void(Action&)> handler) {
+   m_actionHandlers[actionName] = [handler =
+                                       std::move(handler)](Action& action) {
+      if (action.getState() != ActionState::START) {
+         return;
+      }
+      handler(action);
+   };
+}
+
+void Scene::bindHold(std::string const& actionName,
+                     std::function<void(bool)> handler) {
+   m_actionHandlers[actionName] = [handler =
+                                       std::move(handler)](Action& action) {
+      handler(action.getState() == ActionState::START);
+   };
+}
+
 }  // namespace YerbEngine

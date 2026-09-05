@@ -6,8 +6,10 @@ using namespace YerbEngine;
 class ScoreScene final : public Scene {
   private:
    unsigned int m_score;
-   unsigned int m_selectedIndex = 0;
+   int m_selectedIndex = 0;
+
    void renderText() const;
+   void moveSelection(int delta);
 
   public:
    ScoreScene(GameEngine* gameEngine, int score);
@@ -15,7 +17,5 @@ class ScoreScene final : public Scene {
    void update() override;
    void onEnd() override;
    void sRender() override;
-   void sDoAction(Action& action) override;
    void sAudio() override;
-   void onSceneWindowResize() override {};
 };

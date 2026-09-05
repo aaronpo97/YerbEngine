@@ -66,6 +66,52 @@ MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
 
    registerAction(SDLK_P, "PAUSE");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
+
+   bindPaddleControls();
+
+   bindPress("PAUSE", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_paused = !m_paused;
+
+      if (!m_paused) {
+         m_lastFrameTime = SDL_GetTicks();
+      }
+   });
+
+   bindPress("GO_BACK", [this](Action&) {
+      m_gameEngine->getAudioSampleBuffer().queueSample(
+          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_endTriggered = true;
+   });
+}
+
+void MatchScene::bindPaddleControls() {
+   bindHold("LEFT_UP", [this](bool const pressed) {
+      setPaddleDirection(m_leftPaddle, Components::CInput::Forward, pressed);
+   });
+   bindHold("LEFT_DOWN", [this](bool const pressed) {
+      setPaddleDirection(m_leftPaddle, Components::CInput::Backward, pressed);
+   });
+
+   // In single player the right paddle is driven by sOpponent(), so its keys
+   // stay unbound.
+   if (m_mode != MatchMode::TwoPlayer) {
+      return;
+   }
+
+   bindHold("RIGHT_UP", [this](bool const pressed) {
+      setPaddleDirection(m_rightPaddle, Components::CInput::Forward, pressed);
+   });
+   bindHold("RIGHT_DOWN", [this](bool const pressed) {
+      setPaddleDirection(m_rightPaddle, Components::CInput::Backward, pressed);
+   });
+}
+
+void MatchScene::setPaddleDirection(
+    std::shared_ptr<Entity> const& paddle,
+    Components::CInput::Directions const direction, bool const pressed) {
+   paddle->getComponent<Components::CInput>()->directions[direction] = pressed;
 }
 
 float MatchScene::courtScale() const {
@@ -335,56 +381,6 @@ void MatchScene::scorePoint(bool const leftPlayerScored) {
    }
 
    serveBall(leftPlayerScored ? 1 : -1);
-}
-
-void MatchScene::sDoAction(Action& action) {
-   ActionState const& actionState = action.getState();
-   bool const actionStateStart = actionState == ActionState::START;
-   std::string const& actionName = action.getName();
-
-   auto const& leftInput = m_leftPaddle->getComponent<Components::CInput>();
-
-   if (actionName == "LEFT_UP") {
-      leftInput->directions[Components::CInput::Forward] = actionStateStart;
-   }
-   if (actionName == "LEFT_DOWN") {
-      leftInput->directions[Components::CInput::Backward] = actionStateStart;
-   }
-
-   if (m_mode == MatchMode::TwoPlayer) {
-      auto const& rightInput =
-          m_rightPaddle->getComponent<Components::CInput>();
-
-      if (actionName == "RIGHT_UP") {
-         rightInput->directions[Components::CInput::Forward] = actionStateStart;
-      }
-      if (actionName == "RIGHT_DOWN") {
-         rightInput->directions[Components::CInput::Backward] =
-             actionStateStart;
-      }
-   }
-
-   if (!actionStateStart) {
-      return;
-   }
-
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
-
-   if (actionName == "PAUSE") {
-      audioSampleBuffer.queueSample(PongAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::CRITICAL);
-      m_paused = !m_paused;
-
-      if (!m_paused) {
-         m_lastFrameTime = SDL_GetTicks();
-      }
-   }
-
-   if (actionName == "GO_BACK") {
-      audioSampleBuffer.queueSample(PongAudio::SAMPLE_MENU_SELECT,
-                                    PriorityLevel::CRITICAL);
-      m_endTriggered = true;
-   }
 }
 
 void MatchScene::renderCourt() const {

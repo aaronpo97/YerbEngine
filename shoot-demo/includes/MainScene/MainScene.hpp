@@ -17,7 +17,12 @@ class MainScene final : public Scene {
    Uint64 m_lastBulletSpawnTime = 0;
    Uint64 m_bulletSpawnCooldown = 90;
    MainSceneSpawner m_spawner;
+
    void renderText() const;
+   void bindControls();
+   void setPlayerDirection(Components::CInput::Directions direction,
+                           bool pressed);
+   void shootAt(Vec2 const& target);
 
   public:
    explicit MainScene(GameEngine* gameEngine);
@@ -27,7 +32,6 @@ class MainScene final : public Scene {
    void update() override;
    void onEnd() override;
    void sRender() override;
-   void sDoAction(Action& action) override;
    void sAudio() override;
 
    void sCollision();
