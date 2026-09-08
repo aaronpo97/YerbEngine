@@ -115,9 +115,9 @@ void MenuScene::renderText() const {
 }
 
 void MenuScene::sRender() {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-   SDL_RenderClear(renderer);
+   VideoManager& videoManager = m_gameEngine->getVideoManager();
+
+   RenderSystem::clear(videoManager);
    renderText();
-   SDL_RenderPresent(renderer);
+   RenderSystem::present(videoManager);
 }
