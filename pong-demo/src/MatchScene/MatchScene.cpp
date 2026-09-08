@@ -454,35 +454,15 @@ void MatchScene::renderBanner() {
 }
 
 void MatchScene::sRender() {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-   SDL_RenderClear(renderer);
+   VideoManager& videoManager = m_gameEngine->getVideoManager();
 
+   RenderSystem::clear(videoManager);
    renderCourt();
-
-   for (auto const& entity : m_entities.getEntities()) {
-      auto const& cShape = entity->getComponent<Components::CShape>();
-      auto const& cTransform = entity->getComponent<Components::CTransform>();
-
-      if (cShape == nullptr || cTransform == nullptr) {
-         continue;
-      }
-
-      SDL_FRect& rect = cShape->rect;
-      Vec2 const& pos = cTransform->topLeftCornerPos;
-
-      rect.x = static_cast<float>(pos.x());
-      rect.y = static_cast<float>(pos.y());
-
-      SDL_SetRenderDrawColor(renderer, cShape->color.r, cShape->color.g,
-                             cShape->color.b, cShape->color.a);
-      SDL_RenderFillRect(renderer, &rect);
-   }
-
+   RenderSystem::renderEntities(m_entities, videoManager,
+                                m_gameEngine->getTextureManager());
    renderScores();
    renderBanner();
-
-   SDL_RenderPresent(renderer);
+   RenderSystem::present(videoManager);
 }
 
 void MatchScene::onSceneWindowResize() {

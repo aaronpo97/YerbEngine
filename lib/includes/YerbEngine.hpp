@@ -25,3 +25,4 @@
 #include <Helpers/Vec2.hpp>
 #include <SystemManagement/AudioManager.hpp>
 #include <SystemManagement/VideoManager.hpp>
+#include <Systems/RenderSystem.hpp>

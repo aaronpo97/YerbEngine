@@ -185,45 +185,13 @@ void MainScene::renderText() const {
 }
 
 void MainScene::sRender() {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-   SDL_RenderClear(renderer);
+   VideoManager& videoManager = m_gameEngine->getVideoManager();
 
-   if (m_entities.getEntities().empty()) {
-      std::cout << "no entities\n";
-   }
-
-   for (auto const& entity : m_entities.getEntities()) {
-      auto const& cShape = entity->getComponent<Components::CShape>();
-      auto const& cTransform = entity->getComponent<Components::CTransform>();
-
-      if (cShape == nullptr) {
-         continue;
-      }
-
-      SDL_FRect& rect = cShape->rect;
-      Vec2 const& pos = cTransform->topLeftCornerPos;
-
-      rect.x = static_cast<float>(pos.x());
-      rect.y = static_cast<float>(pos.y());
-
-      // If there's no sprite, render a plain box
-      if (!entity->hasComponent<Components::CSprite>()) {
-         SDL_SetRenderDrawColor(renderer, cShape->color.r, cShape->color.g,
-                                cShape->color.b, cShape->color.a);
-         SDL_RenderFillRect(renderer, &rect);
-         continue;  // continue on, render the next entity
-      }
-
-      auto const& cSprite = entity->getComponent<Components::CSprite>();
-      SDL_Texture* texture =
-          m_gameEngine->getTextureManager().getTexture(cSprite->getTextureId());
-      SDL_RenderTexture(renderer, texture, nullptr, &rect);
-   }
-
+   RenderSystem::clear(videoManager);
+   RenderSystem::renderEntities(m_entities, videoManager,
+                                m_gameEngine->getTextureManager());
    renderText();
-   // Update the screen
-   SDL_RenderPresent(renderer);
+   RenderSystem::present(videoManager);
 }
 
 void MainScene::sCollision() {
