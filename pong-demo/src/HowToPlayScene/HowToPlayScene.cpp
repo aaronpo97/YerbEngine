@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 
 #include <Configuration/AudioIds.hpp>
-#include <Helpers/PongTextHelpers.hpp>
 #include <HowToPlayScene/HowToPlayScene.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <array>
@@ -59,22 +58,23 @@ void HowToPlayScene::renderText() const {
 
    float const centerX = windowSize.x() / 2.0f;
 
-   PongTextHelpers::renderCenteredText(renderer, fontMd, "How to Play",
-                                       TEXT_COLOR,
-                                       Vec2{centerX, windowSize.y() * 0.16f});
+   TextHelpers::renderLineOfText(renderer, fontMd, "How to Play", TEXT_COLOR,
+                                 Vec2{centerX, windowSize.y() * 0.16f},
+                                 TextHelpers::TextAlign::Center);
 
    float const firstLineY = windowSize.y() * 0.36f;
    constexpr float LINE_HEIGHT = 46.0f;
 
    for (size_t i = 0; i < INSTRUCTIONS.size(); i++) {
-      PongTextHelpers::renderCenteredText(
+      TextHelpers::renderLineOfText(
           renderer, fontSm, std::string(INSTRUCTIONS[i]), TEXT_COLOR,
-          Vec2{centerX, firstLineY + static_cast<float>(i) * LINE_HEIGHT});
+          Vec2{centerX, firstLineY + static_cast<float>(i) * LINE_HEIGHT},
+          TextHelpers::TextAlign::Center);
    }
 
-   PongTextHelpers::renderCenteredText(
+   TextHelpers::renderLineOfText(
        renderer, fontSm, "Enter or Backspace to go back", HINT_COLOR,
-       Vec2{centerX, windowSize.y() - 60.0f});
+       Vec2{centerX, windowSize.y() - 60.0f}, TextHelpers::TextAlign::Center);
 }
 
 void HowToPlayScene::sRender() {
