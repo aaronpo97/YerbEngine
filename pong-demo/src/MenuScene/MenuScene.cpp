@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 
 #include <Configuration/AudioIds.hpp>
-#include <Helpers/PongTextHelpers.hpp>
 #include <HowToPlayScene/HowToPlayScene.hpp>
 #include <MatchScene/MatchScene.hpp>
 #include <MenuScene/MenuScene.hpp>
@@ -93,8 +92,9 @@ void MenuScene::renderText() const {
 
    float const centerX = windowSize.x() / 2.0f;
 
-   PongTextHelpers::renderCenteredText(renderer, fontLg, "PONG", TEXT_COLOR,
-                                       Vec2{centerX, windowSize.y() * 0.14f});
+   TextHelpers::renderLineOfText(renderer, fontLg, "PONG", TEXT_COLOR,
+                                 Vec2{centerX, windowSize.y() * 0.14f},
+                                 TextHelpers::TextAlign::Center);
 
    float const firstItemY = windowSize.y() * 0.42f;
    constexpr float ITEM_SPACING = 58.0f;
@@ -104,14 +104,15 @@ void MenuScene::renderText() const {
       SDL_Color const color = isSelected ? SELECTED_COLOR : TEXT_COLOR;
       std::string const label = std::string(MENU_ITEMS[i]);
 
-      PongTextHelpers::renderCenteredText(
+      TextHelpers::renderLineOfText(
           renderer, fontMd, label, color,
-          Vec2{centerX, firstItemY + static_cast<float>(i) * ITEM_SPACING});
+          Vec2{centerX, firstItemY + static_cast<float>(i) * ITEM_SPACING},
+          TextHelpers::TextAlign::Center);
    }
 
-   PongTextHelpers::renderCenteredText(
+   TextHelpers::renderLineOfText(
        renderer, fontSm, "W/S to move, Enter to select", HINT_COLOR,
-       Vec2{centerX, windowSize.y() - 60.0f});
+       Vec2{centerX, windowSize.y() - 60.0f}, TextHelpers::TextAlign::Center);
 }
 
 void MenuScene::sRender() {

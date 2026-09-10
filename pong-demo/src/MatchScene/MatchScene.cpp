@@ -1,5 +1,4 @@
 #include <Configuration/AudioIds.hpp>
-#include <Helpers/PongTextHelpers.hpp>
 #include <MatchScene/MatchScene.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <ResultScene/ResultScene.hpp>
@@ -416,13 +415,13 @@ void MatchScene::renderScores() const {
 
    float const SCORE_Y = 30.0f * courtScale();
 
-   PongTextHelpers::renderCenteredText(renderer, fontLg,
-                                       std::to_string(m_leftScore), TEXT_COLOR,
-                                       Vec2{windowSize.x() * 0.25f, SCORE_Y});
+   TextHelpers::renderLineOfText(
+       renderer, fontLg, std::to_string(m_leftScore), TEXT_COLOR,
+       Vec2{windowSize.x() * 0.25f, SCORE_Y}, TextHelpers::TextAlign::Center);
 
-   PongTextHelpers::renderCenteredText(renderer, fontLg,
-                                       std::to_string(m_rightScore), TEXT_COLOR,
-                                       Vec2{windowSize.x() * 0.75f, SCORE_Y});
+   TextHelpers::renderLineOfText(
+       renderer, fontLg, std::to_string(m_rightScore), TEXT_COLOR,
+       Vec2{windowSize.x() * 0.75f, SCORE_Y}, TextHelpers::TextAlign::Center);
 }
 
 void MatchScene::renderBanner() {
@@ -432,15 +431,17 @@ void MatchScene::renderBanner() {
    Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
 
    if (m_paused) {
-      PongTextHelpers::renderCenteredText(
+      TextHelpers::renderLineOfText(
           renderer, fontMd, "PAUSED", TEXT_COLOR,
-          Vec2{windowSize.x() / 2.0f, windowSize.y() * 0.4f});
+          Vec2{windowSize.x() / 2.0f, windowSize.y() * 0.4f},
+          TextHelpers::TextAlign::Center);
    } else if (SDL_GetTicks() < m_serveTime) {
       std::string const serveText =
           m_serveDirection < 0 ? "SERVING LEFT" : "SERVING RIGHT";
-      PongTextHelpers::renderCenteredText(
+      TextHelpers::renderLineOfText(
           renderer, fontMd, serveText, TEXT_COLOR,
-          Vec2{windowSize.x() / 2.0f, windowSize.y() * 0.4f});
+          Vec2{windowSize.x() / 2.0f, windowSize.y() * 0.4f},
+          TextHelpers::TextAlign::Center);
    }
 
    MatchConfig const matchConfig = m_config.getMatchConfig();
@@ -448,9 +449,10 @@ void MatchScene::renderBanner() {
                                   std::to_string(matchConfig.pointsToWin) +
                                   "   |   P to pause, Backspace for menu";
 
-   PongTextHelpers::renderCenteredText(
+   TextHelpers::renderLineOfText(
        renderer, fontSm, footerText, COURT_COLOR,
-       Vec2{windowSize.x() / 2.0f, windowSize.y() - 40.0f * courtScale()});
+       Vec2{windowSize.x() / 2.0f, windowSize.y() - 40.0f * courtScale()},
+       TextHelpers::TextAlign::Center);
 }
 
 void MatchScene::sRender() {

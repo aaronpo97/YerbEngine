@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 
 #include <Configuration/AudioIds.hpp>
-#include <Helpers/PongTextHelpers.hpp>
 #include <MatchScene/MatchScene.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <ResultScene/ResultScene.hpp>
@@ -65,17 +64,20 @@ void ResultScene::renderText() const {
 
    float const centerX = windowSize.x() / 2.0f;
 
-   PongTextHelpers::renderCenteredText(renderer, fontMd, winnerText, TEXT_COLOR,
-                                       Vec2{centerX, windowSize.y() * 0.22f});
+   TextHelpers::renderLineOfText(renderer, fontMd, winnerText, TEXT_COLOR,
+                                 Vec2{centerX, windowSize.y() * 0.22f},
+                                 TextHelpers::TextAlign::Center);
 
    std::string const scoreText =
        std::to_string(m_leftScore) + " - " + std::to_string(m_rightScore);
-   PongTextHelpers::renderCenteredText(renderer, fontLg, scoreText, TEXT_COLOR,
-                                       Vec2{centerX, windowSize.y() * 0.38f});
+   TextHelpers::renderLineOfText(renderer, fontLg, scoreText, TEXT_COLOR,
+                                 Vec2{centerX, windowSize.y() * 0.38f},
+                                 TextHelpers::TextAlign::Center);
 
-   PongTextHelpers::renderCenteredText(
+   TextHelpers::renderLineOfText(
        renderer, fontSm, "Enter for a rematch, Backspace for the menu",
-       HINT_COLOR, Vec2{centerX, windowSize.y() - 60.0f});
+       HINT_COLOR, Vec2{centerX, windowSize.y() - 60.0f},
+       TextHelpers::TextAlign::Center);
 }
 
 void ResultScene::sRender() {
