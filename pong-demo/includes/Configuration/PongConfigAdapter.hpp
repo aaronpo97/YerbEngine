@@ -2,82 +2,70 @@
 #include <SDL3/SDL.h>
 
 #include <Configuration/ConfigAdapter.hpp>
+#include <Configuration/ConfigReader.hpp>
 #include <Configuration/ConfigStore.hpp>
 #include <string>
 
 #include "PongConfigTypes.hpp"
 
+// Pong-specific adapter that sources window/fonts from the engine adapter
+// and gameplay configs from the pong config store.
 class PongConfigAdapter {
    YerbEngine::ConfigAdapter& m_engine;
-   YerbEngine::ConfigStore& m_demoStore;
+   YerbEngine::ConfigReader m_pong;
 
-   static inline ShapeConfig shapeOr(ShapeConfig def,
-                                     YerbEngine::ConfigStore& store,
-                                     std::string const& base) {
-      float w =
-          YerbEngine::ConfigAdapter::floatOr(def.width, store, base + ".width");
-      float h = YerbEngine::ConfigAdapter::floatOr(def.height, store,
-                                                   base + ".height");
-      SDL_Color c =
-          YerbEngine::ConfigAdapter::colorOr(def.color, store, base + ".color");
-      return ShapeConfig{h, w, c};
+   ShapeConfig shapeOr(std::string const& base,
+                       ShapeConfig const& fallback) const {
+      return ShapeConfig{m_pong.floatOr(base + ".height", fallback.height),
+                         m_pong.floatOr(base + ".width", fallback.width),
+                         m_pong.colorOr(base + ".color", fallback.color)};
    }
 
   public:
    PongConfigAdapter(YerbEngine::ConfigAdapter& engine,
-                     YerbEngine::ConfigStore& demoStore)
-       : m_engine(engine), m_demoStore(demoStore) {}
+                     YerbEngine::ConfigStore& pongStore)
+       : m_engine(engine), m_pong(pongStore) {}
 
-   YerbEngine::GameConfig getGameConfig() { return m_engine.getGameConfig(); }
-
-   MatchConfig getMatchConfig() {
-      MatchConfig cfg{};
-      cfg.pointsToWin = YerbEngine::ConfigAdapter::intOr(
-          7, m_demoStore, "matchConfig.pointsToWin");
-      cfg.serveDelay = YerbEngine::ConfigAdapter::u64Or(
-          1200, m_demoStore, "matchConfig.serveDelay");
-      return cfg;
+   YerbEngine::GameConfig getGameConfig() const {
+      return m_engine.getGameConfig();
    }
 
-   PaddleConfig getPaddleConfig() {
+   MatchConfig getMatchConfig() const {
+      return MatchConfig{
+          .pointsToWin = m_pong.intOr("matchConfig.pointsToWin", 7),
+          .serveDelay = m_pong.u64Or("matchConfig.serveDelay", 1200),
+      };
+   }
+
+   PaddleConfig getPaddleConfig() const {
       constexpr SDL_Color defaultColor{235, 235, 235, 255};
-      PaddleConfig cfg{
-          .speed = YerbEngine::ConfigAdapter::floatOr(9.f, m_demoStore,
-                                                      "paddleConfig.speed"),
-          .wallOffset = YerbEngine::ConfigAdapter::floatOr(
-              48.f, m_demoStore, "paddleConfig.wallOffset"),
-          .shape = shapeOr(ShapeConfig{130, 18, defaultColor}, m_demoStore,
-                           "paddleConfig.shape"),
+      return PaddleConfig{
+          .speed = m_pong.floatOr("paddleConfig.speed", 9.f),
+          .wallOffset = m_pong.floatOr("paddleConfig.wallOffset", 48.f),
+          .shape =
+              shapeOr("paddleConfig.shape", ShapeConfig{130, 18, defaultColor}),
       };
-      return cfg;
    }
 
-   BallConfig getBallConfig() {
+   BallConfig getBallConfig() const {
       constexpr SDL_Color defaultColor{255, 255, 255, 255};
-      BallConfig cfg{
-          .baseSpeed = YerbEngine::ConfigAdapter::floatOr(
-              7.5f, m_demoStore, "ballConfig.baseSpeed"),
-          .speedIncrement = YerbEngine::ConfigAdapter::floatOr(
-              0.4f, m_demoStore, "ballConfig.speedIncrement"),
-          .maxSpeed = YerbEngine::ConfigAdapter::floatOr(16.f, m_demoStore,
-                                                         "ballConfig.maxSpeed"),
-          .maxBounceAngle = YerbEngine::ConfigAdapter::floatOr(
-              1.0472f, m_demoStore, "ballConfig.maxBounceAngle"),
-          .shape = shapeOr(ShapeConfig{18, 18, defaultColor}, m_demoStore,
-                           "ballConfig.shape"),
+      return BallConfig{
+          .baseSpeed = m_pong.floatOr("ballConfig.baseSpeed", 7.5f),
+          .speedIncrement = m_pong.floatOr("ballConfig.speedIncrement", 0.4f),
+          .maxSpeed = m_pong.floatOr("ballConfig.maxSpeed", 16.f),
+          .maxBounceAngle =
+              m_pong.floatOr("ballConfig.maxBounceAngle", 1.0472f),
+          .shape =
+              shapeOr("ballConfig.shape", ShapeConfig{18, 18, defaultColor}),
       };
-      return cfg;
    }
 
-   OpponentConfig getOpponentConfig() {
-      OpponentConfig cfg{
-          .speed = YerbEngine::ConfigAdapter::floatOr(7.f, m_demoStore,
-                                                      "opponentConfig.speed"),
-          .deadZone = YerbEngine::ConfigAdapter::floatOr(
-              14.f, m_demoStore, "opponentConfig.deadZone"),
-          .reactionDistance = YerbEngine::ConfigAdapter::floatOr(
-              0.62f, m_demoStore, "opponentConfig.reactionDistance"),
+   OpponentConfig getOpponentConfig() const {
+      return OpponentConfig{
+          .speed = m_pong.floatOr("opponentConfig.speed", 7.f),
+          .deadZone = m_pong.floatOr("opponentConfig.deadZone", 14.f),
+          .reactionDistance =
+              m_pong.floatOr("opponentConfig.reactionDistance", 0.62f),
       };
-      return cfg;
    }
 };

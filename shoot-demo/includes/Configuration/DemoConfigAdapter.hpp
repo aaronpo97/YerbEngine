@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 #include <SDL3/SDL.h>
 
 #include <Configuration/ConfigAdapter.hpp>
+#include <Configuration/ConfigReader.hpp>
 #include <Configuration/ConfigStore.hpp>
 #include <Helpers/Vec2.hpp>
 #include <string>
@@ -9,106 +10,102 @@
 #include "DemoConfigTypes.hpp"
 
 // Demo-specific adapter that sources window/fonts from the engine adapter
-// and gameplay configs from the demo adapter store.
+// and gameplay configs from the demo config store.
 class DemoConfigAdapter {
    YerbEngine::ConfigAdapter& m_engine;
-   YerbEngine::ConfigStore& m_demoStore;
+   YerbEngine::ConfigReader m_demo;
 
-   // Thin helper that composes engine parsing helpers for a demo ShapeConfig
-   static inline ShapeConfig shapeOr(ShapeConfig def,
-                                     YerbEngine::ConfigStore& store,
-                                     std::string const& base) {
-      float w =
-          YerbEngine::ConfigAdapter::floatOr(def.width, store, base + ".width");
-      float h = YerbEngine::ConfigAdapter::floatOr(def.height, store,
-                                                   base + ".height");
-      SDL_Color c =
-          YerbEngine::ConfigAdapter::colorOr(def.color, store, base + ".color");
-      return ShapeConfig{h, w, c};
+   ShapeConfig shapeOr(std::string const& base,
+                       ShapeConfig const& fallback) const {
+      return ShapeConfig{
+          .height = m_demo.floatOr(base + ".height", fallback.height),
+          .width = m_demo.floatOr(base + ".width", fallback.width),
+          .color = m_demo.colorOr(base + ".color", fallback.color),
+      };
+   }
+
+   static constexpr ShapeConfig squareOf(float const size) {
+      return ShapeConfig{
+          .height = size,
+          .width = size,
+          .color = SDL_Color{0, 0, 0, 255},
+      };
    }
 
   public:
    DemoConfigAdapter(YerbEngine::ConfigAdapter& engine,
                      YerbEngine::ConfigStore& demoStore)
-       : m_engine(engine), m_demoStore(demoStore) {}
+       : m_engine(engine), m_demo(demoStore) {}
 
-   // Compose engine + demo values
-   YerbEngine::GameConfig getGameConfig() {
+   // The window and the fonts belong to the engine.
+   YerbEngine::GameConfig getGameConfig() const {
       auto cfg = m_engine.getGameConfig();
-      cfg.spawnInterval = YerbEngine::ConfigAdapter::u64Or(
-          500, m_demoStore, "gameConfig.spawnInterval");
+      cfg.spawnInterval = m_demo.u64Or("gameConfig.spawnInterval", 500);
       return cfg;
    }
 
-   // Gameplay configs are read from the demo store
-   PlayerConfig getPlayerConfig() {
-      PlayerConfig cfg{};
-      cfg.baseSpeed = YerbEngine::ConfigAdapter::floatOr(
-          6.f, m_demoStore, "playerConfig.baseSpeed");
-      cfg.speedBoostMultiplier = YerbEngine::ConfigAdapter::floatOr(
-          2.f, m_demoStore, "playerConfig.speedBoostMultiplier");
-      cfg.slownessMultiplier = YerbEngine::ConfigAdapter::floatOr(
-          0.5f, m_demoStore, "playerConfig.slownessMultiplier");
-      cfg.shape = shapeOr(ShapeConfig{50, 50, SDL_Color{0, 0, 0, 255}},
-                          m_demoStore, "playerConfig.shape");
-      return cfg;
+   PlayerConfig getPlayerConfig() const {
+      return PlayerConfig{
+          .baseSpeed = m_demo.floatOr("playerConfig.baseSpeed", 6.f),
+          .speedBoostMultiplier =
+              m_demo.floatOr("playerConfig.speedBoostMultiplier", 2.f),
+          .slownessMultiplier =
+              m_demo.floatOr("playerConfig.slownessMultiplier", 0.5f),
+          .shape = shapeOr("playerConfig.shape", squareOf(50)),
+      };
    }
-   ItemConfig getItemConfig() {
-      ItemConfig cfg{};
-      cfg.spawnPercentage = static_cast<Uint8>(YerbEngine::ConfigAdapter::intOr(
-          20, m_demoStore, "itemConfig.spawnPercentage"));
-      cfg.lifespan = YerbEngine::ConfigAdapter::u64Or(10000, m_demoStore,
-                                                      "itemConfig.lifespan");
-      cfg.speed = YerbEngine::ConfigAdapter::floatOr(2.f, m_demoStore,
-                                                     "itemConfig.speed");
-      cfg.shape = shapeOr(ShapeConfig{40, 40, SDL_Color{0, 0, 0, 255}},
-                          m_demoStore, "itemConfig.shape");
-      return cfg;
+
+   ItemConfig getItemConfig() const {
+      return ItemConfig{
+          .spawnPercentage = static_cast<Uint8>(
+              m_demo.intOr("itemConfig.spawnPercentage", 20)),
+          .lifespan = m_demo.u64Or("itemConfig.lifespan", 10000),
+          .speed = m_demo.floatOr("itemConfig.speed", 2.f),
+          .shape = shapeOr("itemConfig.shape", squareOf(40)),
+      };
    }
-   EnemyConfig getEnemyConfig() {
-      EnemyConfig cfg{};
-      cfg.spawnPercentage = static_cast<Uint8>(YerbEngine::ConfigAdapter::intOr(
-          60, m_demoStore, "enemyConfig.spawnPercentage"));
-      cfg.lifespan = YerbEngine::ConfigAdapter::u64Or(30000, m_demoStore,
-                                                      "enemyConfig.lifespan");
-      cfg.speed = YerbEngine::ConfigAdapter::floatOr(3.5f, m_demoStore,
-                                                     "enemyConfig.speed");
-      cfg.shape = shapeOr(ShapeConfig{30, 30, SDL_Color{0, 0, 0, 255}},
-                          m_demoStore, "enemyConfig.shape");
-      return cfg;
+
+   EnemyConfig getEnemyConfig() const {
+      return EnemyConfig{
+          .spawnPercentage = static_cast<Uint8>(
+              m_demo.intOr("enemyConfig.spawnPercentage", 60)),
+          .lifespan = m_demo.u64Or("enemyConfig.lifespan", 30000),
+          .speed = m_demo.floatOr("enemyConfig.speed", 3.5f),
+          .shape = shapeOr("enemyConfig.shape", squareOf(30)),
+      };
    }
-   SpeedEffectConfig getSpeedEffectConfig() {
-      SpeedEffectConfig cfg{};
-      cfg.spawnPercentage = static_cast<Uint8>(YerbEngine::ConfigAdapter::intOr(
-          15, m_demoStore, "speedEffectConfig.spawnPercentage"));
-      cfg.lifespan = YerbEngine::ConfigAdapter::u64Or(
-          9000, m_demoStore, "speedEffectConfig.lifespan");
-      cfg.speed = YerbEngine::ConfigAdapter::floatOr(2.f, m_demoStore,
-                                                     "speedEffectConfig.speed");
-      cfg.shape = shapeOr(ShapeConfig{25, 25, SDL_Color{0, 0, 0, 255}},
-                          m_demoStore, "speedEffectConfig.shape");
-      return cfg;
+
+   SpeedEffectConfig getSpeedEffectConfig() const {
+      return SpeedEffectConfig{
+          .spawnPercentage = static_cast<Uint8>(
+              m_demo.intOr("speedEffectConfig.spawnPercentage", 15)),
+          .lifespan = m_demo.u64Or("speedEffectConfig.lifespan", 9000),
+          .speed = m_demo.floatOr("speedEffectConfig.speed", 2.f),
+          .shape = shapeOr("speedEffectConfig.shape", squareOf(25)),
+      };
    }
-   SlownessEffectConfig getSlownessEffectConfig() {
-      SlownessEffectConfig cfg{};
-      cfg.spawnPercentage = static_cast<Uint8>(YerbEngine::ConfigAdapter::intOr(
-          30, m_demoStore, "slownessEffectConfig.spawnPercentage"));
-      cfg.lifespan = YerbEngine::ConfigAdapter::u64Or(
-          10000, m_demoStore, "slownessEffectConfig.lifespan");
-      cfg.speed = YerbEngine::ConfigAdapter::floatOr(
-          2.f, m_demoStore, "slownessEffectConfig.speed");
-      cfg.shape = shapeOr(ShapeConfig{25, 25, SDL_Color{0, 0, 0, 255}},
-                          m_demoStore, "slownessEffectConfig.shape");
-      return cfg;
+
+   SlownessEffectConfig getSlownessEffectConfig() const {
+      return SlownessEffectConfig{
+          .spawnPercentage = static_cast<Uint8>(
+              m_demo.intOr("slownessEffectConfig.spawnPercentage", 30)),
+          .lifespan = m_demo.u64Or("slownessEffectConfig.lifespan", 10000),
+          .speed = m_demo.floatOr("slownessEffectConfig.speed", 2.f),
+          .shape = shapeOr("slownessEffectConfig.shape", squareOf(25)),
+      };
    }
-   BulletConfig getBulletConfig() {
-      BulletConfig cfg{};
-      cfg.lifespan = YerbEngine::ConfigAdapter::u64Or(6000, m_demoStore,
-                                                      "bulletConfig.lifespan");
-      cfg.speed = YerbEngine::ConfigAdapter::floatOr(10.f, m_demoStore,
-                                                     "bulletConfig.speed");
-      cfg.shape = shapeOr(ShapeConfig{15, 15, SDL_Color{255, 255, 255, 255}},
-                          m_demoStore, "bulletConfig.shape");
-      return cfg;
+
+   BulletConfig getBulletConfig() const {
+      constexpr ShapeConfig defaultShape{
+          .height = 15,
+          .width = 15,
+          .color = SDL_Color{255, 255, 255, 255},
+      };
+
+      return BulletConfig{
+          .lifespan = m_demo.u64Or("bulletConfig.lifespan", 6000),
+          .speed = m_demo.floatOr("bulletConfig.speed", 10.f),
+          .shape = shapeOr("bulletConfig.shape", defaultShape),
+      };
    }
 };
