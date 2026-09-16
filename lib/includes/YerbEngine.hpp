@@ -8,6 +8,7 @@
 #include <AssetManagement/AudioSampleBuffer.hpp>
 #include <AssetManagement/FontManager.hpp>
 #include <AssetManagement/TextureManager.hpp>
+#include <Configuration/AudioManifest.hpp>
 #include <Configuration/ConfigAdapter.hpp>
 #include <Configuration/ConfigDictionary.hpp>
 #include <Configuration/ConfigStore.hpp>

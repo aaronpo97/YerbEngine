@@ -1,0 +1,21 @@
+{
+   "samples": [
+      {
+         "id": "sample_paddle_hit",
+         "file": "audio/samples/paddle_hit.wav",
+         "cooldown": 60
+      },
+      {
+         "id": "sample_wall_bounce",
+         "file": "audio/samples/wall_bounce.wav",
+         "cooldown": 60
+      },
+      {
+         "id": "sample_score",
+         "file": "audio/samples/score.wav",
+         "cooldown": 200
+      },
+      { "id": "sample_menu_move", "file": "audio/samples/menu_move.wav" },
+      { "id": "sample_menu_select", "file": "audio/samples/menu_select.wav" }
+   ]
+}

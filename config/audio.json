@@ -1,0 +1,46 @@
+{
+   "tracks": [
+      { "id": "track_main_menu", "file": "audio/tracks/main_menu.ogg" },
+      { "id": "track_play", "file": "audio/tracks/play.ogg" }
+   ],
+   "samples": [
+      {
+         "id": "sample_item_acquired",
+         "file": "audio/samples/item_acquired.wav",
+         "cooldown": 150
+      },
+      {
+         "id": "sample_enemy_collision",
+         "file": "audio/samples/enemy_collides.wav",
+         "cooldown": 200
+      },
+      {
+         "id": "sample_speed_boost",
+         "file": "audio/samples/speed_boost_acquired.wav",
+         "cooldown": 150
+      },
+      {
+         "id": "sample_slowness_debuff",
+         "file": "audio/samples/slowness_debuff_acquired.wav",
+         "cooldown": 150
+      },
+      { "id": "sample_menu_move", "file": "audio/samples/menu_move.wav" },
+      { "id": "sample_menu_select", "file": "audio/samples/menu_select.wav" },
+      {
+         "id": "sample_shoot",
+         "file": "audio/samples/shoot.wav",
+         "cooldown": 100
+      },
+      {
+         "id": "sample_bullet_hit_01",
+         "file": "audio/samples/bullet_hit_01.wav",
+         "volume": 16,
+         "cooldown": 100
+      },
+      {
+         "id": "sample_bullet_hit_02",
+         "file": "audio/samples/bullet_hit_02.wav",
+         "cooldown": 100
+      }
+   ]
+}
