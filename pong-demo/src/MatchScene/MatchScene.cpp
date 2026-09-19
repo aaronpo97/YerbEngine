@@ -1,4 +1,5 @@
 #include <Configuration/AudioIds.hpp>
+#include <EntityTags.hpp>
 #include <MatchScene/MatchScene.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <ResultScene/ResultScene.hpp>
@@ -138,7 +139,7 @@ void MatchScene::spawnPaddles() {
       constexpr Vec2 velocity{0, 0};
 
       std::shared_ptr<Entity> const paddle =
-          m_entities.addEntity(EntityTags::Player);
+          m_entities.addEntity(PongTags::Paddle);
       paddle->setComponent(
           std::make_shared<Components::CTransform>(position, velocity));
       paddle->setComponent(std::make_shared<Components::CShape>(
@@ -169,7 +170,7 @@ void MatchScene::spawnBall() {
    constexpr Vec2 position{0, 0};
    constexpr Vec2 velocity{0, 0};
 
-   m_ball = m_entities.addEntity(EntityTags::Bullet);
+   m_ball = m_entities.addEntity(PongTags::Ball);
    m_ball->setComponent(
        std::make_shared<Components::CTransform>(position, velocity));
    m_ball->setComponent(

@@ -6,6 +6,12 @@
 
 using namespace YerbEngine;
 
+namespace TestTags {
+inline constexpr EntityTag Enemy = EntityTags::FirstGameTag + 0;
+inline constexpr EntityTag Bullet = EntityTags::FirstGameTag + 1;
+inline constexpr EntityTag Item = EntityTags::FirstGameTag + 2;
+}  // namespace TestTags
+
 BOOST_AUTO_TEST_SUITE(EntityManagerTests)
 
 // Test EntityManager::addEntity
@@ -16,9 +22,9 @@ BOOST_AUTO_TEST_CASE(test_add_entity) {
    constexpr size_t numEntities = 1000;
 
    for (size_t i = 0; i < numEntities; ++i) {
-      auto entity = manager.addEntity(EntityTags::Enemy);
+      auto entity = manager.addEntity(TestTags::Enemy);
       BOOST_CHECK(entity != nullptr);
-      BOOST_CHECK_EQUAL(entity->tag(), EntityTags::Enemy);
+      BOOST_CHECK_EQUAL(entity->tag(), TestTags::Enemy);
       BOOST_CHECK_EQUAL(entity->id(), i);
    }
 
@@ -33,7 +39,7 @@ BOOST_AUTO_TEST_CASE(test_update_adds_entities) {
    EntityManager manager;
 
    manager.addEntity(EntityTags::Player);
-   manager.addEntity(EntityTags::Enemy);
+   manager.addEntity(TestTags::Enemy);
 
    // Before update, main entity list should be empty
    BOOST_CHECK_EQUAL(manager.getEntities().size(), 0);
@@ -50,15 +56,15 @@ BOOST_AUTO_TEST_CASE(test_get_entities_by_tag) {
    EntityManager manager;
 
    manager.addEntity(EntityTags::Player);
-   manager.addEntity(EntityTags::Enemy);
-   manager.addEntity(EntityTags::Enemy);
-   manager.addEntity(EntityTags::Bullet);
+   manager.addEntity(TestTags::Enemy);
+   manager.addEntity(TestTags::Enemy);
+   manager.addEntity(TestTags::Bullet);
 
    manager.update();
 
    auto& players = manager.getEntities(EntityTags::Player);
-   auto& enemies = manager.getEntities(EntityTags::Enemy);
-   auto& bullets = manager.getEntities(EntityTags::Bullet);
+   auto& enemies = manager.getEntities(TestTags::Enemy);
+   auto& bullets = manager.getEntities(TestTags::Bullet);
    auto& walls = manager.getEntities(EntityTags::Wall);
 
    BOOST_CHECK_EQUAL(players.size(), 1);
@@ -73,7 +79,7 @@ BOOST_AUTO_TEST_CASE(test_remove_dead_entities) {
    EntityManager manager;
 
    for (size_t i = 0; i < 1000; ++i) {
-      auto entity = manager.addEntity(EntityTags::Enemy);
+      auto entity = manager.addEntity(TestTags::Enemy);
    }
 
    manager.update();
@@ -102,8 +108,8 @@ BOOST_AUTO_TEST_CASE(test_entity_id_increment) {
    EntityManager manager;
 
    auto entity1 = manager.addEntity(EntityTags::Player);
-   auto entity2 = manager.addEntity(EntityTags::Enemy);
-   auto entity3 = manager.addEntity(EntityTags::Bullet);
+   auto entity2 = manager.addEntity(TestTags::Enemy);
+   auto entity3 = manager.addEntity(TestTags::Bullet);
 
    BOOST_CHECK_EQUAL(entity1->id(), 0);
    BOOST_CHECK_EQUAL(entity2->id(), 1);
@@ -112,7 +118,7 @@ BOOST_AUTO_TEST_CASE(test_entity_id_increment) {
    manager.update();
 
    // Add more entities after update
-   auto entity4 = manager.addEntity(EntityTags::Item);
+   auto entity4 = manager.addEntity(TestTags::Item);
    BOOST_CHECK_EQUAL(entity4->id(), 3);
 }
 
@@ -148,12 +154,12 @@ BOOST_AUTO_TEST_CASE(test_entity_tag) {
    EntityManager manager;
 
    auto player = manager.addEntity(EntityTags::Player);
-   auto enemy = manager.addEntity(EntityTags::Enemy);
-   auto bullet = manager.addEntity(EntityTags::Bullet);
+   auto enemy = manager.addEntity(TestTags::Enemy);
+   auto bullet = manager.addEntity(TestTags::Bullet);
 
    BOOST_CHECK_EQUAL(player->tag(), EntityTags::Player);
-   BOOST_CHECK_EQUAL(enemy->tag(), EntityTags::Enemy);
-   BOOST_CHECK_EQUAL(bullet->tag(), EntityTags::Bullet);
+   BOOST_CHECK_EQUAL(enemy->tag(), TestTags::Enemy);
+   BOOST_CHECK_EQUAL(bullet->tag(), TestTags::Bullet);
 }
 
 // Test Entity::id
@@ -162,7 +168,7 @@ BOOST_AUTO_TEST_CASE(test_entity_id) {
    EntityManager manager;
 
    auto entity1 = manager.addEntity(EntityTags::Player);
-   auto entity2 = manager.addEntity(EntityTags::Enemy);
+   auto entity2 = manager.addEntity(TestTags::Enemy);
 
    BOOST_CHECK_EQUAL(entity1->id(), 0);
    BOOST_CHECK_EQUAL(entity2->id(), 1);
@@ -293,40 +299,40 @@ BOOST_AUTO_TEST_CASE(test_complex_entity_lifecycle) {
 
    // Create initial entities
    auto player = manager.addEntity(EntityTags::Player);
-   auto enemy1 = manager.addEntity(EntityTags::Enemy);
-   auto enemy2 = manager.addEntity(EntityTags::Enemy);
-   auto bullet = manager.addEntity(EntityTags::Bullet);
+   auto enemy1 = manager.addEntity(TestTags::Enemy);
+   auto enemy2 = manager.addEntity(TestTags::Enemy);
+   auto bullet = manager.addEntity(TestTags::Bullet);
 
    manager.update();
 
    BOOST_CHECK_EQUAL(manager.getEntities().size(), 4);
-   BOOST_CHECK_EQUAL(manager.getEntities(EntityTags::Enemy).size(), 2);
+   BOOST_CHECK_EQUAL(manager.getEntities(TestTags::Enemy).size(), 2);
 
    // Destroy one enemy
    enemy1->destroy();
    manager.update();
 
    BOOST_CHECK_EQUAL(manager.getEntities().size(), 3);
-   BOOST_CHECK_EQUAL(manager.getEntities(EntityTags::Enemy).size(), 1);
+   BOOST_CHECK_EQUAL(manager.getEntities(TestTags::Enemy).size(), 1);
 
    // Add new entities
-   auto bullet2 = manager.addEntity(EntityTags::Bullet);
-   auto bullet3 = manager.addEntity(EntityTags::Bullet);
+   auto bullet2 = manager.addEntity(TestTags::Bullet);
+   auto bullet3 = manager.addEntity(TestTags::Bullet);
 
    manager.update();
 
    BOOST_CHECK_EQUAL(manager.getEntities().size(), 5);
-   BOOST_CHECK_EQUAL(manager.getEntities(EntityTags::Bullet).size(), 3);
+   BOOST_CHECK_EQUAL(manager.getEntities(TestTags::Bullet).size(), 3);
 
    // Destroy all bullets
-   for (auto& bulletEntity : manager.getEntities(EntityTags::Bullet)) {
+   for (auto& bulletEntity : manager.getEntities(TestTags::Bullet)) {
       bulletEntity->destroy();
    }
 
    manager.update();
 
    BOOST_CHECK_EQUAL(manager.getEntities().size(), 2);
-   BOOST_CHECK_EQUAL(manager.getEntities(EntityTags::Bullet).size(), 0);
+   BOOST_CHECK_EQUAL(manager.getEntities(TestTags::Bullet).size(), 0);
 }
 
 // Test entity with components throughout lifecycle
@@ -334,7 +340,7 @@ BOOST_AUTO_TEST_CASE(test_entity_components_lifecycle) {
    Timer timer("Entity components lifecycle");
    EntityManager manager;
 
-   auto enemy = manager.addEntity(EntityTags::Enemy);
+   auto enemy = manager.addEntity(TestTags::Enemy);
    enemy->setComponent(std::make_shared<Components::CTransform>(
        Vec2{50.0f, 50.0f}, Vec2{1.0f, 1.0f}));
    enemy->setComponent(std::make_shared<Components::CLifespan>(120));

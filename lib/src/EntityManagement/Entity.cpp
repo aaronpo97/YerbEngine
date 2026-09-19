@@ -2,13 +2,13 @@
 
 namespace YerbEngine {
 
-Entity::Entity(size_t const id, EntityTags const tag,
+Entity::Entity(size_t const id, EntityTag const tag,
                std::shared_ptr<ComponentRegistry> registry)
     : m_id(id), m_tag(tag), m_registry(std::move(registry)) {}
 
 bool Entity::isActive() const { return m_active; }
 
-EntityTags Entity::tag() const { return m_tag; }
+EntityTag Entity::tag() const { return m_tag; }
 
 size_t Entity::id() const { return m_id; }
 
@@ -29,8 +29,8 @@ Vec2 Entity::getCenterPos() const {
    }
 
    Vec2 const& pos = cTransform->topLeftCornerPos;
-   Vec2 const& center = pos + Vec2(static_cast<float>(cShape->rect.w) / 2.0f,
-                                   static_cast<float>(cShape->rect.h) / 2.0f);
+   Vec2 const& center =
+       pos + Vec2(cShape->rect.w / 2.0f, cShape->rect.h / 2.0f);
    return center;
 }
 

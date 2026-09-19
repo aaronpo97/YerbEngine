@@ -1,3 +1,4 @@
+#include <EntityTags.hpp>
 #include <MainScene/MainSceneSpawner.hpp>
 #include <YerbEngine.hpp>
 #include <string_view>
@@ -72,8 +73,7 @@ std::shared_ptr<Entity> MainSceneSpawner::spawnPlayer() {
    auto const cSprite =
        std::make_shared<Components::CSprite>(PLAYER_TEXTURE_ID);
 
-   std::shared_ptr<Entity> player =
-       m_entityManager.addEntity(EntityTags::Player);
+   std::shared_ptr<Entity> player = m_entityManager.addEntity(DemoTags::Player);
    player->setComponent(cTransform);
    player->setComponent(cShape);
    player->setComponent(cInput);
@@ -113,7 +113,7 @@ void MainSceneSpawner::spawnEnemy(std::shared_ptr<Entity> const& player) {
    auto const cSprite = std::make_shared<Components::CSprite>(ENEMY_TEXTURE_ID);
 
    std::shared_ptr<Entity> const& enemy =
-       m_entityManager.addEntity(EntityTags::Enemy);
+       m_entityManager.addEntity(DemoTags::Enemy);
    enemy->setComponent<Components::CTransform>(cTransform);
    enemy->setComponent<Components::CShape>(cShape);
    enemy->setComponent<Components::CLifespan>(cLifespan);
@@ -176,7 +176,7 @@ void MainSceneSpawner::spawnSpeedBoostEntity(
    auto const cLifespan =
        std::make_shared<Components::CLifespan>(speedEffectConfig.lifespan);
 
-   auto const& speedBoost = m_entityManager.addEntity(EntityTags::SpeedBoost);
+   auto const& speedBoost = m_entityManager.addEntity(DemoTags::SpeedBoost);
    speedBoost->setComponent<Components::CTransform>(cTransform);
    speedBoost->setComponent<Components::CShape>(cShape);
    speedBoost->setComponent<Components::CLifespan>(cLifespan);
@@ -245,7 +245,7 @@ void MainSceneSpawner::spawnSlownessEntity(
        std::make_shared<Components::CLifespan>(slownessEffectConfig.lifespan);
 
    std::shared_ptr<Entity> const& slownessEntity =
-       m_entityManager.addEntity(EntityTags::SlownessDebuff);
+       m_entityManager.addEntity(DemoTags::SlownessDebuff);
 
    slownessEntity->setComponent<Components::CTransform>(cTransform);
    slownessEntity->setComponent<Components::CShape>(cShape);
@@ -361,7 +361,7 @@ void MainSceneSpawner::spawnWalls() {
           std::make_shared<Components::CSprite>(WALL_TEXTURE_ID);
 
       std::shared_ptr<Entity> const wall =
-          m_entityManager.addEntity(EntityTags::Wall);
+          m_entityManager.addEntity(DemoTags::Wall);
       wall->setComponent(shapeComponent);
       wall->setComponent(transformComponent);
       wall->setComponent(cSprite);
@@ -371,7 +371,7 @@ void MainSceneSpawner::spawnWalls() {
 }
 void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const& player,
                                     Vec2 const& mousePosition) {
-   EntityList const walls = m_entityManager.getEntities(EntityTags::Wall);
+   EntityList const walls = m_entityManager.getEntities(DemoTags::Wall);
 
    auto const& [lifespan, speed, shape] = m_config.getBulletConfig();
 
@@ -392,7 +392,7 @@ void MainSceneSpawner::spawnBullets(std::shared_ptr<Entity> const& player,
    float const bulletSpeed = speed;
    Vec2 bulletVelocity = direction * bulletSpeed;
    std::shared_ptr<Entity> const bullet =
-       m_entityManager.addEntity(EntityTags::Bullet);
+       m_entityManager.addEntity(DemoTags::Bullet);
 
    float const bulletHalfWidth = shape.width / 2;
    float const bulletHalfHeight = shape.height / 2;
@@ -471,7 +471,7 @@ void MainSceneSpawner::spawnItem(std::shared_ptr<Entity> const& player) {
    auto const cLifespan = std::make_shared<Components::CLifespan>(lifespan);
    auto const cSprite = std::make_shared<Components::CSprite>(COIN_TEXTURE_ID);
 
-   auto const& item = m_entityManager.addEntity(EntityTags::Item);
+   auto const& item = m_entityManager.addEntity(DemoTags::Item);
    item->setComponent<Components::CTransform>(cTransform);
    item->setComponent<Components::CShape>(cShape);
    item->setComponent<Components::CLifespan>(cLifespan);

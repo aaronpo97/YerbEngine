@@ -1,3 +1,4 @@
+#include <EntityTags.hpp>
 #include <Helpers/MovementHelpers.hpp>
 
 constexpr float BASE_MOVEMENT_MULTIPLIER = 50.0f;
@@ -11,8 +12,8 @@ void moveEnemies(std::shared_ptr<Entity> const& entity,
       return;
    }
 
-   EntityTags const entityTag = entity->tag();
-   if (entityTag != EntityTags::Enemy) {
+   EntityTag const entityTag = entity->tag();
+   if (entityTag != DemoTags::Enemy) {
       return;
    }
 
@@ -40,8 +41,8 @@ void moveSpeedBoosts(std::shared_ptr<Entity> const& entity,
       return;
    }
 
-   EntityTags const entityTag = entity->tag();
-   if (entityTag != EntityTags::SpeedBoost) {
+   EntityTag const entityTag = entity->tag();
+   if (entityTag != DemoTags::SpeedBoost) {
       return;
    }
 
@@ -68,8 +69,8 @@ void movePlayer(std::shared_ptr<Entity> const& entity,
       return;
    }
 
-   EntityTags const entityTag = entity->tag();
-   if (entityTag != EntityTags::Player) {
+   EntityTag const entityTag = entity->tag();
+   if (entityTag != DemoTags::Player) {
       return;
    }
 
@@ -136,8 +137,8 @@ void moveSlownessDebuffs(std::shared_ptr<Entity> const& entity,
       return;
    }
 
-   EntityTags const entityTag = entity->tag();
-   if (entityTag != EntityTags::SlownessDebuff) {
+   EntityTag const entityTag = entity->tag();
+   if (entityTag != DemoTags::SlownessDebuff) {
       return;
    }
 
@@ -175,8 +176,8 @@ void moveBullets(std::shared_ptr<Entity> const& entity,
       return;
    }
 
-   EntityTags const entityTag = entity->tag();
-   if (entityTag != EntityTags::Bullet) {
+   EntityTag const entityTag = entity->tag();
+   if (entityTag != DemoTags::Bullet) {
       return;
    }
 
@@ -202,9 +203,9 @@ void moveItems(std::shared_ptr<Entity> const& entity, float const& deltaTime) {
       return;
    }
 
-   EntityTags const entityTag = entity->tag();
+   EntityTag const entityTag = entity->tag();
 
-   if (entityTag != EntityTags::Item) {
+   if (entityTag != DemoTags::Item) {
       return;
    }
 
