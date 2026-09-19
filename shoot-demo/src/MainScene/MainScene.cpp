@@ -1,4 +1,5 @@
 #include <Configuration/AudioIds.hpp>
+#include <EntityTags.hpp>
 #include <filesystem>
 
 #ifdef __EMSCRIPTEN__
@@ -337,10 +338,10 @@ void MainScene::sTimer() {
 void MainScene::sLifespan() {
    for (auto const& entity : m_entities.getEntities()) {
       auto const tag = entity->tag();
-      if (tag == EntityTags::Player) {
+      if (tag == DemoTags::Player) {
          continue;
       }
-      if (tag == EntityTags::Wall) {
+      if (tag == DemoTags::Wall) {
          continue;
       }
 
@@ -371,7 +372,7 @@ void MainScene::sLifespan() {
                              static_cast<float>(cLifespan->lifespan));
 
       bool const entityExpired = elapsedTime > cLifespan->lifespan;
-      if (!entityExpired && entity->tag() == EntityTags::Enemy) {
+      if (!entityExpired && entity->tag() == DemoTags::Enemy) {
          continue;
       }
       if (!entityExpired) {
@@ -437,7 +438,7 @@ void MainScene::sAudio() {
 }
 
 void MainScene::onSceneWindowResize() {
-   auto const walls = m_entities.getEntities(EntityTags::Wall);
+   auto const walls = m_entities.getEntities(DemoTags::Wall);
    for (auto const& wall : walls) {
       wall->destroy();
    }

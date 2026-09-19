@@ -1,4 +1,5 @@
 #include <Configuration/AudioIds.hpp>
+#include <EntityTags.hpp>
 #include <Helpers/MainSceneCollisionHelpers.hpp>
 #include <YerbEngine.hpp>
 using namespace YerbEngine;
@@ -44,7 +45,7 @@ void enforcePlayerBounds(std::shared_ptr<Entity> const& entity,
 
 void enforceNonPlayerBounds(std::shared_ptr<Entity> const& entity,
                             std::bitset<4> const& collides) {
-   if (entity->tag() == EntityTags::Player) {
+   if (entity->tag() == DemoTags::Player) {
       return;
    }
 
@@ -183,36 +184,36 @@ namespace ShootDemo::CollisionHelpers::MainScene {
 void handleEntityBounds(std::shared_ptr<Entity> const& entity,
                         Vec2 const& windowSize) {
    auto const tag = entity->tag();
-   if (tag == EntityTags::SpeedBoost) {
+   if (tag == DemoTags::SpeedBoost) {
       std::bitset<4> const speedBoostCollides =
           YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, speedBoostCollides);
    }
 
-   if (tag == EntityTags::Player) {
+   if (tag == DemoTags::Player) {
       std::bitset<4> const playerCollides =
           YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
       Enforce::enforcePlayerBounds(entity, playerCollides, windowSize);
    }
 
-   if (tag == EntityTags::Enemy) {
+   if (tag == DemoTags::Enemy) {
       std::bitset<4> const enemyCollides =
           YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, enemyCollides);
    }
 
-   if (tag == EntityTags::SlownessDebuff) {
+   if (tag == DemoTags::SlownessDebuff) {
       std::bitset<4> const slownessCollides =
           YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, slownessCollides);
    }
 
-   if (tag == EntityTags::Bullet) {
+   if (tag == DemoTags::Bullet) {
       std::bitset<4> const bulletCollides =
           YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, bulletCollides);
    }
-   if (tag == EntityTags::Item) {
+   if (tag == DemoTags::Item) {
       std::bitset<4> const itemCollides =
           YerbEngine::CollisionHelpers::detectOutOfBounds(entity, windowSize);
       Enforce::enforceNonPlayerBounds(entity, itemCollides);
@@ -224,8 +225,8 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
    std::shared_ptr<Entity> const& entity = collisionPair.entityA;
    std::shared_ptr<Entity> const& otherEntity = collisionPair.entityB;
 
-   EntityTags const tag = entity->tag();
-   EntityTags const otherTag = otherEntity->tag();
+   EntityTag const tag = entity->tag();
+   EntityTag const otherTag = otherEntity->tag();
 
    constexpr Uint64 minSlownessDuration = 5000;
    constexpr Uint64 maxSlownessDuration = 10000;
@@ -256,23 +257,23 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
       return;
    }
 
-   if (otherTag == EntityTags::Wall) {
+   if (otherTag == DemoTags::Wall) {
       Enforce::enforceCollisionWithWall(entity, otherEntity);
    }
 
-   if (tag == EntityTags::Enemy && otherTag == EntityTags::Enemy) {
+   if (tag == DemoTags::Enemy && otherTag == DemoTags::Enemy) {
       Enforce::enforceEntityEntityCollision(entity, otherEntity);
    }
 
-   if (tag == EntityTags::Enemy && otherTag == EntityTags::SpeedBoost) {
+   if (tag == DemoTags::Enemy && otherTag == DemoTags::SpeedBoost) {
       Enforce::enforceEntityEntityCollision(entity, otherEntity);
    }
 
-   if (tag == EntityTags::Enemy && otherTag == EntityTags::SlownessDebuff) {
+   if (tag == DemoTags::Enemy && otherTag == DemoTags::SlownessDebuff) {
       Enforce::enforceEntityEntityCollision(entity, otherEntity);
    }
 
-   if (tag == EntityTags::Bullet && otherTag == EntityTags::Enemy) {
+   if (tag == DemoTags::Bullet && otherTag == DemoTags::Enemy) {
       auto const nextSample = DemoAudio::SAMPLE_BULLET_HIT_02;
       args.audioSampleManager.queueSample(nextSample, PriorityLevel::STANDARD);
 
@@ -289,26 +290,25 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
       entity->destroy();
    }
 
-   if (tag == EntityTags::Bullet && otherTag == EntityTags::Wall) {
+   if (tag == DemoTags::Bullet && otherTag == DemoTags::Wall) {
       args.audioSampleManager.queueSample(DemoAudio::SAMPLE_BULLET_HIT_01,
                                           PriorityLevel::BACKGROUND);
    }
 
-   if (tag == EntityTags::Bullet &&
-       (otherTag == EntityTags::SlownessDebuff ||
-        otherTag == EntityTags::SpeedBoost || otherTag == EntityTags::Item)) {
+   if (tag == DemoTags::Bullet &&
+       (otherTag == DemoTags::SlownessDebuff ||
+        otherTag == DemoTags::SpeedBoost || otherTag == DemoTags::Item)) {
       otherEntity->destroy();
       entity->destroy();
 
       if (m_score > 15) {
-         auto const updatedScore = otherTag == EntityTags::SlownessDebuff
-                                       ? m_score + 15
-                                       : m_score - 15;
+         auto const updatedScore =
+             otherTag == DemoTags::SlownessDebuff ? m_score + 15 : m_score - 15;
          setScore(updatedScore);
       }
    }
 
-   if (tag == EntityTags::Player && otherTag == EntityTags::Enemy) {
+   if (tag == DemoTags::Player && otherTag == DemoTags::Enemy) {
       args.audioSampleManager.queueSample(DemoAudio::SAMPLE_ENEMY_COLLISION,
                                           PriorityLevel::STANDARD);
       setScore(m_score > 10 ? m_score - 10 : 0);
@@ -324,7 +324,7 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
 
       constexpr float REMOVAL_RADIUS = 150.0f;
       EntityList const entitiesToRemove = EntityHelpers::getEntitiesInRadius(
-          entity, m_entities.getEntities(EntityTags::Enemy), REMOVAL_RADIUS);
+          entity, m_entities.getEntities(DemoTags::Enemy), REMOVAL_RADIUS);
 
       for (std::shared_ptr<Entity> const& entityToRemove : entitiesToRemove) {
          entityToRemove->destroy();
@@ -333,7 +333,7 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
       cEffects->clearEffects();
    }
 
-   if (tag == EntityTags::Player && otherTag == EntityTags::SlownessDebuff) {
+   if (tag == DemoTags::Player && otherTag == DemoTags::SlownessDebuff) {
       Uint64 const startTime = SDL_GetTicks();
       Uint64 const duration = randomSlownessDuration(m_randomGenerator);
 
@@ -344,9 +344,9 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
 
       EntityList effectsToCheck;
       EntityList const& slownessDebuffs =
-          m_entities.getEntities(EntityTags::SlownessDebuff);
+          m_entities.getEntities(DemoTags::SlownessDebuff);
       EntityList const& speedBoosts =
-          m_entities.getEntities(EntityTags::SpeedBoost);
+          m_entities.getEntities(DemoTags::SpeedBoost);
 
       effectsToCheck.insert(effectsToCheck.end(), slownessDebuffs.begin(),
                             slownessDebuffs.end());
@@ -369,7 +369,7 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
       }
    }
 
-   if (tag == EntityTags::Player && otherTag == EntityTags::SpeedBoost) {
+   if (tag == DemoTags::Player && otherTag == DemoTags::SpeedBoost) {
       Uint64 const startTime = SDL_GetTicks();
       Uint64 const duration = randomSpeedBoostDuration(m_randomGenerator);
       auto const& cEffects = entity->getComponent<Components::CEffects>();
@@ -382,9 +382,9 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
       args.audioSampleManager.queueSample(nextSample, PriorityLevel::STANDARD);
 
       EntityList const& slownessDebuffs =
-          m_entities.getEntities(EntityTags::SlownessDebuff);
+          m_entities.getEntities(DemoTags::SlownessDebuff);
       EntityList const& speedBoosts =
-          m_entities.getEntities(EntityTags::SpeedBoost);
+          m_entities.getEntities(DemoTags::SpeedBoost);
 
       constexpr float REMOVAL_RADIUS = 150.0f;
       EntityList const entitiesToRemove = EntityHelpers::getEntitiesInRadius(
@@ -409,22 +409,22 @@ void handleEntityEntityCollision(CollisionPair const& collisionPair,
       }
    }
 
-   if (tag == EntityTags::Player && otherTag == EntityTags::Item) {
+   if (tag == DemoTags::Player && otherTag == DemoTags::Item) {
       args.audioSampleManager.queueSample(DemoAudio::SAMPLE_ITEM_ACQUIRED,
                                           PriorityLevel::STANDARD);
       setScore(m_score + 90);
       otherEntity->destroy();
    }
 
-   if (tag == EntityTags::Item && otherTag == EntityTags::Enemy) {
+   if (tag == DemoTags::Item && otherTag == DemoTags::Enemy) {
       Enforce::enforceEntityEntityCollision(entity, otherEntity);
    }
 
-   if (tag == EntityTags::Item && otherTag == EntityTags::SpeedBoost) {
+   if (tag == DemoTags::Item && otherTag == DemoTags::SpeedBoost) {
       Enforce::enforceEntityEntityCollision(entity, otherEntity);
    }
 
-   if (tag == EntityTags::Item && otherTag == EntityTags::SlownessDebuff) {
+   if (tag == DemoTags::Item && otherTag == DemoTags::SlownessDebuff) {
       Enforce::enforceEntityEntityCollision(entity, otherEntity);
    }
 }

@@ -11,7 +11,7 @@
 namespace YerbEngine {
 
 using EntityList = std::vector<std::shared_ptr<Entity>>;
-using EntityMap = std::unordered_map<EntityTags, EntityList>;
+using EntityMap = std::unordered_map<EntityTag, EntityList>;
 
 class EntityManager {
    EntityList m_entities;
@@ -31,9 +31,9 @@ class EntityManager {
    EntityManager(EntityManager&&) = delete;
    EntityManager& operator=(EntityManager&&) = delete;
 
-   std::shared_ptr<Entity> addEntity(EntityTags tag);
+   std::shared_ptr<Entity> addEntity(EntityTag tag);
    EntityList& getEntities();
-   EntityList& getEntities(EntityTags tag);
+   EntityList& getEntities(EntityTag tag);
 
    ComponentRegistry& components();
    ComponentRegistry const& components() const;

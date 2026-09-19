@@ -15,6 +15,7 @@
 #include <EntityManagement/Components.hpp>
 #include <EntityManagement/Entity.hpp>
 #include <EntityManagement/EntityManager.hpp>
+#include <EntityManagement/EntityTag.hpp>
 #include <GameEngine/Action.hpp>
 #include <GameEngine/GameEngine.hpp>
 #include <GameScenes/Scene.hpp>

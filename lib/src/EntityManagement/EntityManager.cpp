@@ -4,7 +4,7 @@
 
 namespace YerbEngine {
 
-std::shared_ptr<Entity> EntityManager::addEntity(EntityTags const tag) {
+std::shared_ptr<Entity> EntityManager::addEntity(EntityTag const tag) {
    auto entityToAdd = std::shared_ptr<Entity>(
        new Entity(m_totalEntities++, tag, m_components));
    m_toAdd.push_back(entityToAdd);
@@ -13,7 +13,7 @@ std::shared_ptr<Entity> EntityManager::addEntity(EntityTags const tag) {
 
 EntityList& EntityManager::getEntities() { return m_entities; }
 
-EntityList& EntityManager::getEntities(EntityTags const tag) {
+EntityList& EntityManager::getEntities(EntityTag const tag) {
    return m_entityMap[tag];
 }
 
