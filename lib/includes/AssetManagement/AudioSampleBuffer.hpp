@@ -1,6 +1,9 @@
 #pragma once
 
-#include <SystemManagement/AudioManager.hpp>
+#include <SDL3/SDL.h>
+
+#include <SystemManagement/IAudioSink.hpp>
+#include <SystemManagement/IClock.hpp>
 #include <array>
 #include <string_view>
 #include <unordered_map>
@@ -34,7 +37,8 @@ class AudioSampleBuffer {
    size_t m_tail = 0;
    size_t m_size = 0;
    std::unordered_map<AudioSampleId, Uint64> m_lastPlayTimes;
-   AudioManager& m_audioManager;
+   IAudioSink& m_audioSink;
+   IClock const& m_clock;
 
    static constexpr Uint64 MIN_REPLAY_INTERVAL = 50;
    std::unordered_map<AudioSampleId, Uint64> m_cooldowns;
@@ -47,7 +51,7 @@ class AudioSampleBuffer {
    void trimLowPrioritySamples();
 
   public:
-   explicit AudioSampleBuffer(AudioManager& audioManager);
+   AudioSampleBuffer(IAudioSink& audioSink, IClock const& clock);
    void queueSample(std::string_view sample, PriorityLevel priority);
    void setCooldown(std::string_view sample, Uint64 cooldownMs);
    void setCooldowns(std::unordered_map<AudioSampleId, Uint64> cooldowns);

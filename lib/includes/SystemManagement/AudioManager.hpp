@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
+#include <SystemManagement/IAudioSink.hpp>
 #include <filesystem>
 #include <map>
 #include <string>
@@ -13,9 +14,6 @@
 namespace YerbEngine {
 
 typedef std::filesystem::path Path;
-
-using AudioSampleId = std::string;
-using AudioTrackId = std::string;
 
 struct AudioTrackDefinition {
    AudioTrackId id;
@@ -44,7 +42,7 @@ struct AudioInitOptions {
    std::vector<AudioSampleDefinition> samples{};
 };
 
-class AudioManager {
+class AudioManager : public IAudioSink {
    MIX_Mixer* m_mixer = nullptr;
 
    std::unordered_map<AudioTrackId, MIX_Audio*> m_audioTracks;
@@ -142,7 +140,6 @@ class AudioManager {
 
    explicit AudioManager(AudioInitOptions options);
 
-   static constexpr size_t MAX_SAMPLES_PER_FRAME = 4;
    static constexpr int DEFAULT_SAMPLE_VOLUME =
        MAX_VOLUME / MAX_SAMPLES_PER_FRAME;
    static constexpr int DEFAULT_TRACK_VOLUME = MAX_VOLUME * 0.8;
@@ -153,7 +150,7 @@ class AudioManager {
     * Calls cleanup() to free audio resources and close the audio
     * subsystem.
     */
-   ~AudioManager();
+   ~AudioManager() override;
 
    /**
     * Loads all audio tracks and samples.
@@ -180,7 +177,7 @@ class AudioManager {
     * @param sample The audio sample to play.
     * @param loops The number of times to loop the sample (0 for no loop).
     */
-   void playSample(std::string_view sample, int loops = 0);
+   void playSample(std::string_view sample, int loops = 0) override;
 
    /**
     * Stops the currently playing audio track.

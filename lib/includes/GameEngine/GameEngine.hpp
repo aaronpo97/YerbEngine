@@ -4,6 +4,7 @@
 #include <AssetManagement/FontManager.hpp>
 #include <AssetManagement/TextureManager.hpp>
 #include <SystemManagement/AudioManager.hpp>
+#include <SystemManagement/IClock.hpp>
 #include <SystemManagement/VideoManager.hpp>
 #include <filesystem>
 #include <map>
@@ -22,6 +23,8 @@ class GameEngine {
    std::map<std::string, std::shared_ptr<Scene>> m_scenes;
    std::string m_currentSceneName;
    bool m_isRunning = false;
+
+   SdlClock m_clock;
 
    std::unique_ptr<FontManager> m_fontManager;
    std::unique_ptr<AudioManager> m_audioManager;
