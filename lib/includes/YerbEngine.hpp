@@ -26,5 +26,7 @@
 #include <Helpers/TextHelpers.hpp>
 #include <Helpers/Vec2.hpp>
 #include <SystemManagement/AudioManager.hpp>
+#include <SystemManagement/IAudioSink.hpp>
+#include <SystemManagement/IClock.hpp>
 #include <SystemManagement/VideoManager.hpp>
 #include <Systems/RenderSystem.hpp>

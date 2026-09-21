@@ -75,7 +75,8 @@ GameEngine::GameEngine(Path assetsDirPath, Path configDirPath,
 
    m_audioManager = std::make_unique<AudioManager>(std::move(audioOptions));
 
-   m_audioSampleBuffer = std::make_unique<AudioSampleBuffer>(*m_audioManager);
+   m_audioSampleBuffer =
+       std::make_unique<AudioSampleBuffer>(*m_audioManager, m_clock);
 
    {
       auto const gameCfg = m_configAdapter->getGameConfig();

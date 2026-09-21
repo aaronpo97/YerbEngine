@@ -2,12 +2,12 @@
 
 namespace YerbEngine {
 
-AudioSampleBuffer::AudioSampleBuffer(AudioManager& audioManager)
-    : m_audioManager(audioManager) {}
+AudioSampleBuffer::AudioSampleBuffer(IAudioSink& audioSink, IClock const& clock)
+    : m_audioSink(audioSink), m_clock(clock) {}
 
 void AudioSampleBuffer::queueSample(std::string_view const sample,
                                     PriorityLevel const priority) {
-   Uint64 const currentTime = SDL_GetTicks();
+   Uint64 const currentTime = m_clock.nowMs();
    removeExpiredSamples(currentTime);
 
    AudioSampleId const sampleKey(sample);
@@ -34,9 +34,9 @@ void AudioSampleBuffer::queueSample(std::string_view const sample,
 }
 
 void AudioSampleBuffer::update() {
-   Uint64 const currentTime = SDL_GetTicks();
+   Uint64 const currentTime = m_clock.nowMs();
    size_t soundsPlayedThisFrame = 0;
-   constexpr size_t MAX_SOUNDS_PER_FRAME = AudioManager::MAX_SAMPLES_PER_FRAME;
+   constexpr size_t MAX_SOUNDS_PER_FRAME = IAudioSink::MAX_SAMPLES_PER_FRAME;
 
    removeExpiredSamples(currentTime);
 
@@ -62,7 +62,7 @@ void AudioSampleBuffer::update() {
          break;
       }
 
-      m_audioManager.playSample(bestSample.sample);
+      m_audioSink.playSample(bestSample.sample);
       m_lastPlayTimes[bestSample.sample] = currentTime;
       removeAtOffset(bestOffset);
       soundsPlayedThisFrame += 1;
