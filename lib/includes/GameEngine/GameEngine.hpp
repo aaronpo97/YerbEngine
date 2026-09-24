@@ -12,13 +12,14 @@
 
 #include "Configuration/ConfigAdapter.hpp"
 #include "Configuration/ConfigStore.hpp"
+#include "GameScenes/ISceneRouter.hpp"
 
 namespace YerbEngine {
 
 typedef std::filesystem::path Path;
 class Scene;
 
-class GameEngine {
+class GameEngine : public ISceneRouter {
   protected:
    std::map<std::string, std::shared_ptr<Scene>> m_scenes;
    std::string m_currentSceneName;
@@ -89,7 +90,7 @@ class GameEngine {
     *
     * Automatic cleanup for when the game engine goes out of scope.
     */
-   ~GameEngine();
+   ~GameEngine() override;
 
    /**
     * Checks if the game engine is running.
@@ -105,7 +106,7 @@ class GameEngine {
     * @param scene A shared pointer to the scene object to load
     */
    void LoadScene(std::string const& sceneName,
-                  std::shared_ptr<Scene> const& scene);
+                  std::shared_ptr<Scene> const& scene) override;
 
    // Configuration accessors (preferred):
    ConfigStore& GetConfigStore() const { return *m_configStore; }
@@ -167,7 +168,7 @@ class GameEngine {
     * Quits the game engine by either stopping the main loop or canceling
     * the emscripten main loop.
     */
-   void quit();
+   void quit() override;
 };
 
 }  // namespace YerbEngine
