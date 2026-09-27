@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace YerbEngine;
+
 namespace {
 constexpr float BASE_MOVEMENT_MULTIPLIER = 50.0f;
 

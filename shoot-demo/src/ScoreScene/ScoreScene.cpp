@@ -6,6 +6,8 @@
 #include <ScoreScene/ScoreScene.hpp>
 #include <YerbEngine.hpp>
 
+using namespace YerbEngine;
+
 ScoreScene::ScoreScene(GameEngine* gameEngine, int const score)
     : Scene(gameEngine), m_score(score) {
    registerAction(SDLK_RETURN, "SELECT");

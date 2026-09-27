@@ -13,6 +13,8 @@
 #include <MenuScene/MenuScene.hpp>
 #include <ScoreScene/ScoreScene.hpp>
 
+using namespace YerbEngine;
+
 MainScene::MainScene(GameEngine* gameEngine)
     : Scene(gameEngine),
       m_spawner(m_randomGenerator, *([&]() -> DemoConfigAdapter* {
@@ -24,7 +26,6 @@ MainScene::MainScene(GameEngine* gameEngine)
                 gameEngine->getTextureManager(), m_entities,
                 gameEngine->getVideoManager()) {
    m_player = m_spawner.spawnPlayer();
-   std::cout << "spawned the player" << std::endl;
    m_spawner.spawnWalls();
 
    // WASD

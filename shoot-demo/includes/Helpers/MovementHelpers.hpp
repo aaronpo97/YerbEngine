@@ -1,10 +1,11 @@
 #pragma once
 #include <Configuration/DemoConfigTypes.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 #include <memory>
 
 namespace MovementHelpers {
+using YerbEngine::Entity;
+
 void moveEnemies(std::shared_ptr<Entity> const& entity,
                  EnemyConfig const& enemyConfig, float const& deltaTime);
 void moveSpeedBoosts(std::shared_ptr<Entity> const& entity,

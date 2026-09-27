@@ -3,6 +3,8 @@
 #include <YerbEngine.hpp>
 #include <string_view>
 
+using namespace YerbEngine;
+
 namespace {
 constexpr std::string_view PLAYER_TEXTURE_ID = "player";
 constexpr std::string_view ENEMY_TEXTURE_ID = "enemy";
@@ -36,7 +38,6 @@ MainSceneSpawner::MainSceneSpawner(std::mt19937& randomGenerator,
       m_videoManager(videoManager),
       m_textureManager(textureManager),
       m_entityManager(entityManager) {
-   std::cout << "spawner created\n";
    registerDemoTextures(m_textureManager);
 }
 

@@ -5,6 +5,8 @@
 #include <MenuScene/MenuScene.hpp>
 #include <ResultScene/ResultScene.hpp>
 
+using namespace YerbEngine;
+
 namespace {
 constexpr SDL_Color TEXT_COLOR = {.r = 235, .g = 235, .b = 235, .a = 255};
 constexpr SDL_Color HINT_COLOR = {.r = 120, .g = 120, .b = 120, .a = 255};

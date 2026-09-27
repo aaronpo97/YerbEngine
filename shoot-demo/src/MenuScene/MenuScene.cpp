@@ -6,6 +6,8 @@
 #include <MenuScene/MenuScene.hpp>
 #include <YerbEngine.hpp>
 
+using namespace YerbEngine;
+
 namespace {
 // The web build drops the Quit entry: the browser owns the window.
 #ifdef __EMSCRIPTEN__

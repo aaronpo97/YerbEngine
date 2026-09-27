@@ -1,13 +1,17 @@
 #pragma once
 
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 #include <bitset>
 #include <functional>
 #include <memory>
 #include <random>
 
 namespace ShootDemo::CollisionHelpers::MainScene {
+using YerbEngine::AudioSampleBuffer;
+using YerbEngine::Entity;
+using YerbEngine::EntityManager;
+using YerbEngine::Vec2;
+
 struct CollisionPair {
    std::shared_ptr<Entity> const& entityA;
    std::shared_ptr<Entity> const& entityB;

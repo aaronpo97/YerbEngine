@@ -7,6 +7,8 @@
 #include <array>
 #include <string_view>
 
+using namespace YerbEngine;
+
 namespace {
 #ifdef __EMSCRIPTEN__
 constexpr std::array<std::string_view, 3> MENU_ITEMS = {"1 Player", "2 Players",
