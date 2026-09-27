@@ -1,22 +1,24 @@
 #pragma once
 #include <Configuration/DemoConfigAdapter.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 #include <random>
 
 class MainSceneSpawner {
+   using Entity = YerbEngine::Entity;
+   using Vec2 = YerbEngine::Vec2;
+
    std::mt19937& m_randomGenerator;
 
   public:
    DemoConfigAdapter& m_config;
-   VideoManager& m_videoManager;
-   TextureManager& m_textureManager;
-   EntityManager& m_entityManager;
+   YerbEngine::VideoManager& m_videoManager;
+   YerbEngine::TextureManager& m_textureManager;
+   YerbEngine::EntityManager& m_entityManager;
 
-  public:
    MainSceneSpawner(std::mt19937& randomGenerator, DemoConfigAdapter& config,
-                    TextureManager& textureManager,
-                    EntityManager& entityManager, VideoManager& videoManager);
+                    YerbEngine::TextureManager& textureManager,
+                    YerbEngine::EntityManager& entityManager,
+                    YerbEngine::VideoManager& videoManager);
 
    std::shared_ptr<Entity> spawnPlayer();
 

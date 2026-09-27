@@ -10,6 +10,8 @@
 
 #include <filesystem>
 
+using namespace YerbEngine;
+
 int main(int argc, char** argv) {
 #ifndef __EMSCRIPTEN__
    SDL_SetLogPriorities(SDL_LOG_PRIORITY_VERBOSE);

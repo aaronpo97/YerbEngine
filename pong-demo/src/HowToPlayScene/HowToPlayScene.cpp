@@ -6,6 +6,8 @@
 #include <array>
 #include <string_view>
 
+using namespace YerbEngine;
+
 namespace {
 constexpr std::array<std::string_view, 6> INSTRUCTIONS = {
     "Left paddle:  W / S",

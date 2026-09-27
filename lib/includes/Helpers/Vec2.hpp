@@ -1,6 +1,7 @@
 #pragma once
 #include <Helpers/MathHelpers.hpp>
-#include <iostream>
+#include <ostream>
+#include <string>
 
 namespace YerbEngine {
 

@@ -1,6 +1,8 @@
 #include <EntityTags.hpp>
 #include <Helpers/MovementHelpers.hpp>
 
+using namespace YerbEngine;
+
 constexpr float BASE_MOVEMENT_MULTIPLIER = 50.0f;
 
 namespace MovementHelpers {

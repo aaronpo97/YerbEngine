@@ -45,4 +45,4 @@ BOOST_AUTO_TEST_CASE(test_set_get_various_types) {
       BOOST_CHECK_EQUAL(bgColor.value().a, 0xFF);
    }
 }
-}
+BOOST_AUTO_TEST_SUITE_END()

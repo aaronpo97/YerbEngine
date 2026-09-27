@@ -2,7 +2,6 @@
 #include <SDL3_image/SDL_image.h>
 
 #include <AssetManagement/TextureManager.hpp>
-#include <iostream>
 #include <string>
 #include <string_view>
 
@@ -13,7 +12,6 @@ TextureManager::TextureManager(SDL_Renderer* renderer) : m_renderer(renderer) {
 }
 
 TextureManager::~TextureManager() {
-   std::cout << "ImageManager destroyed\n";
    for (auto& [name, texture] : m_textures) {
       SDL_DestroyTexture(texture);
       SDL_Log("Texture %s freed", name.c_str());

@@ -1,9 +1,9 @@
 #include <Configuration/AudioIds.hpp>
-#include <EntityTags.hpp>
 #include <Helpers/MainSceneCollisionHelpers.hpp>
 #include <YerbEngine.hpp>
 using namespace YerbEngine;
 
+#include <EntityTags.hpp>
 #include <bitset>
 
 enum Boundaries : Uint8 { TOP, BOTTOM, LEFT, RIGHT };
@@ -31,15 +31,13 @@ void enforcePlayerBounds(std::shared_ptr<Entity> const& entity,
       leftCornerPosition.setY(0);
    }
    if (collides[BOTTOM]) {
-      leftCornerPosition.setY(window_size.y() -
-                              static_cast<float>(cShape->rect.h));
+      leftCornerPosition.setY(window_size.y() - cShape->rect.h);
    }
    if (collides[LEFT]) {
       leftCornerPosition.setX(0);
    }
    if (collides[RIGHT]) {
-      leftCornerPosition.setX(window_size.x() -
-                              static_cast<float>(cShape->rect.w));
+      leftCornerPosition.setX(window_size.x() - cShape->rect.w);
    }
 }
 
