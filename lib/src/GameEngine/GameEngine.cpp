@@ -137,7 +137,7 @@ void GameEngine::LoadScene(std::string const& sceneName,
                            std::shared_ptr<Scene> const& scene) {
    m_scenes[sceneName] = scene;
 
-   scene->setStartTime(SDL_GetTicks());
+   scene->setStartTime(m_clock.nowMs());
    m_currentSceneName = sceneName;
 }
 

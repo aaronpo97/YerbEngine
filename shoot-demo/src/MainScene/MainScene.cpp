@@ -1,11 +1,11 @@
 #include <Configuration/AudioIds.hpp>
-#include <EntityTags.hpp>
 #include <filesystem>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
 
+#include <EntityTags.hpp>
 #include <Helpers/MainSceneCollisionHelpers.hpp>
 #include <Helpers/MovementHelpers.hpp>
 #include <MainScene/MainScene.hpp>
@@ -15,16 +15,10 @@
 
 using namespace YerbEngine;
 
-MainScene::MainScene(GameEngine* gameEngine)
-    : Scene(gameEngine),
-      m_spawner(m_randomGenerator, *([&]() -> DemoConfigAdapter* {
-                   static DemoConfigAdapter adapter(
-                       gameEngine->GetConfig(),
-                       gameEngine->GetConfigStore("demo"));
-                   return &adapter;
-                })(),
-                gameEngine->getTextureManager(), m_entities,
-                gameEngine->getVideoManager()) {
+MainScene::MainScene(DemoServices const& services)
+    : DemoScene(services),
+      m_spawner(m_randomGenerator, services.config, services.textures,
+                m_entities, services.video) {
    m_player = m_spawner.spawnPlayer();
    m_spawner.spawnWalls();
 
@@ -73,14 +67,14 @@ void MainScene::bindControls() {
    });
 
    bindPress("PAUSE", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::CRITICAL);
       m_paused = !m_paused;
    });
 
    bindPress("GO_BACK", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::CRITICAL);
       m_endTriggered = true;
    });
 }
@@ -112,8 +106,8 @@ void MainScene::shootAt(Vec2 const& target) {
       return;
    }
 
-   m_gameEngine->getAudioSampleBuffer().queueSample(DemoAudio::SAMPLE_SHOOT,
-                                                    PriorityLevel::STANDARD);
+   m_services.audio.queueSample(DemoAudio::SAMPLE_SHOOT,
+                                PriorityLevel::STANDARD);
    m_spawner.spawnBullets(m_player, target);
    m_lastBulletSpawnTime = currentTime;
 }
@@ -139,9 +133,9 @@ void MainScene::update() {
 }
 
 void MainScene::renderText() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontSm = m_gameEngine->getFontManager().getFontSm();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontSm = m_services.fonts.getFontSm();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
 
    constexpr SDL_Color plainTextColor = {255, 255, 255, 255};
 
@@ -187,20 +181,19 @@ void MainScene::renderText() const {
 }
 
 void MainScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
-   RenderSystem::renderEntities(m_entities, videoManager,
-                                m_gameEngine->getTextureManager());
+   RenderSystem::renderEntities(m_entities, videoManager, m_services.textures);
    renderText();
    RenderSystem::present(videoManager);
 }
 
 void MainScene::sCollision() {
    using namespace ShootDemo::CollisionHelpers::MainScene;
-   Vec2 const& windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   Vec2 const& windowSize = m_services.video.getWindowSize();
 
-   AudioSampleBuffer& audioSampleManager = m_gameEngine->getAudioSampleBuffer();
+   AudioSampleBuffer& audioSampleManager = m_services.audio;
    GameState const gameState = {
        .entityManager = m_entities,
        .randomGenerator = m_randomGenerator,
@@ -224,12 +217,12 @@ void MainScene::sCollision() {
 }
 
 void MainScene::sMovement() {
-   PlayerConfig const& playerConfig = m_spawner.m_config.getPlayerConfig();
-   EnemyConfig const& enemyConfig = m_spawner.m_config.getEnemyConfig();
+   PlayerConfig const& playerConfig = m_demo.config.getPlayerConfig();
+   EnemyConfig const& enemyConfig = m_demo.config.getEnemyConfig();
    SlownessEffectConfig const& slownessEffectConfig =
-       m_spawner.m_config.getSlownessEffectConfig();
+       m_demo.config.getSlownessEffectConfig();
    SpeedEffectConfig const& speedBoostEffectConfig =
-       m_spawner.m_config.getSpeedEffectConfig();
+       m_demo.config.getSpeedEffectConfig();
 
    for (std::shared_ptr<Entity> const& entity : m_entities.getEntities()) {
       MovementHelpers::moveSpeedBoosts(entity, speedBoostEffectConfig,
@@ -245,8 +238,7 @@ void MainScene::sMovement() {
 
 void MainScene::sSpawner() {
    Uint64 const ticks = SDL_GetTicks();
-   Uint64 const SPAWN_INTERVAL =
-       m_spawner.m_config.getGameConfig().spawnInterval;
+   Uint64 const SPAWN_INTERVAL = m_demo.config.getGameConfig().spawnInterval;
 
    if (ticks - m_lastNonPlayerEntitySpawnTime < SPAWN_INTERVAL) {
       return;
@@ -256,12 +248,12 @@ void MainScene::sSpawner() {
 
    std::mt19937& randomGenerator = m_randomGenerator;
 
-   EnemyConfig const& enemyCfg = m_spawner.m_config.getEnemyConfig();
+   EnemyConfig const& enemyCfg = m_demo.config.getEnemyConfig();
    SpeedEffectConfig const& speedEffectCfg =
-       m_spawner.m_config.getSpeedEffectConfig();
+       m_demo.config.getSpeedEffectConfig();
    SlownessEffectConfig const& slowEffectCfg =
-       m_spawner.m_config.getSlownessEffectConfig();
-   ItemConfig const& itemCfg = m_spawner.m_config.getItemConfig();
+       m_demo.config.getSlownessEffectConfig();
+   ItemConfig const& itemCfg = m_demo.config.getItemConfig();
 
    auto const& cEffects = m_player->getComponent<Components::CEffects>();
    bool const hasSpeedBasedEffect =
@@ -318,14 +310,7 @@ void MainScene::sEffects() const {
 }
 
 void MainScene::sTimer() {
-   Uint64 const currentTime = SDL_GetTicks();
-
-   // Check if the timer was recently operated by comparing the current time
-   // with the last frame time and the scene's start time.
-   bool const wasTimerRecentlyOperated =
-       currentTime - m_lastFrameTime < m_SceneStartTime;
-   Uint64 const elapsedTime =
-       !wasTimerRecentlyOperated ? 0 : currentTime - m_lastFrameTime;
+   auto const elapsedTime = static_cast<Uint64>(m_deltaTime * 1000.0f);
 
    if (m_timeRemaining < elapsedTime) {
       m_timeRemaining = 0;
@@ -352,14 +337,14 @@ void MainScene::sLifespan() {
       if (cLifespan == nullptr) {
          SDL_LogError(
              SDL_LOG_CATEGORY_ERROR,
-             "Entity with ID %zu and tag %d lacks a lifespan component.",
+             "Entity with ID %zu and tag %u lacks a lifespan component.",
              entity->id(), tag);
          continue;
       }
 
       if (cShape == nullptr) {
          SDL_LogError(SDL_LOG_CATEGORY_ERROR,
-                      "Entity with ID %zu and tag %d lacks a shape component.",
+                      "Entity with ID %zu and tag %u lacks a shape component.",
                       entity->id(), tag);
          continue;
       }
@@ -420,21 +405,21 @@ void MainScene::decrementLives() {
 
 void MainScene::onEnd() {
    if (!m_gameOver) {
-      m_gameEngine->LoadScene("Menu",
-                              std::make_shared<MenuScene>(m_gameEngine));
+      m_services.router.LoadScene("Menu", std::make_shared<MenuScene>(m_demo));
       return;
    }
-   m_gameEngine->LoadScene("ScoreScene",
-                           std::make_shared<ScoreScene>(m_gameEngine, m_score));
+   m_services.router.LoadScene("ScoreScene",
+                               std::make_shared<ScoreScene>(m_demo, m_score));
 }
 
 void MainScene::sAudio() {
-   AudioManager& audioManager = m_gameEngine->getAudioManager();
+   AudioManager& audioManager = m_services.mixer;
 
    if (audioManager.getCurrentAudioTrack() !=
        std::string(DemoAudio::TRACK_PLAY)) {
       audioManager.playTrack(DemoAudio::TRACK_PLAY, -1);
    }
+
    Scene::sAudio();
 }
 

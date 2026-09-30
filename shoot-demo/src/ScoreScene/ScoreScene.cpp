@@ -8,15 +8,15 @@
 
 using namespace YerbEngine;
 
-ScoreScene::ScoreScene(GameEngine* gameEngine, int const score)
-    : Scene(gameEngine), m_score(score) {
+ScoreScene::ScoreScene(DemoServices const& services, int const score)
+    : DemoScene(services), m_score(score) {
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_W, "UP");
    registerAction(SDLK_S, "DOWN");
 
    bindPress("SELECT", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::BACKGROUND);
       m_endTriggered = true;
    });
    bindPress("UP", [this](Action&) { moveSelection(-1); });
@@ -24,8 +24,8 @@ ScoreScene::ScoreScene(GameEngine* gameEngine, int const score)
 }
 
 void ScoreScene::moveSelection(int const delta) {
-   m_gameEngine->getAudioSampleBuffer().queueSample(DemoAudio::SAMPLE_MENU_MOVE,
-                                                    PriorityLevel::BACKGROUND);
+   m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
+                                PriorityLevel::BACKGROUND);
 
    constexpr int ITEM_COUNT = 2;
    m_selectedIndex = (m_selectedIndex + delta + ITEM_COUNT) % ITEM_COUNT;
@@ -42,16 +42,14 @@ void ScoreScene::update() {
 
 void ScoreScene::onEnd() {
    if (m_selectedIndex == 0) {
-      m_gameEngine->LoadScene("Main",
-                              std::make_shared<MainScene>(m_gameEngine));
+      m_services.router.LoadScene("Main", std::make_shared<MainScene>(m_demo));
    } else if (m_selectedIndex == 1) {
-      m_gameEngine->LoadScene("Menu",
-                              std::make_shared<MenuScene>(m_gameEngine));
+      m_services.router.LoadScene("Menu", std::make_shared<MenuScene>(m_demo));
    }
 }
 
 void ScoreScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
    renderText();
@@ -59,9 +57,9 @@ void ScoreScene::sRender() {
 }
 
 void ScoreScene::renderText() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontLg = m_gameEngine->getFontManager().getFontLg();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontLg = m_services.fonts.getFontLg();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
 
    constexpr SDL_Color gameOverColor = {255, 0, 0, 255};
    constexpr SDL_Color textColor = {255, 255, 255, 255};
@@ -84,8 +82,7 @@ void ScoreScene::renderText() const {
    TextHelpers::renderLineOfText(renderer, fontMd, scoreText, textColor,
                                  scorePos);
 
-   float const bottomOfScreen =
-       m_gameEngine->getVideoManager().getWindowSize().y();
+   float const bottomOfScreen = m_services.video.getWindowSize().y();
 
    std::string const playAgainText = "Play Again";
    Vec2 const playAgainPos{100, bottomOfScreen - 200};
@@ -103,10 +100,11 @@ void ScoreScene::renderText() const {
 }
 
 void ScoreScene::sAudio() {
-   AudioManager& audioManager = m_gameEngine->getAudioManager();
+   AudioManager& audioManager = m_services.mixer;
    if (audioManager.getCurrentAudioTrack() !=
        std::string(DemoAudio::TRACK_MAIN_MENU)) {
-      m_gameEngine->getAudioManager().playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
+      audioManager.playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
    }
+
    Scene::sAudio();
 }

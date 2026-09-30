@@ -5,6 +5,7 @@
 #include <ResultScene/ResultScene.hpp>
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 using namespace YerbEngine;
 
@@ -22,7 +23,7 @@ void clampPaddleToCourt(std::shared_ptr<Entity> const& paddle,
    auto const& cShape = paddle->getComponent<Components::CShape>();
 
    Vec2& position = cTransform->topLeftCornerPos;
-   auto const paddleHeight = static_cast<float>(cShape->rect.h);
+   auto const paddleHeight = cShape->rect.h;
    float const lowestY = windowSize.y() - paddleHeight;
 
    position.setY(std::clamp(position.y(), 0.0f, lowestY));
@@ -49,13 +50,11 @@ void movePaddle(std::shared_ptr<Entity> const& paddle, float const speed,
 }
 }  // namespace
 
-MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
-    : Scene(gameEngine),
-      m_config(gameEngine->GetConfig(), gameEngine->GetConfigStore("demo")),
-      m_mode(mode) {
+MatchScene::MatchScene(PongServices const& services, MatchMode const mode)
+    : PongScene(services), m_mode(mode) {
    spawnPaddles();
    spawnBall();
-   m_courtSize = m_gameEngine->getVideoManager().getWindowSize();
+   m_courtSize = m_services.video.getWindowSize();
 
    std::uniform_int_distribution<int> coinFlip(0, 1);
    serveBall(coinFlip(m_randomGenerator) == 0 ? -1 : 1);
@@ -72,8 +71,8 @@ MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
    bindPaddleControls();
 
    bindPress("PAUSE", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_services.audio.queueSample(PongAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::CRITICAL);
       m_paused = !m_paused;
 
       if (!m_paused) {
@@ -82,10 +81,16 @@ MatchScene::MatchScene(GameEngine* gameEngine, MatchMode const mode)
    });
 
    bindPress("GO_BACK", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::CRITICAL);
+      m_services.audio.queueSample(PongAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::CRITICAL);
       m_endTriggered = true;
    });
+}
+
+void MatchScene::setPaddleDirection(
+    std::shared_ptr<Entity> const& paddle,
+    Components::CInput::Directions const direction, bool const pressed) {
+   paddle->getComponent<Components::CInput>()->directions[direction] = pressed;
 }
 
 void MatchScene::bindPaddleControls() {
@@ -110,20 +115,13 @@ void MatchScene::bindPaddleControls() {
    });
 }
 
-void MatchScene::setPaddleDirection(
-    std::shared_ptr<Entity> const& paddle,
-    Components::CInput::Directions const direction, bool const pressed) {
-   paddle->getComponent<Components::CInput>()->directions[direction] = pressed;
-}
-
 float MatchScene::courtScale() const {
-   return m_gameEngine->getVideoManager().getWindowSize().y() /
-          REFERENCE_COURT_HEIGHT;
+   return m_services.video.getWindowSize().y() / REFERENCE_COURT_HEIGHT;
 }
 
 void MatchScene::spawnPaddles() {
-   PaddleConfig const paddleConfig = m_config.getPaddleConfig();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   PaddleConfig const paddleConfig = m_pong.config.getPaddleConfig();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    float const scale = courtScale();
    float const paddleWidth = paddleConfig.shape.width * scale;
@@ -133,8 +131,8 @@ void MatchScene::spawnPaddles() {
       SDL_FRect const paddleRect{
           .x = 0,
           .y = 0,
-          .w = static_cast<float>(paddleWidth),
-          .h = static_cast<float>(paddleHeight),
+          .w = paddleWidth,
+          .h = paddleHeight,
       };
 
       Vec2 const position{x, (windowSize.y() - paddleHeight) / 2.0f};
@@ -159,14 +157,14 @@ void MatchScene::spawnPaddles() {
 }
 
 void MatchScene::spawnBall() {
-   BallConfig const ballConfig = m_config.getBallConfig();
+   BallConfig const ballConfig = m_pong.config.getBallConfig();
    float const scale = courtScale();
 
    SDL_FRect const ballRect{
        .x = 0,
        .y = 0,
-       .w = static_cast<float>(ballConfig.shape.width * scale),
-       .h = static_cast<float>(ballConfig.shape.height * scale),
+       .w = ballConfig.shape.width * scale,
+       .h = ballConfig.shape.height * scale,
    };
 
    constexpr Vec2 position{0, 0};
@@ -182,16 +180,15 @@ void MatchScene::spawnBall() {
 }
 
 void MatchScene::serveBall(int const direction) {
-   BallConfig const ballConfig = m_config.getBallConfig();
-   MatchConfig const matchConfig = m_config.getMatchConfig();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   BallConfig const ballConfig = m_pong.config.getBallConfig();
+   MatchConfig const matchConfig = m_pong.config.getMatchConfig();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    auto const& cTransform = m_ball->getComponent<Components::CTransform>();
    auto const& cShape = m_ball->getComponent<Components::CShape>();
 
    cTransform->topLeftCornerPos =
-       windowSize / 2 - Vec2{static_cast<float>(cShape->rect.w) / 2.0f,
-                             static_cast<float>(cShape->rect.h) / 2.0f};
+       windowSize / 2 - Vec2{cShape->rect.w / 2.0f, cShape->rect.h / 2.0f};
 
    std::uniform_real_distribution<float> angleDistribution(
        -ballConfig.maxBounceAngle / 2.0f, ballConfig.maxBounceAngle / 2.0f);
@@ -227,8 +224,8 @@ void MatchScene::sOpponent() {
       return;
    }
 
-   OpponentConfig const opponentConfig = m_config.getOpponentConfig();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   OpponentConfig const opponentConfig = m_pong.config.getOpponentConfig();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    auto const& cInput = m_rightPaddle->getComponent<Components::CInput>();
    cInput->directions.reset();
@@ -260,9 +257,9 @@ void MatchScene::sOpponent() {
 }
 
 void MatchScene::sMovement() {
-   PaddleConfig const paddleConfig = m_config.getPaddleConfig();
-   OpponentConfig const opponentConfig = m_config.getOpponentConfig();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   PaddleConfig const paddleConfig = m_pong.config.getPaddleConfig();
+   OpponentConfig const opponentConfig = m_pong.config.getOpponentConfig();
+   Vec2 const windowSize = m_services.video.getWindowSize();
    float const scale = courtScale();
 
    movePaddle(m_leftPaddle, paddleConfig.speed * scale, m_deltaTime,
@@ -284,16 +281,16 @@ void MatchScene::sMovement() {
 }
 
 void MatchScene::sCollision() {
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
-   AudioSampleBuffer& audioSampleBuffer = m_gameEngine->getAudioSampleBuffer();
+   Vec2 const windowSize = m_services.video.getWindowSize();
+   AudioSampleBuffer& audioSampleBuffer = m_services.audio;
 
    auto const& cTransform = m_ball->getComponent<Components::CTransform>();
    auto const& cShape = m_ball->getComponent<Components::CShape>();
 
    Vec2& position = cTransform->topLeftCornerPos;
    Vec2& velocity = cTransform->velocity;
-   auto const ballWidth = static_cast<float>(cShape->rect.w);
-   auto const ballHeight = static_cast<float>(cShape->rect.h);
+   auto const ballWidth = cShape->rect.w;
+   auto const ballHeight = cShape->rect.h;
 
    bool const hitTop = position.y() <= 0 && velocity.y() < 0;
    bool const hitBottom =
@@ -332,15 +329,14 @@ void MatchScene::sCollision() {
 
 void MatchScene::bounceOffPaddle(std::shared_ptr<Entity> const& paddle,
                                  bool const isLeftPaddle) {
-   BallConfig const ballConfig = m_config.getBallConfig();
+   BallConfig const ballConfig = m_pong.config.getBallConfig();
 
    auto const& ballTransform = m_ball->getComponent<Components::CTransform>();
    auto const& ballShape = m_ball->getComponent<Components::CShape>();
    auto const& paddleShape = paddle->getComponent<Components::CShape>();
    auto const& paddleTransform = paddle->getComponent<Components::CTransform>();
 
-   float const paddleHalfHeight =
-       static_cast<float>(paddleShape->rect.h) / 2.0f;
+   float const paddleHalfHeight = paddleShape->rect.h / 2.0f;
    float const hitOffset =
        std::clamp((m_ball->getCenterPos().y() - paddle->getCenterPos().y()) /
                       paddleHalfHeight,
@@ -356,16 +352,15 @@ void MatchScene::bounceOffPaddle(std::shared_ptr<Entity> const& paddle,
 
    Vec2 const& paddlePosition = paddleTransform->topLeftCornerPos;
    ballTransform->topLeftCornerPos.setX(
-       isLeftPaddle
-           ? paddlePosition.x() + static_cast<float>(paddleShape->rect.w)
-           : paddlePosition.x() - static_cast<float>(ballShape->rect.w));
+       isLeftPaddle ? paddlePosition.x() + paddleShape->rect.w
+                    : paddlePosition.x() - ballShape->rect.w);
 
-   m_gameEngine->getAudioSampleBuffer().queueSample(
-       PongAudio::SAMPLE_PADDLE_HIT, PriorityLevel::IMPORTANT);
+   m_services.audio.queueSample(PongAudio::SAMPLE_PADDLE_HIT,
+                                PriorityLevel::IMPORTANT);
 }
 
 void MatchScene::scorePoint(bool const leftPlayerScored) {
-   MatchConfig const matchConfig = m_config.getMatchConfig();
+   MatchConfig const matchConfig = m_pong.config.getMatchConfig();
 
    if (leftPlayerScored) {
       m_leftScore += 1;
@@ -373,8 +368,8 @@ void MatchScene::scorePoint(bool const leftPlayerScored) {
       m_rightScore += 1;
    }
 
-   m_gameEngine->getAudioSampleBuffer().queueSample(PongAudio::SAMPLE_SCORE,
-                                                    PriorityLevel::CRITICAL);
+   m_services.audio.queueSample(PongAudio::SAMPLE_SCORE,
+                                PriorityLevel::CRITICAL);
 
    if (std::max(m_leftScore, m_rightScore) >= matchConfig.pointsToWin) {
       m_matchOver = true;
@@ -386,8 +381,8 @@ void MatchScene::scorePoint(bool const leftPlayerScored) {
 }
 
 void MatchScene::renderCourt() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    float const scale = courtScale();
    float const SEGMENT_HEIGHT = 22.0f * scale;
@@ -402,19 +397,19 @@ void MatchScene::renderCourt() const {
    for (float y = SEGMENT_GAP; y < windowSize.y();
         y += SEGMENT_HEIGHT + SEGMENT_GAP) {
       SDL_FRect const segment{
-          .x = static_cast<float>(centerX),
-          .y = static_cast<float>(y),
-          .w = static_cast<float>(SEGMENT_WIDTH),
-          .h = static_cast<float>(SEGMENT_HEIGHT),
+          .x = centerX,
+          .y = y,
+          .w = SEGMENT_WIDTH,
+          .h = SEGMENT_HEIGHT,
       };
       SDL_RenderFillRect(renderer, &segment);
    }
 }
 
 void MatchScene::renderScores() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontLg = m_gameEngine->getFontManager().getFontLg();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontLg = m_services.fonts.getFontLg();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    float const SCORE_Y = 30.0f * courtScale();
 
@@ -428,10 +423,10 @@ void MatchScene::renderScores() const {
 }
 
 void MatchScene::renderBanner() {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
-   TTF_Font* fontSm = m_gameEngine->getFontManager().getFontSm();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
+   TTF_Font* fontSm = m_services.fonts.getFontSm();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    if (m_paused) {
       TextHelpers::renderLineOfText(
@@ -447,7 +442,7 @@ void MatchScene::renderBanner() {
           TextHelpers::TextAlign::Center);
    }
 
-   MatchConfig const matchConfig = m_config.getMatchConfig();
+   MatchConfig const matchConfig = m_pong.config.getMatchConfig();
    std::string const footerText = "First to " +
                                   std::to_string(matchConfig.pointsToWin) +
                                   "   |   P to pause, Backspace for menu";
@@ -459,28 +454,27 @@ void MatchScene::renderBanner() {
 }
 
 void MatchScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
    renderCourt();
-   RenderSystem::renderEntities(m_entities, videoManager,
-                                m_gameEngine->getTextureManager());
+   RenderSystem::renderEntities(m_entities, videoManager, m_services.textures);
    renderScores();
    renderBanner();
    RenderSystem::present(videoManager);
 }
 
 void MatchScene::onSceneWindowResize() {
-   PaddleConfig const paddleConfig = m_config.getPaddleConfig();
-   BallConfig const ballConfig = m_config.getBallConfig();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   PaddleConfig const paddleConfig = m_pong.config.getPaddleConfig();
+   BallConfig const ballConfig = m_pong.config.getBallConfig();
+   Vec2 const windowSize = m_services.video.getWindowSize();
    float const scale = courtScale();
 
    auto const resizeEntity = [](std::shared_ptr<Entity> const& entity,
                                 float const width, float const height) {
       SDL_FRect& rect = entity->getComponent<Components::CShape>()->rect;
-      rect.w = static_cast<float>(width);
-      rect.h = static_cast<float>(height);
+      rect.w = width;
+      rect.h = height;
    };
 
    bool const hasPreviousCourt = m_courtSize.y() > 0;
@@ -527,12 +521,11 @@ void MatchScene::onSceneWindowResize() {
 
 void MatchScene::onEnd() {
    if (!m_matchOver) {
-      m_gameEngine->LoadScene("Menu",
-                              std::make_shared<MenuScene>(m_gameEngine));
+      m_services.router.LoadScene("Menu", std::make_shared<MenuScene>(m_pong));
       return;
    }
 
-   m_gameEngine->LoadScene(
-       "Result", std::make_shared<ResultScene>(m_gameEngine, m_mode,
-                                               m_leftScore, m_rightScore));
+   m_services.router.LoadScene(
+       "Result", std::make_shared<ResultScene>(m_pong, m_mode, m_leftScore,
+                                               m_rightScore));
 }

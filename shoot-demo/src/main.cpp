@@ -1,6 +1,7 @@
 #include <SDL3/SDL_main.h>
 
 #include <Configuration/ConfigStore.hpp>
+#include <DemoServices.hpp>
 #include <MenuScene/MenuScene.hpp>
 #include <YerbEngine.hpp>
 
@@ -21,15 +22,15 @@ int main(int argc, char** argv) {
    std::filesystem::path const assetsDir = "assets";
    std::filesystem::path const configDir = "config";
 
-   YerbEngine::AudioManifest const audio =
-       YerbEngine::loadAudioManifest(configDir / "audio.json", assetsDir);
+   AudioManifest const audio =
+       loadAudioManifest(configDir / "audio.json", assetsDir);
 
    auto const engine =
        std::make_unique<GameEngine>(assetsDir, configDir, audio.options);
 
    std::filesystem::path const demoConfigPath = configDir / "config.json";
    if (std::filesystem::exists(demoConfigPath)) {
-      auto demoConfig = YerbEngine::ConfigStore::fromJsonFile(demoConfigPath);
+      auto demoConfig = ConfigStore::fromJsonFile(demoConfigPath);
       engine->AddConfig("demo", std::move(demoConfig));
    } else {
       SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM,
@@ -37,12 +38,27 @@ int main(int argc, char** argv) {
                   demoConfigPath.string().c_str());
    }
 
-   // Register demo scenes
-   std::shared_ptr<Scene> const menuScene =
-       std::make_shared<MenuScene>(engine.get());
-   engine->LoadScene("Menu", menuScene);
+   DemoConfigAdapter demoConfig{engine->GetConfig(),
+                                engine->GetConfigStore("demo")};
+
+   SdlClock const clock;
+
+   /*
+    * Outlives the scenes by construction: the engine owns the scenes, and
+    * every scene holds a reference to this bundle.
+    */
+   DemoServices const services{{.video = engine->getVideoManager(),
+                                .fonts = engine->getFontManager(),
+                                .textures = engine->getTextureManager(),
+                                .audio = engine->getAudioSampleBuffer(),
+                                .mixer = engine->getAudioManager(),
+                                .clock = clock,
+                                .router = *engine},
+                               demoConfig};
 
    engine->getAudioSampleBuffer().setCooldowns(audio.sampleCooldowns);
+
+   engine->LoadScene("Menu", std::make_shared<MenuScene>(services));
 
    engine->run();
 

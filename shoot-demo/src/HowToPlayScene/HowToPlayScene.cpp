@@ -6,13 +6,14 @@
 #include <YerbEngine.hpp>
 using namespace YerbEngine;
 
-HowToPlayScene::HowToPlayScene(GameEngine* gameEngine) : Scene(gameEngine) {
+HowToPlayScene::HowToPlayScene(DemoServices const& services)
+    : DemoScene(services) {
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
 
    auto const leave = [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::BACKGROUND);
       m_endTriggered = true;
    };
 
@@ -30,11 +31,11 @@ void HowToPlayScene::update() {
 }
 
 void HowToPlayScene::onEnd() {
-   m_gameEngine->LoadScene("Menu", std::make_shared<MenuScene>(m_gameEngine));
+   m_services.router.LoadScene("Menu", std::make_shared<MenuScene>(m_demo));
 }
 
 void HowToPlayScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
    renderText();
@@ -42,10 +43,10 @@ void HowToPlayScene::sRender() {
 }
 
 void HowToPlayScene::renderText() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontSm = m_gameEngine->getFontManager().getFontSm();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
-   TTF_Font* fontLg = m_gameEngine->getFontManager().getFontLg();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontSm = m_services.fonts.getFontSm();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
+   TTF_Font* fontLg = m_services.fonts.getFontLg();
    constexpr SDL_Color textColor = {.r = 255, .g = 255, .b = 255, .a = 255};
 
    bool const fontsLoaded =
@@ -145,17 +146,18 @@ void HowToPlayScene::renderText() const {
 
    // How to exit text
    std::string const exitText = "Press Backspace to go back to the main menu.";
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   Vec2 const windowSize = m_services.video.getWindowSize();
    Vec2 const exitPos{100, windowSize.y() - 50};
    TextHelpers::renderLineOfText(renderer, fontSm, exitText, textColor,
                                  exitPos);
 }
 
 void HowToPlayScene::sAudio() {
-   AudioManager& audioManager = m_gameEngine->getAudioManager();
+   AudioManager& audioManager = m_services.mixer;
    if (audioManager.getCurrentAudioTrack() !=
        std::string(DemoAudio::TRACK_MAIN_MENU)) {
       audioManager.playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
    }
+
    Scene::sAudio();
 }

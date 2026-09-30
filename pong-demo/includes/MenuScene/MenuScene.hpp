@@ -2,17 +2,17 @@
 
 #include <SDL3/SDL.h>
 
+#include <PongScene.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 
-class MenuScene final : public Scene {
+class MenuScene final : public PongScene {
    int m_selectedIndex = 0;
 
    void renderText() const;
    void moveSelection(int delta);
 
   public:
-   explicit MenuScene(GameEngine* gameEngine);
+   explicit MenuScene(PongServices const& services);
 
    void update() override;
    void onEnd() override;

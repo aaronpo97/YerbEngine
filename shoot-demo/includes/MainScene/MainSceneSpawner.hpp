@@ -8,13 +8,12 @@ class MainSceneSpawner {
    using Vec2 = YerbEngine::Vec2;
 
    std::mt19937& m_randomGenerator;
-
-  public:
    DemoConfigAdapter& m_config;
    YerbEngine::VideoManager& m_videoManager;
    YerbEngine::TextureManager& m_textureManager;
    YerbEngine::EntityManager& m_entityManager;
 
+  public:
    MainSceneSpawner(std::mt19937& randomGenerator, DemoConfigAdapter& config,
                     YerbEngine::TextureManager& textureManager,
                     YerbEngine::EntityManager& entityManager,

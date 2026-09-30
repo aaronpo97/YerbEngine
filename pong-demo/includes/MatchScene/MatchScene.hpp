@@ -3,13 +3,15 @@
 #include <SDL3/SDL.h>
 
 #include <Configuration/PongConfigAdapter.hpp>
+#include <PongScene.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 
 enum class MatchMode { SinglePlayer, TwoPlayer };
 
-class MatchScene final : public Scene {
-   PongConfigAdapter m_config;
+class MatchScene final : public PongScene {
+   using Entity = YerbEngine::Entity;
+   using Vec2 = YerbEngine::Vec2;
+
    MatchMode m_mode;
 
    std::shared_ptr<Entity> m_leftPaddle;
@@ -32,7 +34,7 @@ class MatchScene final : public Scene {
    void serveBall(int direction);
    void bindPaddleControls();
    void setPaddleDirection(std::shared_ptr<Entity> const& paddle,
-                           Components::CInput::Directions direction,
+                           YerbEngine::Components::CInput::Directions direction,
                            bool pressed);
    void bounceOffPaddle(std::shared_ptr<Entity> const& paddle,
                         bool isLeftPaddle);
@@ -43,7 +45,7 @@ class MatchScene final : public Scene {
    void renderBanner();
 
   public:
-   MatchScene(GameEngine* gameEngine, MatchMode mode);
+   MatchScene(PongServices const& services, MatchMode mode);
 
    void update() override;
    void onEnd() override;

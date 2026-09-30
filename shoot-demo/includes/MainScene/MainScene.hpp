@@ -2,12 +2,14 @@
 
 #include <SDL3/SDL.h>
 
+#include <DemoScene.hpp>
 #include <MainScene/MainSceneSpawner.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 
-class MainScene final : public Scene {
-  private:
+class MainScene final : public DemoScene {
+   using Entity = YerbEngine::Entity;
+   using Vec2 = YerbEngine::Vec2;
+
    Uint64 m_lastNonPlayerEntitySpawnTime = 0;
    int m_score = 0;
    int m_lives = 5;
@@ -20,12 +22,12 @@ class MainScene final : public Scene {
 
    void renderText() const;
    void bindControls();
-   void setPlayerDirection(Components::CInput::Directions direction,
+   void setPlayerDirection(YerbEngine::Components::CInput::Directions direction,
                            bool pressed);
    void shootAt(Vec2 const& target);
 
   public:
-   explicit MainScene(GameEngine* gameEngine);
+   explicit MainScene(DemoServices const& services);
 
    void onSceneWindowResize() override;
 
