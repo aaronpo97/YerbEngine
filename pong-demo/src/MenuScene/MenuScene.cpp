@@ -23,7 +23,7 @@ constexpr SDL_Color SELECTED_COLOR = {.r = 120, .g = 255, .b = 140, .a = 255};
 constexpr SDL_Color HINT_COLOR = {.r = 120, .g = 120, .b = 120, .a = 255};
 }  // namespace
 
-MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
+MenuScene::MenuScene(PongServices const& services) : PongScene(services) {
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_W, "UP");
    registerAction(SDLK_S, "DOWN");
@@ -31,8 +31,8 @@ MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
    registerAction(SDLK_DOWN, "DOWN");
 
    bindPress("SELECT", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_services.audio.queueSample(PongAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::BACKGROUND);
       m_endTriggered = true;
    });
    bindPress("UP", [this](Action&) { moveSelection(-1); });
@@ -40,11 +40,11 @@ MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
 }
 
 void MenuScene::moveSelection(int const delta) {
-   m_gameEngine->getAudioSampleBuffer().queueSample(PongAudio::SAMPLE_MENU_MOVE,
-                                                    PriorityLevel::BACKGROUND);
+   m_services.audio.queueSample(PongAudio::SAMPLE_MENU_MOVE,
+                                PriorityLevel::BACKGROUND);
 
-   constexpr int ITEM_COUNT = static_cast<int>(MENU_ITEMS.size());
-   m_selectedIndex = (m_selectedIndex + delta + ITEM_COUNT) % ITEM_COUNT;
+   auto const itemCount = static_cast<int>(MENU_ITEMS.size());
+   m_selectedIndex = (m_selectedIndex + delta + itemCount) % itemCount;
 }
 
 void MenuScene::update() {
@@ -59,32 +59,32 @@ void MenuScene::update() {
 void MenuScene::onEnd() {
    switch (m_selectedIndex) {
       case 0:
-         m_gameEngine->LoadScene(
-             "Match", std::make_shared<MatchScene>(m_gameEngine,
-                                                   MatchMode::SinglePlayer));
+         m_services.router.LoadScene(
+             "Match",
+             std::make_shared<MatchScene>(m_pong, MatchMode::SinglePlayer));
          break;
       case 1:
-         m_gameEngine->LoadScene(
+         m_services.router.LoadScene(
              "Match",
-             std::make_shared<MatchScene>(m_gameEngine, MatchMode::TwoPlayer));
+             std::make_shared<MatchScene>(m_pong, MatchMode::TwoPlayer));
          break;
       case 2:
-         m_gameEngine->LoadScene(
-             "HowToPlay", std::make_shared<HowToPlayScene>(m_gameEngine));
+         m_services.router.LoadScene("HowToPlay",
+                                     std::make_shared<HowToPlayScene>(m_pong));
          break;
       case 3:
-         m_gameEngine->quit();
+         m_services.router.quit();
          break;
       default:;
    }
 }
 
 void MenuScene::renderText() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontLg = m_gameEngine->getFontManager().getFontLg();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
-   TTF_Font* fontSm = m_gameEngine->getFontManager().getFontSm();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontLg = m_services.fonts.getFontLg();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
+   TTF_Font* fontSm = m_services.fonts.getFontSm();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    if (fontLg == nullptr || fontMd == nullptr || fontSm == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -118,7 +118,7 @@ void MenuScene::renderText() const {
 }
 
 void MenuScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
    renderText();

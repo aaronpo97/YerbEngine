@@ -2,14 +2,14 @@
 
 #include <SDL3/SDL.h>
 
+#include <PongScene.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 
-class HowToPlayScene final : public Scene {
+class HowToPlayScene final : public PongScene {
    void renderText() const;
 
   public:
-   explicit HowToPlayScene(GameEngine* gameEngine);
+   explicit HowToPlayScene(PongServices const& services);
 
    void update() override;
    void onEnd() override;

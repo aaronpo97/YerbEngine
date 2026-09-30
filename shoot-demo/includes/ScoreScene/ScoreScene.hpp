@@ -1,10 +1,9 @@
 #pragma once
 
+#include <DemoScene.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 
-class ScoreScene final : public Scene {
-  private:
+class ScoreScene final : public DemoScene {
    unsigned int m_score;
    int m_selectedIndex = 0;
 
@@ -12,7 +11,7 @@ class ScoreScene final : public Scene {
    void moveSelection(int delta);
 
   public:
-   ScoreScene(GameEngine* gameEngine, int score);
+   ScoreScene(DemoServices const& services, int score);
 
    void update() override;
    void onEnd() override;

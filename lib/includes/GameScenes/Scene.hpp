@@ -3,7 +3,7 @@
 
 #include <EntityManagement/EntityManager.hpp>
 #include <GameEngine/Action.hpp>
-#include <GameEngine/GameEngine.hpp>
+#include <GameScenes/SceneServices.hpp>
 #include <functional>
 #include <map>
 #include <random>
@@ -16,7 +16,8 @@ typedef std::map<int, std::string> ActionMap;
 
 class Scene {
   protected:
-   GameEngine* m_gameEngine;
+   /** The engine collaborators this scene was lent. */
+   SceneServices const& m_services;
 
    EntityManager m_entities;
    std::mt19937 m_randomGenerator{std::random_device{}()};
@@ -42,8 +43,8 @@ class Scene {
   public:
    static constexpr float MAX_FRAME_DELTA = 0.05f;
 
-   explicit Scene(GameEngine* gameEngine)
-       : m_gameEngine(gameEngine), m_lastFrameTime(SDL_GetTicks()) {}
+   explicit Scene(SceneServices const& services)
+       : m_services(services), m_lastFrameTime(services.clock.nowMs()) {}
 
    virtual ~Scene() = default;
    virtual void update() = 0;

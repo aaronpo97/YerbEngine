@@ -22,13 +22,14 @@ constexpr SDL_Color TEXT_COLOR = {.r = 235, .g = 235, .b = 235, .a = 255};
 constexpr SDL_Color HINT_COLOR = {.r = 120, .g = 120, .b = 120, .a = 255};
 }  // namespace
 
-HowToPlayScene::HowToPlayScene(GameEngine* gameEngine) : Scene(gameEngine) {
+HowToPlayScene::HowToPlayScene(PongServices const& services)
+    : PongScene(services) {
    registerAction(SDLK_RETURN, "GO_BACK");
    registerAction(SDLK_BACKSPACE, "GO_BACK");
 
    bindPress("GO_BACK", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          PongAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_services.audio.queueSample(PongAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::BACKGROUND);
       m_endTriggered = true;
    });
 }
@@ -43,14 +44,14 @@ void HowToPlayScene::update() {
 }
 
 void HowToPlayScene::onEnd() {
-   m_gameEngine->LoadScene("Menu", std::make_shared<MenuScene>(m_gameEngine));
+   m_services.router.LoadScene("Menu", std::make_shared<MenuScene>(m_pong));
 }
 
 void HowToPlayScene::renderText() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
-   TTF_Font* fontSm = m_gameEngine->getFontManager().getFontSm();
-   Vec2 const windowSize = m_gameEngine->getVideoManager().getWindowSize();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
+   TTF_Font* fontSm = m_services.fonts.getFontSm();
+   Vec2 const windowSize = m_services.video.getWindowSize();
 
    if (fontMd == nullptr || fontSm == nullptr) {
       SDL_LogError(SDL_LOG_CATEGORY_ERROR,
@@ -80,7 +81,7 @@ void HowToPlayScene::renderText() const {
 }
 
 void HowToPlayScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
    renderText();

@@ -4,14 +4,14 @@
 namespace YerbEngine {
 
 void Scene::tick() {
-   Uint64 const currentTime = SDL_GetTicks();
+   Uint64 const currentTime = m_services.clock.nowMs();
    m_deltaTime =
        std::min(static_cast<float>(currentTime - m_lastFrameTime) / 1000.0f,
                 MAX_FRAME_DELTA);
    m_lastFrameTime = currentTime;
 }
 
-void Scene::sAudio() { m_gameEngine->getAudioSampleBuffer().update(); }
+void Scene::sAudio() { m_services.audio.update(); }
 
 void Scene::sDoAction(Action& action) {
    auto const handler = m_actionHandlers.find(action.getName());

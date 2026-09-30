@@ -17,14 +17,14 @@ constexpr int MENU_ITEM_COUNT = 3;
 #endif
 }  // namespace
 
-MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
+MenuScene::MenuScene(DemoServices const& services) : DemoScene(services) {
    registerAction(SDLK_RETURN, "SELECT");
    registerAction(SDLK_W, "UP");
    registerAction(SDLK_S, "DOWN");
 
    bindPress("SELECT", [this](Action&) {
-      m_gameEngine->getAudioSampleBuffer().queueSample(
-          DemoAudio::SAMPLE_MENU_SELECT, PriorityLevel::BACKGROUND);
+      m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_SELECT,
+                                   PriorityLevel::BACKGROUND);
       m_endTriggered = true;
    });
    bindPress("UP", [this](Action&) { moveSelection(-1); });
@@ -32,8 +32,8 @@ MenuScene::MenuScene(GameEngine* gameEngine) : Scene(gameEngine) {
 }
 
 void MenuScene::moveSelection(int const delta) {
-   m_gameEngine->getAudioSampleBuffer().queueSample(DemoAudio::SAMPLE_MENU_MOVE,
-                                                    PriorityLevel::BACKGROUND);
+   m_services.audio.queueSample(DemoAudio::SAMPLE_MENU_MOVE,
+                                PriorityLevel::BACKGROUND);
 
    m_selectedIndex =
        (m_selectedIndex + delta + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
@@ -51,22 +51,22 @@ void MenuScene::update() {
 void MenuScene::onEnd() {
    switch (m_selectedIndex) {
       case 0:
-         m_gameEngine->LoadScene("Main",
-                                 std::make_shared<MainScene>(m_gameEngine));
+         m_services.router.LoadScene("Main",
+                                     std::make_shared<MainScene>(m_demo));
          break;
       case 1:
-         m_gameEngine->LoadScene(
-             "HowToPlay", std::make_shared<HowToPlayScene>(m_gameEngine));
+         m_services.router.LoadScene("HowToPlay",
+                                     std::make_shared<HowToPlayScene>(m_demo));
          break;
       case 2:
-         m_gameEngine->quit();
+         m_services.router.quit();
          break;
       default:;
    }
 }
 
 void MenuScene::sRender() {
-   VideoManager& videoManager = m_gameEngine->getVideoManager();
+   VideoManager& videoManager = m_services.video;
 
    RenderSystem::clear(videoManager);
    renderText();
@@ -74,10 +74,10 @@ void MenuScene::sRender() {
 }
 
 void MenuScene::renderText() const {
-   SDL_Renderer* renderer = m_gameEngine->getVideoManager().getRenderer();
-   TTF_Font* fontLg = m_gameEngine->getFontManager().getFontLg();
-   TTF_Font* fontMd = m_gameEngine->getFontManager().getFontMd();
-   TTF_Font* fontSm = m_gameEngine->getFontManager().getFontSm();
+   SDL_Renderer* renderer = m_services.video.getRenderer();
+   TTF_Font* fontLg = m_services.fonts.getFontLg();
+   TTF_Font* fontMd = m_services.fonts.getFontMd();
+   TTF_Font* fontSm = m_services.fonts.getFontSm();
    SDL_Color textColor = {255, 255, 255, 255};
    SDL_Color selectedColor = {0, 255, 0, 255};
 
@@ -87,8 +87,7 @@ void MenuScene::renderText() const {
       return;
    }
 
-   std::string const titleText =
-       m_gameEngine->GetConfig().getGameConfig().windowTitle;
+   std::string const titleText = m_demo.config.getGameConfig().windowTitle;
    Vec2 const titlePos{100, 100};
    TextHelpers::renderLineOfText(renderer, fontLg, titleText, textColor,
                                  titlePos);
@@ -116,21 +115,21 @@ void MenuScene::renderText() const {
 
    const std::string controlsText = "W/S to move up/down, Enter to select";
    // bottom right corner
-   Vec2 const controlsPos{
-       100, m_gameEngine->getVideoManager().getWindowSize().y() - 50};
+   Vec2 const controlsPos{100, m_services.video.getWindowSize().y() - 50};
    TextHelpers::renderLineOfText(renderer, fontSm, controlsText, textColor,
                                  controlsPos);
 }
 
 void MenuScene::sAudio() {
-   AudioManager& audioManager = m_gameEngine->getAudioManager();
+   AudioManager& audioManager = m_services.mixer;
 
    // TEMPORARY FOR NOW
    audioManager.muteTracks();
 
    if (audioManager.getCurrentAudioTrack() !=
        std::string(DemoAudio::TRACK_MAIN_MENU)) {
-      m_gameEngine->getAudioManager().playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
+      audioManager.playTrack(DemoAudio::TRACK_MAIN_MENU, -1);
    }
+
    Scene::sAudio();
 }

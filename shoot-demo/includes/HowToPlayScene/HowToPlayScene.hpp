@@ -1,13 +1,12 @@
 #pragma once
+#include <DemoScene.hpp>
 #include <YerbEngine.hpp>
-using namespace YerbEngine;
 
-class HowToPlayScene final : public Scene {
-  private:
+class HowToPlayScene final : public DemoScene {
    void renderText() const;
 
   public:
-   explicit HowToPlayScene(GameEngine* gameEngine);
+   explicit HowToPlayScene(DemoServices const& services);
 
    void update() override;
    void onEnd() override;
