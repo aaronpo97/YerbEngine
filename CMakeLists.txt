@@ -4,6 +4,11 @@ project(YerbEngine VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(YERB_BUILD_DEMOS "Build the games that ship with the engine" ON)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(YerbAddGame)
+
 # Enable testing
 enable_testing()
 
@@ -117,21 +122,6 @@ else()
         SDL3_mixer::SDL3_mixer
     )
 
-    set(OUT_DIR "${CMAKE_BINARY_DIR}")
-
-    if(NOT TARGET copy_assets_runtime)
-        add_custom_target(copy_assets_runtime ALL
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/assets"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/shoot-demo/assets" "${OUT_DIR}/assets"
-        )
-    endif()
-
-    if(NOT TARGET copy_config_runtime)
-        add_custom_target(copy_config_runtime ALL
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${OUT_DIR}/config"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${OUT_DIR}/config"
-        )
-    endif()
 endif()
 
 # Boost.Test setup (only for native builds)
@@ -147,5 +137,7 @@ if(NOT EMSCRIPTEN)
     endif()
 endif()
 
-add_subdirectory(shoot-demo)
-add_subdirectory(pong-demo)
+if(YERB_BUILD_DEMOS)
+    add_subdirectory(shoot-demo)
+    add_subdirectory(pong-demo)
+endif()
