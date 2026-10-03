@@ -1,13 +1,13 @@
 # YerbEngine
 
-YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL3` and `C++`. The core engine now lives in `lib/` (public headers in `lib/includes`, implementations in `lib/src`) and powers the playable `shoot-demo` sample game.
+YerbEngine is a work-in-progress game engine featuring a hybrid architecture, built with `SDL3` and `C++`. The core engine lives in `lib/` (public headers in `lib/includes`, implementations in `lib/src`) and powers two playable sample games: `shoot-demo` and `pong-demo`.
 
 ## Features
 
 - **Cross-platform** – Supports builds on MacOS, Linux (tested on Fedora), and the Web via Emscripten/WebAssembly.
-- **Core library + demo** – Engine code is packaged as a static library (`yerb_engine_core`) and consumed by the `shoot-demo` reference game.
+- **Core library + games** – Engine code is packaged as a static library (`yerb_engine_core`) and consumed by the reference games through the `yerb_add_game` CMake helper.
 - **Modular ECS design** – Independent systems for input, rendering, and more, enabling scalability.
-- **JSON configuration** – Loads game settings using [nlohmann/json](https://github.com/nlohmann/json).
+- **JSON configuration** – Loads game settings, and each game's audio manifest, using [nlohmann/json](https://github.com/nlohmann/json).
 - **Modern C++** – Written in C++23, with code quality enforced by `clang-format` and `clang-tidy`.
 - **Asset Management** – Built-in managers for textures, fonts, audio samples, and music tracks.
 - **Docker Support** – Containerized build environment for consistent development experience.
@@ -19,9 +19,15 @@ lib/                          # Core engine library
 ├── includes/                 # Public headers (AssetManagement, Configuration, EntityManagement, GameEngine, GameScenes, Helpers, SystemManagement)
 └── src/                      # Engine implementations mirroring the include layout
 shoot-demo/                   # Playable reference game using the engine
-├── includes/                 # Demo-specific scenes and helpers
-├── src/                      # Demo gameplay code
+├── includes/                 # Game-specific scenes and helpers
+├── src/                      # Gameplay code
 └── assets/                   # Audio, fonts, and images bundled into builds
+pong-demo/                    # Second reference game, laid out like shoot-demo
+├── includes/
+├── src/
+├── assets/
+└── config/                   # Pong gameplay configuration
+cmake/                        # Build helpers (yerb_add_game)
 config/                       # JSON configuration consumed at runtime
 template/                     # HTML/CSS/JS for Emscripten builds
 tests/                        # Boost.Test-based unit tests for engine modules
@@ -49,9 +55,15 @@ cmake ..
 cmake --build .
 ```
 
-Run the demo:
+Run a game (assets and config are copied into the build directory automatically):
 ```bash
-./shoot-demo   # assets and config are copied into the build directory automatically
+./demo-1   # shoot-demo
+./pong     # pong-demo
+```
+
+To build the engine and its tests on their own:
+```bash
+cmake .. -DYERB_BUILD_DEMOS=OFF
 ```
 
 ### Web Build (Emscripten)
@@ -78,9 +90,9 @@ docker-compose up --build
 
 ### Formatting
 ```bash
-./format.sh
+./format.sh           # format lib/, pong-demo/, shoot-demo/, tests/
+./format.sh --check   # report unformatted files without changing them
 ```
-Formats all code in `lib/` and `shoot-demo/` using clang-format.
 
 ### Audio Conversion
 
@@ -101,7 +113,7 @@ ctest --output-on-failure
 
 ## Usage
 
-Run `./shoot-demo` from the build directory. On launch, the menu scene appears; follow on-screen instructions to navigate through the demo.
+Run `./demo-1` or `./pong` from the build directory. On launch, the menu scene appears; follow on-screen instructions to navigate through the game.
 
 ## Contributions
 

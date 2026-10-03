@@ -1,49 +1,8 @@
-cmake_minimum_required(VERSION 3.21...3.28)
-
-set(DEMO_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-file(GLOB_RECURSE DEMO_SRC_FILES "${DEMO_DIR}/src/*.cpp")
-
-add_library(demo_includes INTERFACE)
-target_include_directories(demo_includes INTERFACE 
-    "${ENGINE_INCLUDE_DIR}"
-    "${DEMO_DIR}/includes"
+yerb_add_game(
+    NAME        shoot-demo
+    OUTPUT_NAME demo-1
+    ASSETS      "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+    ASSETS_AT   assets
+    CONFIG      "${CMAKE_SOURCE_DIR}/config"
+    CONFIG_AT   config
 )
-
-add_executable(shoot-demo ${DEMO_SRC_FILES})
-
-target_include_directories(shoot-demo PRIVATE 
-    "${ENGINE_INCLUDE_DIR}"
-    "${DEMO_DIR}/includes"
-)
-
-target_compile_definitions(shoot-demo PRIVATE DEMO_DIR="demo-1")
-
-set_target_properties(shoot-demo PROPERTIES
-        OUTPUT_NAME "demo-1"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
-target_link_libraries(shoot-demo PRIVATE yerb_engine_core)
-
-if(EMSCRIPTEN)
-    set_target_properties(shoot-demo PROPERTIES
-        OUTPUT_NAME "demo-1"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-        CMAKE_EXECUTABLE_SUFFIX ".js"
-    )
-
-    target_link_options(shoot-demo PRIVATE
-        -O3
-        -fwasm-exceptions
-        "-sALLOW_MEMORY_GROWTH=1"
-        "--preload-file=${DEMO_DIR}/assets@assets"
-        "--preload-file=${CMAKE_SOURCE_DIR}/config@config"
-    )
-else()
-    add_dependencies(shoot-demo copy_assets_runtime copy_config_runtime)
-
-    add_custom_command(TARGET shoot-demo POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${DEMO_DIR}/assets" "${CMAKE_BINARY_DIR}/assets"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/config" "${CMAKE_BINARY_DIR}/config"
-    )
-endif()
