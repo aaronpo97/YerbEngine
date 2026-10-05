@@ -16,6 +16,18 @@ class IConfigProvider {
    virtual bool hasKey(std::string const& name) const = 0;
 };
 
+/**
+ * A provider holding no keys, so every read falls back to its default.
+ *
+ * Lets a game that ships no configuration file use the same code path as
+ * one that does.
+ */
+class EmptyConfigProvider final : public IConfigProvider {
+  public:
+   ConfigValue getKey(std::string const&) const override { return 0; }
+   bool hasKey(std::string const&) const override { return false; }
+};
+
 class JsonConfigProvider : public IConfigProvider {
    ConfigDictionary m_configDict;
 

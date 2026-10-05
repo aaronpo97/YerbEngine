@@ -7,6 +7,11 @@ struct ShapeConfig {
    SDL_Color color = {.r = 0, .g = 0, .b = 0, .a = 0};
 };
 
+/** How often the scene spawns something that is not the player. */
+struct SpawnConfig {
+   Uint64 interval{500};
+};
+
 struct PlayerConfig {
    float baseSpeed{0};
    float speedBoostMultiplier{0};

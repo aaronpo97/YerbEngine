@@ -25,9 +25,6 @@ class ConfigAdapter : public ConfigReader {
       cfg.fontSizeMd = intOr("engine.fonts.sizes.md", 48);
       cfg.fontSizeLg = intOr("engine.fonts.sizes.lg", 68);
 
-      // Gameplay-driven, stays under demo config
-      cfg.spawnInterval = u64Or("gameConfig.spawnInterval", 500);
-
       return cfg;
    }
 };

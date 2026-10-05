@@ -39,9 +39,13 @@ class DemoConfigAdapter {
 
    // The window and the fonts belong to the engine.
    YerbEngine::GameConfig getGameConfig() const {
-      auto cfg = m_engine.getGameConfig();
-      cfg.spawnInterval = m_demo.u64Or("gameConfig.spawnInterval", 500);
-      return cfg;
+      return m_engine.getGameConfig();
+   }
+
+   SpawnConfig getSpawnConfig() const {
+      return SpawnConfig{
+          .interval = m_demo.u64Or("gameConfig.spawnInterval", 500),
+      };
    }
 
    PlayerConfig getPlayerConfig() const {

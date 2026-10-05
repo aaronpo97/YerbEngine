@@ -1,41 +1,42 @@
 #pragma once
 
-#include <AssetManagement/AudioSampleBuffer.hpp>
-#include <AssetManagement/FontManager.hpp>
-#include <AssetManagement/TextureManager.hpp>
-#include <SystemManagement/AudioManager.hpp>
 #include <SystemManagement/IClock.hpp>
 #include <SystemManagement/VideoManager.hpp>
-#include <filesystem>
 #include <map>
+#include <memory>
 #include <string>
 
-#include "Configuration/ConfigAdapter.hpp"
-#include "Configuration/ConfigStore.hpp"
 #include "GameScenes/ISceneRouter.hpp"
 
 namespace YerbEngine {
 
-typedef std::filesystem::path Path;
 class Scene;
 
+/**
+ * Runs the frame loop and owns the scenes.
+ *
+ * The engine is handed the collaborators it needs rather than building
+ * them: the composition root (your main) assembles the window, the audio
+ * and the assets, and lends scenes the same instances through a
+ * SceneServices bundle.
+ */
 class GameEngine : public ISceneRouter {
   protected:
+   VideoManager& m_video;
+   IClock const& m_clock;
+
    std::map<std::string, std::shared_ptr<Scene>> m_scenes;
    std::string m_currentSceneName;
-   bool m_isRunning = false;
+   bool m_isRunning = true;
 
-   SdlClock m_clock;
-
-   std::unique_ptr<FontManager> m_fontManager;
-   std::unique_ptr<AudioManager> m_audioManager;
-   std::unique_ptr<TextureManager> m_textureManager;
-   std::unique_ptr<AudioSampleBuffer> m_audioSampleBuffer;
-   std::unique_ptr<VideoManager> m_videoManager;
-   std::unique_ptr<ConfigStore> m_configStore;      // default engine config
-   std::unique_ptr<ConfigAdapter> m_configAdapter;  // default engine adapter
-   std::map<std::string, std::unique_ptr<ConfigStore>> m_namedStores;
-   std::map<std::string, std::unique_ptr<ConfigAdapter>> m_namedAdapters;
+   /**
+    * The scene registered under the current name, or nullptr when there
+    * is none.
+    *
+    * Returned by value: a scene may route to its successor mid-frame,
+    * which drops the engine's reference to the scene still being driven.
+    */
+   std::shared_ptr<Scene> findActiveScene() const;
 
    /**
     * Calls the active scene's update method.
@@ -55,13 +56,6 @@ class GameEngine : public ISceneRouter {
    static void MainLoop(void* arg);
 
    /**
-    * Calls SDL_Quit to release all SDL resources.
-    *
-    * Called when the game engine is destructed.
-    */
-   static void CleanUp();
-
-   /**
     * This is the method used by the game engine to manage the user input
     * system.
     *
@@ -76,21 +70,12 @@ class GameEngine : public ISceneRouter {
 
   public:
    /**
-    * Constructs the GameEngine object and initializes all necessary
-    * managers and resources.
-    *
-    * @throws std::runtime_error if the assets directory is not found.
+    * @param video The window and renderer the active scene draws into.
+    * @param clock The timeline scene start times are stamped from.
     */
-   explicit GameEngine(Path assetsDir = Path{"assets"},
-                       Path configDir = Path{"config"},
-                       AudioInitOptions audioOptions = AudioInitOptions{});
+   GameEngine(VideoManager& video, IClock const& clock);
 
-   /**
-    * Destroys the GameEngine object and cleans up all resources.
-    *
-    * Automatic cleanup for when the game engine goes out of scope.
-    */
-   ~GameEngine() override;
+   ~GameEngine() override = default;
 
    /**
     * Checks if the game engine is running.
@@ -107,57 +92,6 @@ class GameEngine : public ISceneRouter {
     */
    void LoadScene(std::string const& sceneName,
                   std::shared_ptr<Scene> const& scene) override;
-
-   // Configuration accessors (preferred):
-   ConfigStore& GetConfigStore() const { return *m_configStore; }
-   ConfigAdapter& GetConfig() const { return *m_configAdapter; }
-
-   // Additional named config sets (e.g., demo/gameplay configs)
-   void AddConfig(std::string const& name, std::unique_ptr<ConfigStore> store);
-   ConfigAdapter& GetConfig(std::string const& name) const;
-   ConfigStore& GetConfigStore(std::string const& name) const;
-
-   /**
-    * Retrieves the FontManager instance associated with the game engine.
-    *
-    * @throws std::runtime_error if FontManager is not initialized.
-    * @returns A reference to the initialized FontManager object.
-    */
-   FontManager& getFontManager() const;
-
-   /**
-    * Retrieves the AudioManager instance associated with the game engine.
-    *
-    * @throws std::runtime_error if AudioManager is not initialized.
-    * @returns A reference to the initialized AudioManager object.
-    */
-   AudioManager& getAudioManager() const;
-
-   /**
-    * Retrieves the AudioSampleBuffer instance associated with the game
-    * engine.
-    *
-    * @throws std::runtime_error if AudioSampleBuffer is not initialized.
-    * @returns A reference to the initialized AudioSampleBuffer object.
-    */
-   AudioSampleBuffer& getAudioSampleBuffer() const;
-
-   /**
-    * Retrieves the VideoManager instance associated with the game engine.
-    *
-    * @throws std::runtime_error if VideoManager is not initialized.
-    * @returns A reference to the initialized VideoManager object.
-    */
-   VideoManager& getVideoManager() const;
-
-   /**
-    * Retrieves the TextureManager instance associated with the game
-    * engine.
-    *
-    * @throws std::runtime_error if TextureManager is not initialized.
-    * @returns A reference to the initialized TextureManager object.
-    */
-   TextureManager& getTextureManager() const;
 
    /**
     * Called by the entry point to your application.

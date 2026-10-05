@@ -238,7 +238,7 @@ void MainScene::sMovement() {
 
 void MainScene::sSpawner() {
    Uint64 const ticks = SDL_GetTicks();
-   Uint64 const SPAWN_INTERVAL = m_demo.config.getGameConfig().spawnInterval;
+   Uint64 const SPAWN_INTERVAL = m_demo.config.getSpawnConfig().interval;
 
    if (ticks - m_lastNonPlayerEntitySpawnTime < SPAWN_INTERVAL) {
       return;
