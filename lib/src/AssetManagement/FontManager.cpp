@@ -2,12 +2,8 @@
 
 namespace YerbEngine {
 
-FontManager::FontManager(Path const& fontPath, int const fontSizeSm,
-                         int const fontSizeMd, int const fontSizeLg)
-    : m_fontPath(fontPath),
-      m_fontSizeSm(fontSizeSm),
-      m_fontSizeMd(fontSizeMd),
-      m_fontSizeLg(fontSizeLg) {
+FontManager::FontManager(Path const& fontPath, FontSizes const sizes)
+    : m_fontPath(fontPath), m_sizes(sizes) {
    if (!TTF_Init()) {
       SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Failed to initialize SDL_ttf: %s",
                    SDL_GetError());
@@ -19,9 +15,9 @@ FontManager::FontManager(Path const& fontPath, int const fontSizeSm,
 }
 
 void FontManager::loadFonts(Path const& fontPath) {
-   m_fontSm = TTF_OpenFont(fontPath.c_str(), m_fontSizeSm);
-   m_fontMd = TTF_OpenFont(fontPath.c_str(), m_fontSizeMd);
-   m_fontLg = TTF_OpenFont(fontPath.c_str(), m_fontSizeLg);
+   m_fontSm = TTF_OpenFont(fontPath.c_str(), m_sizes.sm);
+   m_fontMd = TTF_OpenFont(fontPath.c_str(), m_sizes.md);
+   m_fontLg = TTF_OpenFont(fontPath.c_str(), m_sizes.lg);
 
    bool const fontsLoaded =
        m_fontLg != nullptr && m_fontMd != nullptr && m_fontSm != nullptr;

@@ -7,7 +7,8 @@
 
 namespace YerbEngine {
 
-TextureManager::TextureManager(SDL_Renderer* renderer) : m_renderer(renderer) {
+TextureManager::TextureManager(RendererHandle const renderer)
+    : m_renderer(renderer.renderer) {
    SDL_Log("TextureManager created.");
 }
 

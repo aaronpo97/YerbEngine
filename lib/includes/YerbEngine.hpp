@@ -18,9 +18,7 @@
 #include <EntityManagement/EntityTag.hpp>
 #include <GameEngine/Action.hpp>
 #include <GameEngine/GameEngine.hpp>
-#include <GameScenes/ISceneRouter.hpp>
 #include <GameScenes/Scene.hpp>
-#include <GameScenes/SceneServices.hpp>
 #include <Helpers/CollisionHelpers.hpp>
 #include <Helpers/EntityHelpers.hpp>
 #include <Helpers/MathHelpers.hpp>
@@ -28,7 +26,5 @@
 #include <Helpers/TextHelpers.hpp>
 #include <Helpers/Vec2.hpp>
 #include <SystemManagement/AudioManager.hpp>
-#include <SystemManagement/IAudioSink.hpp>
-#include <SystemManagement/IClock.hpp>
 #include <SystemManagement/VideoManager.hpp>
 #include <Systems/RenderSystem.hpp>
