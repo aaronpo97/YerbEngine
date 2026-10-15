@@ -5,61 +5,65 @@ title YerbEngine - Detailed Class Diagram
 
 ' Core
 package "Core" {
+  interface ISceneRouter {
+    + {abstract} LoadScene(sceneName: string, scene: shared_ptr<Scene>) : void
+    + {abstract} quit() : void
+  }
+
   class GameEngine {
-    - m_scenes: map<string, shared_ptr<Scene>>
-    - m_currentSceneName: string
-    - m_isRunning: bool
-    - m_fontManager: unique_ptr<FontManager>
-    - m_audioManager: unique_ptr<AudioManager>
-    - m_textureManager: unique_ptr<TextureManager>
-    - m_audioSampleBuffer: unique_ptr<AudioSampleBuffer>
-    - m_videoManager: unique_ptr<VideoManager>
-    - m_configStore: unique_ptr<ConfigStore>
-    - m_configAdapter: unique_ptr<ConfigAdapter>
-    - m_namedStores: map<string, unique_ptr<ConfigStore>>
-    - m_namedAdapters: map<string, unique_ptr<ConfigAdapter>>
-    - Update() : void
-    - S_UserInput() : void
-    - {static} MainLoop(arg: void*) : void
-    - {static} CleanUp() : void
-    + GameEngine(assetsDir: Path, configDir: Path)
-    + ~GameEngine()
+    # m_video: VideoManager&
+    # m_clock: IClock const&
+    # m_scenes: map<string, shared_ptr<Scene>>
+    # m_currentSceneName: string
+    # m_isRunning: bool
+    # findActiveScene() : shared_ptr<Scene>
+    # Update() : void
+    # {static} MainLoop(arg: void*) : void
+    # S_UserInput() : void
+    + GameEngine(video: VideoManager&, clock: IClock const&)
     + IsRunning() : bool
     + LoadScene(sceneName: string, scene: shared_ptr<Scene>) : void
-    + AddConfig(name: string, store: unique_ptr<ConfigStore>) : void
-    + GetConfig() : ConfigAdapter&
-    + GetConfig(name: string) : ConfigAdapter&
-    + GetConfigStore() : ConfigStore&
-    + GetConfigStore(name: string) : ConfigStore&
-    + getFontManager() : FontManager&
-    + getAudioManager() : AudioManager&
-    + getAudioSampleBuffer() : AudioSampleBuffer&
-    + getVideoManager() : VideoManager&
-    + getTextureManager() : TextureManager&
     + run() : void
     + quit() : void
   }
 
+  struct SceneServices {
+    + video: VideoManager&
+    + fonts: FontManager&
+    + textures: TextureManager&
+    + audio: AudioSampleBuffer&
+    + mixer: AudioManager&
+    + clock: IClock const&
+    + router: ISceneRouter&
+  }
+
   abstract class Scene {
-    - m_gameEngine: GameEngine*
-    - m_lastFrameTime: Uint64
-    - m_deltaTime: float
-    - m_endTriggered: bool
-    - m_hasEnded: bool
-    - m_paused: bool
-    - m_SceneStartTime: Uint64
-    - m_actionMap: map<int, string>
-    + Scene(gameEngine: GameEngine*)
-    + virtual ~Scene()
-    + virtual update() : void
-    + virtual onEnd() : void
-    + virtual sRender() : void
+    # m_services: SceneServices const&
+    # m_entities: EntityManager
+    # m_randomGenerator: mt19937
+    # m_lastFrameTime: Uint64
+    # m_deltaTime: float
+    # m_endTriggered: bool
+    # m_hasEnded: bool
+    # m_paused: bool
+    # m_SceneStartTime: Uint64
+    # m_actionMap: map<int, string>
+    # m_actionHandlers: unordered_map<string, function<void(Action&)>>
+    # tick() : void
+    + {static} MAX_FRAME_DELTA: float
+    + Scene(services: SceneServices const&)
+    + {abstract} update() : void
+    + {abstract} onEnd() : void
+    + {abstract} sRender() : void
     + virtual sDoAction(action: Action&) : void
     + virtual sAudio() : void
     + virtual onSceneWindowResize() : void
     + registerAction(inputKey: int, actionName: string) : void
+    + bindAction(actionName: string, handler: function<void(Action&)>) : void
+    + bindPress(actionName: string, handler: function<void(Action&)>) : void
+    + bindHold(actionName: string, handler: function<void(bool)>) : void
     + setPaused(paused: bool) : void
-    + getActionMap() : map<int, string> const&
+    + getActionMap() : ActionMap const&
     + setStartTime(startTime: Uint64) : void
     + getStartTime() : Uint64 const&
   }
@@ -78,19 +82,27 @@ package "Core" {
     START
     END
   }
+
+  class EnginePaths <<namespace>> {
+    + resolveDirectory(preferred: Path, fallback: Path, label: char const*) : Path
+  }
 }
 
 package "Managers" {
   package "Asset Management" {
+    struct FontSizes {
+      + sm: int
+      + md: int
+      + lg: int
+    }
+
     class FontManager {
       - m_fontPath: Path
-      - m_fontSizeSm: int
-      - m_fontSizeMd: int
-      - m_fontSizeLg: int
+      - m_sizes: FontSizes
       - m_fontLg: TTF_Font*
       - m_fontMd: TTF_Font*
       - m_fontSm: TTF_Font*
-      + FontManager(fontPath: Path, fontSizeSm: int, fontSizeMd: int, fontSizeLg: int)
+      + FontManager(fontPath: Path, sizes: FontSizes)
       + ~FontManager()
       + loadFonts(fontPath: Path) : void
       + getFontLg() : TTF_Font*
@@ -98,10 +110,14 @@ package "Managers" {
       + getFontSm() : TTF_Font*
     }
 
+    struct RendererHandle {
+      + renderer: SDL_Renderer*
+    }
+
     class TextureManager {
       - m_renderer: SDL_Renderer*
       - m_textures: unordered_map<string, SDL_Texture*>
-      + TextureManager(renderer: SDL_Renderer*)
+      + TextureManager(renderer: RendererHandle)
       + ~TextureManager()
       + registerTexture(name: string_view, path: filesystem::path) : void
       + hasTexture(name: string_view) : bool
@@ -116,7 +132,7 @@ package "Managers" {
     }
 
     class QueuedSample <<internal>> {
-      + sample: AudioSample
+      + sample: AudioSampleId
       + priority: PriorityLevel
       + timestamp: Uint64
     }
@@ -130,75 +146,101 @@ package "Managers" {
       - m_head: size_t
       - m_tail: size_t
       - m_size: size_t
-      - m_lastPlayTimes: unordered_map<AudioSample, Uint64>
-      - m_audioManager: AudioManager&
-      - m_cooldowns: unordered_map<AudioSample, Uint64>
+      - m_lastPlayTimes: unordered_map<AudioSampleId, Uint64>
+      - m_audioSink: IAudioSink&
+      - m_clock: IClock const&
+      - m_cooldowns: unordered_map<AudioSampleId, Uint64>
       - isBufferFull() : bool
       - pushSample(queuedSample: QueuedSample) : void
       - removeExpiredSamples(currentTime: Uint64) : void
       - removeAtOffset(offset: size_t) : void
       - evictLowerPrioritySample(incoming: PriorityLevel) : bool
       - trimLowPrioritySamples() : void
-      + AudioSampleBuffer(audioManager: AudioManager&)
-      + queueSample(sample: AudioSample, priority: PriorityLevel) : void
+      + AudioSampleBuffer(audioSink: IAudioSink&, clock: IClock const&)
+      + queueSample(sample: string_view, priority: PriorityLevel) : void
+      + setCooldown(sample: string_view, cooldownMs: Uint64) : void
+      + setCooldowns(cooldowns: unordered_map<AudioSampleId, Uint64>) : void
       + update() : void
     }
   }
 
   package "System Management" {
-    enum AudioSample {
-      NONE
-      ITEM_ACQUIRED
-      ENEMY_COLLISION
-      SPEED_BOOST
-      SLOWNESS_DEBUFF
-      MENU_MOVE
-      MENU_SELECT
-      SHOOT
-      BULLET_HIT_01
-      BULLET_HIT_02
+    class SdlRuntime {
+      + SdlRuntime()
+      + ~SdlRuntime()
     }
 
-    enum AudioTrack {
-      NONE
-      MAIN_MENU
-      PLAY
+    interface IClock {
+      + {abstract} nowMs() : Uint64
+    }
+
+    class SdlClock {
+      + nowMs() : Uint64
+    }
+
+    interface IAudioSink {
+      + {static} MAX_SAMPLES_PER_FRAME: size_t
+      + {abstract} playSample(sample: string_view, loops: int) : void
+    }
+
+    struct AudioTrackDefinition {
+      + id: AudioTrackId
+      + filepath: Path
+    }
+
+    struct AudioSampleDefinition {
+      + id: AudioSampleId
+      + filepath: Path
+      + defaultVolume: int
+    }
+
+    struct AudioInitOptions {
+      + frequency: int
+      + format: SDL_AudioFormat
+      + channels: int
+      + tracks: vector<AudioTrackDefinition>
+      + samples: vector<AudioSampleDefinition>
     }
 
     class AudioManager {
-      - m_audioTracks: unordered_map<AudioTrack, Mix_Music*>
-      - m_audioSamples: unordered_map<AudioSample, Mix_Chunk*>
-      - m_frequency: int
-      - m_format: Uint16
-      - m_channels: int
-      - m_chunksize: int
-      - m_currentAudioTrack: AudioTrack
-      - m_lastAudioTrack: AudioTrack
-      - m_lastAudioSample: AudioSample
+      - {static} SAMPLE_VOICE_COUNT: size_t
+      - m_mixer: MIX_Mixer*
+      - m_audioTracks: unordered_map<AudioTrackId, MIX_Audio*>
+      - m_audioSamples: unordered_map<AudioSampleId, MIX_Audio*>
+      - m_sampleVolumes: unordered_map<AudioSampleId, int>
+      - m_trackVoice: MIX_Track*
+      - m_sampleVoices: vector<MIX_Track*>
+      - m_spec: SDL_AudioSpec
+      - m_currentAudioTrack: AudioTrackId
+      - m_lastAudioTrack: AudioTrackId
+      - m_lastAudioSample: AudioSampleId
       - m_audioTrackPaused: bool
       - m_tracksMuted: bool
       - m_samplesMuted: bool
       - m_savedTrackVolume: int
-      - m_savedSampleVolumes: map<AudioSample, int>
-      - loadTrack(track: AudioTrack, filepath: Path) : void
-      - loadSample(sample: AudioSample, filepath: Path) : void
+      - m_trackVolume: int
+      - m_savedSampleVolumes: map<AudioSampleId, int>
+      - {static} toGain(volume: int) : float
+      - acquireSampleVoice() : MIX_Track*
+      - loadTrack(track: AudioTrackId, filepath: Path) : void
+      - loadSample(sample: AudioSampleId, filepath: Path, defaultVolume: int) : void
       - cleanup() : void
-      + AudioManager()
-      + AudioManager(frequency: int, format: Uint16, channels: int, chunksize: int)
-      + ~AudioManager()
-      + {static} MAX_SAMPLES_PER_FRAME: size_t
       + {static} DEFAULT_SAMPLE_VOLUME: int
       + {static} DEFAULT_TRACK_VOLUME: int
-      + loadAllAudio() : void
-      + playTrack(track: AudioTrack, loops: int) : void
-      + playSample(sample: AudioSample, loops: int) : void
+      + AudioManager()
+      + AudioManager(options: AudioInitOptions)
+      + ~AudioManager()
+      + loadTracks(tracks: vector<AudioTrackDefinition>) : void
+      + loadSamples(samples: vector<AudioSampleDefinition>) : void
+      + playTrack(track: string_view, loops: int) : void
+      + playSample(sample: string_view, loops: int) : void
       + stopTrack() : void
       + pauseTrack() : void
       + resumeTrack() : void
-      + {static} setTrackVolume(volume: int) : void
-      + setSampleVolume(sampleTag: AudioSample, volume: int) : void
-      + getSampleVolume(sampleTag: AudioSample) : int
-      + {static} getTrackVolume() : int
+      + setTrackVolume(volume: int) : void
+      + setSampleVolume(sampleTag: string_view, volume: int) : void
+      + getSampleVolume(sampleTag: string_view) : int
+      + getTrackVolume() : int
       + muteTracks() : void
       + unmuteTracks() : void
       + muteSamples() : void
@@ -208,11 +250,11 @@ package "Managers" {
       + toggleMuteAll() : void
       + toggleMuteTracks() : void
       + toggleMuteSamples() : void
-      + getCurrentAudioTrack() : AudioTrack
-      + getLastAudioTrack() : AudioTrack
-      + getLastAudioSample() : AudioSample
-      + {static} isTrackPlaying() : bool
-      + {static} isTrackPaused() : bool
+      + getCurrentAudioTrack() : AudioTrackId
+      + getLastAudioTrack() : AudioTrackId
+      + getLastAudioSample() : AudioSampleId
+      + isTrackPlaying() : bool
+      + isTrackPaused() : bool
     }
 
     class VideoManager {
@@ -248,6 +290,11 @@ package "Configuration" {
   }
 
   interface IConfigProvider {
+    + {abstract} getKey(name: string) : ConfigValue
+    + {abstract} hasKey(name: string) : bool
+  }
+
+  class EmptyConfigProvider {
     + getKey(name: string) : ConfigValue
     + hasKey(name: string) : bool
   }
@@ -270,53 +317,53 @@ package "Configuration" {
     + reload() : void
   }
 
-  class ConfigAdapter {
+  class ConfigReader {
     - m_store: ConfigStore&
-    + {static} k(root: string, child: string) : string
-    + {static} colorOr(def: SDL_Color, store: ConfigStore&, base: string) : SDL_Color
-    + {static} floatOr(def: float, store: ConfigStore&, key: string) : float
-    + {static} intOr(def: int, store: ConfigStore&, key: string) : int
-    + {static} u64Or(def: Uint64, store: ConfigStore&, key: string) : Uint64
-    + {static} strOr(def: string, store: ConfigStore&, key: string) : string
-    + {static} vec2Or(def: Vec2, store: ConfigStore&, base: string) : Vec2
+    + ConfigReader(store: ConfigStore&)
+    + store() : ConfigStore&
+    + floatOr(key: string, fallback: float) : float
+    + intOr(key: string, fallback: int) : int
+    + u64Or(key: string, fallback: Uint64) : Uint64
+    + strOr(key: string, fallback: string) : string
+    + colorOr(key: string, fallback: SDL_Color) : SDL_Color
+    + vec2Or(base: string, fallback: Vec2) : Vec2
+  }
+
+  class ConfigAdapter {
     + ConfigAdapter(store: ConfigStore&)
     + getGameConfig() : GameConfig
   }
 
-  class GameConfig {
+  struct GameConfig {
     + windowSize: Vec2
     + windowTitle: string
     + fontPath: filesystem::path
-    + spawnInterval: Uint64
     + fontSizeSm: int
     + fontSizeMd: int
     + fontSizeLg: int
   }
 
-  class EngineConfig {
-    + windowSize: Vec2
-    + windowTitle: string
-    + fontPath: filesystem::path
-    + fontSizeSm: int
-    + fontSizeMd: int
-    + fontSizeLg: int
+  struct AudioManifest {
+    + options: AudioInitOptions
+    + sampleCooldowns: unordered_map<AudioSampleId, Uint64>
+  }
+
+  class AudioManifestLoader <<free function>> {
+    + loadAudioManifest(manifestPath: filesystem::path, assetsDir: filesystem::path) : AudioManifest
   }
 }
 
 ' Entity-Component System
 package "ECS" {
-  enum EntityTags {
-    Player
-    Wall
-    SpeedBoost
-    SlownessDebuff
-    Enemy
-    Bullet
-    Item
-    Default
+  class EntityTags <<namespace>> {
+    + {static} Default: EntityTag = 0
+    + {static} Player: EntityTag = 1
+    + {static} Wall: EntityTag = 2
+    + {static} FirstGameTag: EntityTag = 16
   }
 
   class ComponentPool<T> {
+    - {static} npos: size_t
     - m_sparse: vector<size_t>
     - m_denseIds: vector<size_t>
     - m_dense: vector<T>
@@ -334,13 +381,9 @@ package "ECS" {
   }
 
   class ComponentRegistry {
-    - m_transforms: ComponentPool<shared_ptr<CTransform>>
-    - m_shapes: ComponentPool<shared_ptr<CShape>>
-    - m_inputs: ComponentPool<shared_ptr<CInput>>
-    - m_lifespans: ComponentPool<shared_ptr<CLifespan>>
-    - m_effects: ComponentPool<shared_ptr<CEffects>>
-    - m_bounceTrackers: ComponentPool<shared_ptr<CBounceTracker>>
-    - m_sprites: ComponentPool<shared_ptr<CSprite>>
+    - m_pools: unordered_map<type_index, unique_ptr<IPool>>
+    - pool<T>() : Pool<T>&
+    - poolIfExists<T>() : Pool<T> const*
     + emplace<T>(id: size_t, component: shared_ptr<T>) : shared_ptr<T>
     + get<T>(id: size_t) : shared_ptr<T>
     + contains<T>(id: size_t) : bool
@@ -351,31 +394,30 @@ package "ECS" {
   }
 
   class EntityManager {
-    - m_entities: vector<shared_ptr<Entity>>
-    - m_toAdd: vector<shared_ptr<Entity>>
-    - m_entityMap: unordered_map<EntityTags, vector<shared_ptr<Entity>>>
+    - m_entities: EntityList
+    - m_toAdd: EntityList
+    - m_entityMap: EntityMap
     - m_totalEntities: size_t
     - m_components: shared_ptr<ComponentRegistry>
-    + addEntity(tag: EntityTags) : shared_ptr<Entity>
-    + getEntities() : vector<shared_ptr<Entity>>&
-    + getEntities(tag: EntityTags) : vector<shared_ptr<Entity>>&
+    + addEntity(tag: EntityTag) : shared_ptr<Entity>
+    + getEntities() : EntityList&
+    + getEntities(tag: EntityTag) : EntityList&
     + components() : ComponentRegistry&
-    + components() : ComponentRegistry const&
     + update() : void
   }
 
   class Entity {
     - m_active: bool
     - m_id: size_t
-    - m_tag: EntityTags
+    - m_tag: EntityTag
     - m_registry: weak_ptr<ComponentRegistry>
     + isActive() : bool
-    + tag() : EntityTags
+    + tag() : EntityTag
     + id() : size_t
     + destroy() : void
     + getCenterPos() : Vec2
     + getComponent<T>() : shared_ptr<T>
-    + setComponent<T>(shared_ptr<T>) : void
+    + setComponent<T>(component: shared_ptr<T>) : void
     + removeComponent<T>() : void
     + hasComponent<T>() : bool
   }
@@ -389,18 +431,20 @@ package "ECS" {
     }
 
     class CShape {
-      - renderer: SDL_Renderer*
-      + rect: SDL_Rect
+      + rect: SDL_FRect
       + color: SDL_Color
-      + CShape(renderer: SDL_Renderer*, height: float, width: float, color: SDL_Color)
+      + CShape(rect: SDL_FRect, color: SDL_Color)
     }
 
     class CInput {
-      + forward: bool
-      + backward: bool
-      + left: bool
-      + right: bool
-      + CInput()
+      + directions: bitset<4>
+    }
+
+    enum Directions {
+      Forward
+      Backward
+      Left
+      Right
     }
 
     class CLifespan {
@@ -415,7 +459,7 @@ package "ECS" {
       Slowness
     }
 
-    class Effect {
+    struct Effect {
       + startTime: Uint64
       + duration: Uint64
       + type: EffectTypes
@@ -423,7 +467,6 @@ package "ECS" {
 
     class CEffects {
       - effects: vector<Effect>
-      + CEffects()
       + addEffect(effect: Effect) : void
       + getEffects() : vector<Effect> const&
       + removeEffect(type: EffectTypes) : void
@@ -433,7 +476,6 @@ package "ECS" {
 
     class CBounceTracker {
       - m_bounces: int
-      + CBounceTracker()
       + addBounce() : void
       + getBounces() : int
     }
@@ -446,44 +488,142 @@ package "ECS" {
   }
 }
 
-' Relationships
-GameEngine --> FontManager : owns
-GameEngine --> TextureManager : owns
-GameEngine --> AudioManager : owns
-GameEngine --> AudioSampleBuffer : owns
-GameEngine --> VideoManager : owns
-GameEngine --> ConfigStore : owns
-GameEngine --> ConfigAdapter : owns
-GameEngine --> Scene : manages
+package "Systems" {
+  class RenderSystem <<namespace>> {
+    + {static} BACKGROUND_COLOR: SDL_Color
+    + clear(videoManager: VideoManager&, color: SDL_Color) : void
+    + renderEntities(entityManager: EntityManager&, videoManager: VideoManager&, textureManager: TextureManager&) : void
+    + present(videoManager: VideoManager&) : void
+  }
+}
 
-Scene --> GameEngine : uses
-Scene --> Action : uses
+package "Helpers" {
+  class Vec2 {
+    - _x: float
+    - _y: float
+    + Vec2(x: float, y: float)
+    + x() : float
+    + y() : float
+    + setX(x: float) : void
+    + setY(y: float) : void
+    + normalize() : Vec2
+    + euclideanDistance(other: Vec2) : float
+    + euclideanDistanceSquared(other: Vec2) : float
+    + toString() : string
+  }
+
+  class MathHelpers <<namespace>> {
+    + pi: float
+    + degreesToRadians(degrees: float) : float
+    + radiansToDegrees(radians: float) : float
+    + pythagoras(a: float, b: float) : float
+    + pythagorasSquared(a: float, b: float) : float
+  }
+
+  class CollisionHelpers <<namespace>> {
+    + detectOutOfBounds(entity: shared_ptr<Entity>, window_size: Vec2) : bitset<4>
+    + calculateCollisionBetweenEntities(entityA: shared_ptr<Entity>, entityB: shared_ptr<Entity>) : bool
+    + calculateOverlap(entityA: shared_ptr<Entity>, entityB: shared_ptr<Entity>) : Vec2
+    + getPositionRelativeToEntity(entityA: shared_ptr<Entity>, entityB: shared_ptr<Entity>) : bitset<4>
+  }
+
+  class EntityHelpers <<namespace>> {
+    + getEntitiesInRadius(entity: shared_ptr<Entity>, candidates: EntityList, radius: float) : EntityList
+  }
+
+  class SpawnHelpers <<namespace>> {
+    + createRandomPosition(randomGenerator: mt19937&, windowSize: Vec2) : Vec2
+    + createValidVelocity(randomGenerator: mt19937&, attempts: int) : Vec2
+    + validateSpawnPosition(entity: shared_ptr<Entity>, player: shared_ptr<Entity>, entityManager: EntityManager&, windowSize: Vec2) : bool
+  }
+
+  class TextHelpers <<namespace>> {
+    + measureText(font: TTF_Font*, text: string) : Vec2
+    + renderLineOfText(renderer: SDL_Renderer*, font: TTF_Font*, text: string, color: SDL_Color, position: Vec2, align: TextAlign) : void
+  }
+
+  enum TextAlign {
+    Left
+    Center
+    Right
+  }
+}
+
+' Relationships
+GameEngine ..|> ISceneRouter
+GameEngine --> VideoManager : borrows
+GameEngine --> IClock : borrows
+GameEngine --> Scene : owns and drives
+
+Scene --> SceneServices : borrows
+Scene --> EntityManager : owns
+Scene --> Action : dispatches
+Action --> ActionState : state
+
+SceneServices --> VideoManager
+SceneServices --> FontManager
+SceneServices --> TextureManager
+SceneServices --> AudioSampleBuffer
+SceneServices --> AudioManager
+SceneServices --> IClock
+SceneServices --> ISceneRouter
+
+SdlClock ..|> IClock
+AudioManager ..|> IAudioSink
+AudioManager --> AudioInitOptions : constructed from
+AudioInitOptions *-- AudioTrackDefinition
+AudioInitOptions *-- AudioSampleDefinition
 
 AudioSampleBuffer *-- QueuedSample : buffer
-AudioSampleBuffer --> AudioManager : uses
+AudioSampleBuffer --> IAudioSink : plays through
+AudioSampleBuffer --> IClock : reads time from
+QueuedSample --> PriorityLevel : priority
 
-ConfigAdapter --> ConfigStore : wraps
+TextureManager --> RendererHandle : constructed from
+FontManager --> FontSizes : opens at
+
+ConfigAdapter --|> ConfigReader
+ConfigReader --> ConfigStore : reads
 ConfigAdapter --> GameConfig : returns
 ConfigStore --> IConfigProvider : owns
-ConfigStore --> ConfigDictionary : stores
+ConfigStore --> ConfigDictionary : caches into
 JsonConfigProvider ..|> IConfigProvider
+EmptyConfigProvider ..|> IConfigProvider
 JsonConfigProvider --> ConfigDictionary : fills
+AudioManifestLoader --> AudioManifest : returns
+AudioManifest *-- AudioInitOptions
+VideoManager --> ConfigAdapter : reads window settings
 
-EntityManager --> Entity : creates/manages
+EntityManager --> Entity : creates and manages
 EntityManager --> ComponentRegistry : owns
-Entity --> EntityTags : tags
-Entity --> ComponentRegistry : uses
-ComponentRegistry *-- ComponentPool : stores
+Entity --> EntityTags : tagged with
+Entity --> ComponentRegistry : reads and writes
+ComponentRegistry *-- ComponentPool : one per component type
+CInput --> Directions : indexes
 CEffects --> Effect : stores
 Effect --> EffectTypes : type
 
+RenderSystem --> EntityManager : draws
+RenderSystem --> VideoManager : draws into
+RenderSystem --> TextureManager : resolves sprites
+TextHelpers --> TextAlign : alignment
+
 note left of GameEngine
-  Initializes managers and hosts the main loop
-  Provides access to configuration and scene lifecycle
+  Runs the frame loop and owns the scenes.
+  Collaborators are handed in by the game's
+  main, which is the composition root.
 end note
 
-note right of EntityManager
-  Tag-based lookups with a shared ComponentRegistry
+note right of SceneServices
+  A game extends this bundle with its own
+  collaborators, as PongServices and
+  DemoServices do with their config adapters.
+end note
+
+note right of EntityTags
+  EntityTag is a uint32_t. The engine names
+  only the shared tags; a game claims its own
+  kinds from FirstGameTag upwards.
 end note
 
 @enduml

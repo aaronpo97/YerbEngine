@@ -1,9 +1,20 @@
-# TODO: Decouple Engine and Demo
+# TODO: Decouple engine and demos
 
-- [ ] Add a CMake option (e.g., `BUILD_DEMO`) to control `add_subdirectory(shoot-demo)` so engine builds can exclude the demo.
-- [ ] Move demo asset/config copy steps into the demo target only; remove engine-wide targets that assume `shoot-demo/assets`.
-- [ ] Update tests to use dedicated test assets under `tests/data` (or a minimal test asset bundle) instead of `shoot-demo/assets`.
-- [ ] Parameterize the web template output name (avoid hardcoded `demo-1.js`) using `configure_file` or a build variable.
-- [ ] Split Docker flows: one for engine-only builds, one for demo (or add a build arg to select targets).
-- [ ] Make `convert-audio.sh` accept an assets root or relocate it under `shoot-demo/` to avoid implying engine ownership.
-- [ ] Refresh README to document optional demo build and the new asset/test/tooling locations.
+The engine now builds on its own (`-DYERB_BUILD_DEMOS=OFF`), and each game ships
+its own assets and config through `yerb_add_game`. What is left:
+
+- [ ] Point the tests at `tests/data` (or a minimal test asset bundle) instead of
+      `shoot-demo/assets` and the root `config/`. `tests/CMakeLists.txt` still
+      copies both, so `-DYERB_BUILD_DEMOS=OFF` leaves the tests reading a demo's
+      assets.
+- [ ] Move the root `config/` directory under `shoot-demo/`, where the rest of
+      that game's data already lives. `pong-demo/config/` is the pattern.
+- [ ] Give the web template the game's output name. `template/index.html` loads
+      `demo-1.js`, so any second game needs its own page; `configure_file` or a
+      build variable would let `yerb_add_game` fill it in.
+- [ ] Split the Docker flows, or add a build arg, so one image builds the engine
+      and another builds a game.
+- [ ] Let `convert-audio.sh` take an assets root. It reads `assets/audio`
+      relative to itself, which only works once it is copied into a game.
+- [ ] Add `EnginePaths.hpp` and `SdlRuntime.hpp` to `YerbEngine.hpp`. Both demos
+      include them by hand because the master header leaves them out.
